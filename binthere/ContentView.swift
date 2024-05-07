@@ -1,16 +1,10 @@
-//
-//  ContentView.swift
-//  binthere
-//
-//  Created by Patrick Bennett on 5/7/24.
-//
-
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @ObservedObject var item = Item(timestamp: Date())
+    @State private var isImagePickerShowing = false
+    @State private var pickedImage: UIImage?
 
     var body: some View {
         NavigationSplitView {
@@ -33,6 +27,14 @@ struct ContentView: View {
                         Label("Add Item", systemImage: "plus")
                     }
                 }
+                ToolbarItem {
+                    Button("Pick Image") {
+                        isImagePickerShowing = true
+                    }
+                }
+            }
+            .sheet(isPresented: $isImagePickerShowing) {
+                ImagePickerView(selectedImage: $pickedImage)
             }
         } detail: {
             Text("Select an item")
@@ -42,6 +44,11 @@ struct ContentView: View {
     private func addItem() {
         withAnimation {
             let newItem = Item(timestamp: Date())
+            if let image = pickedImage {
+                // Save the image to the file system and get the path
+                let imagePath = saveImage(image: image)
+                newItem.imagePath = imagePath
+            }
             modelContext.insert(newItem)
         }
     }
@@ -53,9 +60,10 @@ struct ContentView: View {
             }
         }
     }
-}
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+    private func saveImage(image: UIImage) -> String {
+        // Implement saving image to the file system and returning the path
+        // Placeholder function: Please implement based on your file management strategy
+        return "/path/to/image"
+    }
 }
