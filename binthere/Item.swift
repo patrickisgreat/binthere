@@ -1,28 +1,28 @@
+// Item.swift
 import Foundation
 
 class Item: Identifiable, PersistentModel {
-    var id: UUID
+    var id: UUID = UUID()
     var timestamp: Date
     var imagePath: String?
 
     init(timestamp: Date, imagePath: String? = nil) {
-        self.id = UUID()
         self.timestamp = timestamp
         self.imagePath = imagePath
     }
 
     func insert() {
-        // Implement the logic to insert an item into your database
-        print("Insert item into the database")
+        // Implementation of how to insert this item into your database or storage
+        print("Item inserted")
     }
 
     func update() {
-        // Implement the logic to update this item in your database
-        print("Update item in the database")
+        // Implementation of how to update this item in your database or storage
+        print("Item updated")
     }
 
     func delete() {
-        // Implement the logic to delete this item from your database
-        print("Delete item from the database")
+        // Implementation of how to delete this item from your database or storage
+        print("Item deleted")
     }
 }

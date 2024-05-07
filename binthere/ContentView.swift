@@ -1,69 +1,47 @@
+// ContentView.swift
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @ObservedObject var item = Item(timestamp: Date())
-    @State private var isImagePickerShowing = false
+    @State private var items: [Item] = []  // This holds your items
     @State private var pickedImage: UIImage?
-
+    
     var body: some View {
-        NavigationSplitView {
+        NavigationView {
             List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+                ForEach(items, id: \.id) { item in
+                    Text("Item at \(item.timestamp, formatter: itemFormatter)")
                 }
                 .onDelete(perform: deleteItems)
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-                ToolbarItem {
-                    Button("Pick Image") {
-                        isImagePickerShowing = true
-                    }
+                Button("Add Item") {
+                    addItem()
                 }
             }
-            .sheet(isPresented: $isImagePickerShowing) {
-                ImagePickerView(selectedImage: $pickedImage)
-            }
-        } detail: {
-            Text("Select an item")
         }
     }
 
     private func addItem() {
         withAnimation {
             let newItem = Item(timestamp: Date())
-            if let image = pickedImage {
-                // Save the image to the file system and get the path
-                let imagePath = saveImage(image: image)
-                newItem.imagePath = imagePath
-            }
-            modelContext.insert(newItem)
+            newItem.insert()
+            items.append(newItem)
         }
     }
 
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            offsets.forEach { index in
+                items[index].delete()
             }
+            items.remove(atOffsets: offsets)
         }
     }
-
-    private func saveImage(image: UIImage) -> String {
-        // Implement saving image to the file system and returning the path
-        // Placeholder function: Please implement based on your file management strategy
-        return "/path/to/image"
-    }
 }
+
+private let itemFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .long
+    formatter.timeStyle = .medium
+    return formatter
+}()
