@@ -5,14 +5,14 @@ struct ImagePickerView: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     var sourceType: UIImagePickerController.SourceType = .photoLibrary
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePickerView>) -> UIImagePickerController {
+    func makeUIViewController(context: UIViewControllerRepresentableContext<Self>) -> UIImagePickerController {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = context.coordinator
         imagePicker.sourceType = sourceType
         return imagePicker
     }
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePickerView>) {
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<Self>) {
         // No need to update anything here
     }
 
