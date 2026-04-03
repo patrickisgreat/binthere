@@ -44,8 +44,12 @@ struct ItemDetailView: View {
                         .multilineTextAlignment(.trailing)
                 }
                 if let bin = item.bin {
-                    LabeledContent("Bin", value: bin.name)
+                    LabeledContent("Bin", value: bin.displayName)
                 }
+            }
+
+            Section("Color") {
+                ColorPickerRow(selectedColor: $item.color)
             }
 
             Section("Tags") {

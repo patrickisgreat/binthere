@@ -9,6 +9,7 @@ struct AddItemView: View {
     @State private var name = ""
     @State private var itemDescription = ""
     @State private var tagsText = ""
+    @State private var selectedColor = ""
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
@@ -21,6 +22,10 @@ struct AddItemView: View {
                     TextField("Description", text: $itemDescription, axis: .vertical)
                         .lineLimit(3...6)
                     TextField("Tags (comma separated)", text: $tagsText)
+                }
+
+                Section("Color") {
+                    ColorPickerRow(selectedColor: $selectedColor)
                 }
 
                 Section("Photo") {
@@ -75,6 +80,8 @@ struct AddItemView: View {
             itemDescription: itemDescription,
             bin: bin
         )
+
+        item.color = selectedColor
 
         if !tagsText.isEmpty {
             item.tags = tagsText
