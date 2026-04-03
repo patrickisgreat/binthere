@@ -1,0 +1,22 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+xcuserdata/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+# Secrets
+*.xcconfig
+!SharedSettings.xcconfig
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
