@@ -114,12 +114,7 @@ struct AddBinView: View {
                 Divider()
                     .padding(.horizontal)
 
-                Button(action: { showingAddItem = true }) {
-                    Label("Add Items Manually", systemImage: "plus.circle")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .padding(.horizontal)
+                addedItemsSection
             }
             .padding(.vertical)
         }
@@ -230,6 +225,47 @@ struct AddBinView: View {
                     .buttonStyle(.bordered)
                 }
                 .padding(.horizontal)
+            }
+        }
+    }
+
+    private var addedItemsSection: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Items")
+                    .font(.headline)
+                Spacer()
+                Button(action: { showingAddItem = true }) {
+                    Label("Add Item", systemImage: "plus.circle")
+                        .font(.subheadline)
+                }
+            }
+            .padding(.horizontal)
+
+            if let bin = createdBin, !bin.items.isEmpty {
+                ForEach(bin.items.sorted(by: { $0.createdAt < $1.createdAt })) { item in
+                    HStack(spacing: 12) {
+                        ColorDot(colorName: item.color, size: 12)
+                        Text(item.name)
+                            .font(.subheadline)
+                        Spacer()
+                        if !item.tags.isEmpty {
+                            Text(item.tags.joined(separator: ", "))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 6)
+                    .background(.quaternary.opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(.horizontal)
+                }
+            } else {
+                Text("No items added yet")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
         }
     }
