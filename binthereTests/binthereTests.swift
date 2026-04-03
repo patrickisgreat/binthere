@@ -30,6 +30,38 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(zone.name, "Garage")
         XCTAssertEqual(zone.locationDescription, "Detached garage")
         XCTAssertTrue(zone.bins.isEmpty)
+        XCTAssertTrue(zone.color.isEmpty)
+        XCTAssertTrue(zone.icon.isEmpty)
+    }
+
+    func test_zoneCreation_withColorAndIcon() throws {
+        let zone = Zone(name: "Office", color: "blue", icon: "desktopcomputer")
+        context.insert(zone)
+        try context.save()
+
+        XCTAssertEqual(zone.color, "blue")
+        XCTAssertEqual(zone.icon, "desktopcomputer")
+    }
+
+    func test_zoneTotalItemCount() throws {
+        let zone = Zone(name: "Garage")
+        let bin1 = Bin(code: "G001")
+        let bin2 = Bin(code: "G002")
+        bin1.zone = zone
+        bin2.zone = zone
+        let item1 = Item(name: "Hammer", bin: bin1)
+        let item2 = Item(name: "Wrench", bin: bin1)
+        let item3 = Item(name: "Drill", bin: bin2)
+        context.insert(zone)
+        context.insert(bin1)
+        context.insert(bin2)
+        context.insert(item1)
+        context.insert(item2)
+        context.insert(item3)
+        try context.save()
+
+        XCTAssertEqual(zone.totalItemCount, 3)
+        XCTAssertEqual(zone.bins.count, 2)
     }
 
     func test_zoneDelete_nullifiesBinZone() throws {
