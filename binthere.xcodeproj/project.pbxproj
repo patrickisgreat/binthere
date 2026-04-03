@@ -33,6 +33,8 @@
 		AA00000100000010AAAAAA01 /* QRGeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000010BBBBBB01 /* QRGeneratorService.swift */; };
 		AA00000100000011AAAAAA01 /* ImageAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */; };
 		AA00000100000012AAAAAA01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E252BEAC2D100B0C02C /* ContentView.swift */; };
+		BB00000100000001AAAAAA01 /* ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000001BBBBBB01 /* ColorPalette.swift */; };
+		BB00000100000002AAAAAA01 /* CodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002BBBBBB01 /* CodeGenerator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +84,8 @@
 		AA0000010000000FBBBBBB01 /* ImageStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStorageService.swift; sourceTree = "<group>"; };
 		AA00000100000010BBBBBB01 /* QRGeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRGeneratorService.swift; sourceTree = "<group>"; };
 		AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAnalysisService.swift; sourceTree = "<group>"; };
+		BB00000100000001BBBBBB01 /* ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPalette.swift; sourceTree = "<group>"; };
+		BB00000100000002BBBBBB01 /* CodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenerator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +144,7 @@
 				AA00000100000020CCCCCC01 /* Models */,
 				AA00000100000021CCCCCC01 /* Views */,
 				AA00000100000022CCCCCC01 /* Services */,
+				BB00000100000003CCCCCC01 /* Utilities */,
 				2FBD3E292BEAC2D300B0C02C /* Assets.xcassets */,
 				2FBD3E2B2BEAC2D300B0C02C /* Preview Content */,
 			);
@@ -238,6 +243,15 @@
 				AA0000010000000EBBBBBB01 /* ZoneManagementView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		BB00000100000003CCCCCC01 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				BB00000100000001BBBBBB01 /* ColorPalette.swift */,
+				BB00000100000002BBBBBB01 /* CodeGenerator.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -391,6 +405,8 @@
 				AA0000010000000FAAAAAA01 /* ImageStorageService.swift in Sources */,
 				AA00000100000010AAAAAA01 /* QRGeneratorService.swift in Sources */,
 				AA00000100000011AAAAAA01 /* ImageAnalysisService.swift in Sources */,
+				BB00000100000001AAAAAA01 /* ColorPalette.swift in Sources */,
+				BB00000100000002AAAAAA01 /* CodeGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

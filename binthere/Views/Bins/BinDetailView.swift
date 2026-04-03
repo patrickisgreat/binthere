@@ -86,7 +86,7 @@ struct BinDetailView: View {
                 }
             }
         }
-        .navigationTitle(bin.name)
+        .navigationTitle(bin.code)
         .navigationDestination(for: Item.self) { item in
             ItemDetailView(item: item)
         }
@@ -102,7 +102,7 @@ struct BinDetailView: View {
             ToolbarItem(placement: .secondaryAction) {
                 Menu {
                     Button(action: { showingQRCode = true }) {
-                        Label("Show QR Code", systemImage: "qrcode")
+                        Label("Show QR Label", systemImage: "qrcode")
                     }
                     Button(action: { showingContentCamera = true }) {
                         Label("Add Bin Photo", systemImage: "camera")
@@ -119,7 +119,7 @@ struct BinDetailView: View {
             AIAnalysisView(bin: bin)
         }
         .sheet(isPresented: $showingQRCode) {
-            QRCodeSheet(bin: bin)
+            QRLabelSheet(bin: bin)
         }
         .sheet(isPresented: $showingContentCamera) {
             ImagePickerView(selectedImage: .init(
@@ -135,6 +135,16 @@ struct BinDetailView: View {
 
     private var binInfoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                ColorDot(colorName: bin.color, size: 14)
+                Text(bin.code)
+                    .font(.headline.monospaced())
+                if !bin.name.isEmpty {
+                    Text("· \(bin.name)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
             if !bin.binDescription.isEmpty {
                 Text(bin.binDescription)
                     .font(.subheadline)
@@ -155,7 +165,7 @@ struct BinDetailView: View {
     }
 }
 
-private struct ItemRowView: View {
+struct ItemRowView: View {
     let item: Item
 
     var body: some View {
@@ -176,6 +186,8 @@ private struct ItemRowView: View {
                             .foregroundStyle(.tertiary)
                     }
             }
+
+            ColorDot(colorName: item.color)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.name)
@@ -204,48 +216,55 @@ private struct ItemRowView: View {
     }
 }
 
-private struct QRCodeSheet: View {
+private struct QRLabelSheet: View {
     let bin: Bin
     @Environment(\.dismiss) private var dismiss
 
-    private var qrImage: UIImage? {
+    private var labelImage: UIImage? {
         if let qrPath = bin.qrCodeImagePath,
            let stored = ImageStorageService.loadImage(filename: qrPath) {
             return stored
         }
-        return QRGeneratorService.generateQRCode(from: bin.id.uuidString)
+        return QRGeneratorService.generateQRLabel(code: bin.code, binID: bin.id.uuidString)
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Text(bin.name)
-                    .font(.title2.weight(.semibold))
+                Text(bin.code)
+                    .font(.system(size: 36, weight: .bold, design: .monospaced))
 
-                if let qrImage {
-                    Image(uiImage: qrImage)
-                        .interpolation(.none)
+                if !bin.name.isEmpty {
+                    Text(bin.name)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let labelImage {
+                    Image(uiImage: labelImage)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 250, height: 250)
+                        .frame(maxWidth: 300)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .shadow(radius: 2)
 
                     HStack(spacing: 16) {
                         ShareLink(
-                            item: Image(uiImage: qrImage),
-                            preview: SharePreview("QR Code: \(bin.name)", image: Image(uiImage: qrImage))
+                            item: Image(uiImage: labelImage),
+                            preview: SharePreview("Bin \(bin.code)", image: Image(uiImage: labelImage))
                         ) {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }
                         .buttonStyle(.bordered)
 
-                        Button(action: { printQRCode(qrImage) }) {
+                        Button(action: { printLabel(labelImage) }) {
                             Label("Print", systemImage: "printer")
                         }
                         .buttonStyle(.borderedProminent)
                     }
                 } else {
                     ContentUnavailableView(
-                        "QR Generation Failed",
+                        "Label Generation Failed",
                         systemImage: "exclamationmark.triangle"
                     )
                 }
@@ -260,9 +279,9 @@ private struct QRCodeSheet: View {
         }
     }
 
-    private func printQRCode(_ image: UIImage) {
+    private func printLabel(_ image: UIImage) {
         let printInfo = UIPrintInfo(dictionary: nil)
-        printInfo.jobName = "QR Code: \(bin.name)"
+        printInfo.jobName = "Bin \(bin.code)"
         printInfo.outputType = .photo
 
         let printer = UIPrintInteractionController.shared

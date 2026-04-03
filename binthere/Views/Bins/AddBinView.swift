@@ -5,19 +5,21 @@ struct AddBinView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \Zone.name) private var zones: [Zone]
+    @Query private var allBins: [Bin]
 
     @State private var step: CreationStep = .details
-    @State private var name = ""
+    @State private var label = ""
     @State private var binDescription = ""
     @State private var location = ""
+    @State private var selectedColor = ""
     @State private var selectedZone: Zone?
     @State private var createdBin: Bin?
     @State private var contentPhoto: UIImage?
     @State private var showingCamera = false
     @State private var showingImagePicker = false
+    @State private var showingAddItem = false
     @State private var analysisService = ImageAnalysisService()
     @State private var hasAnalyzed = false
-    @State private var showingAddItem = false
 
     enum CreationStep {
         case details
@@ -64,20 +66,27 @@ struct AddBinView: View {
 
     private var detailsStep: some View {
         Form {
-            Section("What's this bin?") {
-                TextField("Bin Name", text: $name)
-                TextField("Description (optional)", text: $binDescription, axis: .vertical)
-                    .lineLimit(3...6)
-                TextField("Location (optional)", text: $location)
+            Section("Label (optional)") {
+                TextField("e.g. Garage Shelf, Junk Drawer", text: $label)
             }
 
-            Section("Zone") {
+            Section("Where is it?") {
                 Picker("Zone", selection: $selectedZone) {
                     Text("None").tag(nil as Zone?)
                     ForEach(zones) { zone in
                         Text(zone.name).tag(zone as Zone?)
                     }
                 }
+                TextField("Location (optional)", text: $location)
+            }
+
+            Section("Color") {
+                ColorPickerRow(selectedColor: $selectedColor)
+            }
+
+            Section("Description") {
+                TextField("What's in this bin? (optional)", text: $binDescription, axis: .vertical)
+                    .lineLimit(3...6)
             }
         }
     }
@@ -87,16 +96,24 @@ struct AddBinView: View {
     private var qrAndPhotoStep: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // QR Code section
                 if let bin = createdBin {
-                    qrCodeSection(for: bin)
+                    qrLabelSection(for: bin)
                 }
 
                 Divider()
                     .padding(.horizontal)
 
-                // Photo section
                 photoSection
+
+                Divider()
+                    .padding(.horizontal)
+
+                Button(action: { showingAddItem = true }) {
+                    Label("Add Items Manually", systemImage: "plus.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
@@ -113,44 +130,45 @@ struct AddBinView: View {
         }
     }
 
-    private func qrCodeSection(for bin: Bin) -> some View {
+    private func qrLabelSection(for bin: Bin) -> some View {
         VStack(spacing: 12) {
-            Text("Your QR Code")
-                .font(.headline)
+            Text(bin.code)
+                .font(.system(size: 36, weight: .bold, design: .monospaced))
 
-            if let qrPath = bin.qrCodeImagePath,
-               let qrImage = ImageStorageService.loadImage(filename: qrPath) {
-                Image(uiImage: qrImage)
-                    .interpolation(.none)
+            if let labelImage = QRGeneratorService.generateQRLabel(code: bin.code, binID: bin.id.uuidString) {
+                Image(uiImage: labelImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200, height: 200)
+                    .frame(maxWidth: 280)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .shadow(radius: 2)
 
                 HStack(spacing: 16) {
                     ShareLink(
-                        item: Image(uiImage: qrImage),
-                        preview: SharePreview("QR Code: \(bin.name)", image: Image(uiImage: qrImage))
+                        item: Image(uiImage: labelImage),
+                        preview: SharePreview("Bin \(bin.code)", image: Image(uiImage: labelImage))
                     ) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                     .buttonStyle(.bordered)
 
-                    Button(action: { printQRCode(qrImage) }) {
+                    Button(action: { printLabel(labelImage) }) {
                         Label("Print", systemImage: "printer")
                     }
                     .buttonStyle(.borderedProminent)
                 }
             }
 
-            Text("Stick it on your bin so you can scan it later")
+            Text("Print or share this label and stick it on your bin")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
     }
 
-    private func printQRCode(_ image: UIImage) {
+    private func printLabel(_ image: UIImage) {
         let printInfo = UIPrintInfo(dictionary: nil)
-        printInfo.jobName = "QR Code: \(name)"
+        printInfo.jobName = "Bin \(createdBin?.code ?? "")"
         printInfo.outputType = .photo
 
         let printer = UIPrintInteractionController.shared
@@ -179,15 +197,11 @@ struct AddBinView: View {
                     .padding(.horizontal)
 
                 HStack(spacing: 16) {
-                    Button("Retake") {
-                        contentPhoto = nil
-                    }
-                    .buttonStyle(.bordered)
+                    Button("Retake") { contentPhoto = nil }
+                        .buttonStyle(.bordered)
 
-                    Button("Analyze with AI") {
-                        analyzePhoto()
-                    }
-                    .buttonStyle(.borderedProminent)
+                    Button("Analyze with AI") { analyzePhoto() }
+                        .buttonStyle(.borderedProminent)
                 }
             } else {
                 HStack(spacing: 16) {
@@ -205,16 +219,6 @@ struct AddBinView: View {
                 }
                 .padding(.horizontal)
             }
-
-            Divider()
-                .padding(.horizontal)
-
-            Button(action: { showingAddItem = true }) {
-                Label("Add Items Manually", systemImage: "plus.circle")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .padding(.horizontal)
         }
     }
 
@@ -271,7 +275,6 @@ struct AddBinView: View {
         switch step {
         case .details:
             Button("Create Bin") { createBin() }
-                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
         case .qrAndPhoto:
             Button("Done") { dismiss() }
         case .aiResults:
@@ -285,17 +288,21 @@ struct AddBinView: View {
     // MARK: - Actions
 
     private func createBin() {
+        let existingCodes = Set(allBins.map(\.code))
+        let code = CodeGenerator.generateCode(existingCodes: existingCodes)
+
         let bin = Bin(
-            name: name.trimmingCharacters(in: .whitespaces),
+            code: code,
+            name: label.trimmingCharacters(in: .whitespaces),
             binDescription: binDescription,
             location: location
         )
         bin.zone = selectedZone
+        bin.color = selectedColor
 
-        // Generate and store QR code
-        if let qrImage = QRGeneratorService.generateQRCode(from: bin.id.uuidString),
-           let qrPath = ImageStorageService.saveImage(qrImage) {
-            bin.qrCodeImagePath = qrPath
+        if let labelImage = QRGeneratorService.generateQRLabel(code: code, binID: bin.id.uuidString),
+           let labelPath = ImageStorageService.saveImage(labelImage) {
+            bin.qrCodeImagePath = labelPath
         }
 
         modelContext.insert(bin)
@@ -306,7 +313,6 @@ struct AddBinView: View {
     private func analyzePhoto() {
         guard let photo = contentPhoto else { return }
 
-        // Save the content photo to the bin
         if let bin = createdBin, let path = ImageStorageService.saveImage(photo) {
             bin.contentImagePaths.append(path)
         }

@@ -2,125 +2,32 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  release:
-    name: Build & Release
-    runs-on: macos-15
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
         with:
-          fetch-depth: 0
+          release-type: simple
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-
-      - name: Determine Version
-        id: version
-        run: |
-          # Get the latest tag, default to v0.0.0 if none exists
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
-
-          # Extract version components
-          VERSION=${LATEST_TAG#v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-
-          # Check commit messages since last tag for version bump type
-          COMMITS=$(git log "$LATEST_TAG"..HEAD --pretty=format:"%s" 2>/dev/null || git log --pretty=format:"%s")
-
-          if echo "$COMMITS" | grep -qiE "^feat(\(.*\))?!:|BREAKING CHANGE"; then
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
-          elif echo "$COMMITS" | grep -qiE "^feat(\(.*\))?:"; then
-            MINOR=$((MINOR + 1))
-            PATCH=0
-          else
-            PATCH=$((PATCH + 1))
-          fi
-
-          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Version: $LATEST_TAG -> $NEW_VERSION"
-
-      - name: Generate Changelog
-        id: changelog
-        run: |
-          LATEST_TAG=${{ steps.version.outputs.latest_tag }}
-
-          # Generate changelog from conventional commits
-          {
-            echo "changelog<<CHANGELOG_EOF"
-
-            # Features
-            FEATURES=$(git log "$LATEST_TAG"..HEAD --pretty=format:"- %s (%h)" --grep="^feat" 2>/dev/null || true)
-            if [ -n "$FEATURES" ]; then
-              echo "### Features"
-              echo "$FEATURES"
-              echo ""
-            fi
-
-            # Bug Fixes
-            FIXES=$(git log "$LATEST_TAG"..HEAD --pretty=format:"- %s (%h)" --grep="^fix" 2>/dev/null || true)
-            if [ -n "$FIXES" ]; then
-              echo "### Bug Fixes"
-              echo "$FIXES"
-              echo ""
-            fi
-
-            # Refactoring
-            REFACTORS=$(git log "$LATEST_TAG"..HEAD --pretty=format:"- %s (%h)" --grep="^refactor" 2>/dev/null || true)
-            if [ -n "$REFACTORS" ]; then
-              echo "### Refactoring"
-              echo "$REFACTORS"
-              echo ""
-            fi
-
-            # Chores & other
-            CHORES=$(git log "$LATEST_TAG"..HEAD --pretty=format:"- %s (%h)" --grep="^chore" 2>/dev/null || true)
-            if [ -n "$CHORES" ]; then
-              echo "### Chores"
-              echo "$CHORES"
-              echo ""
-            fi
-
-            # Tests
-            TESTS=$(git log "$LATEST_TAG"..HEAD --pretty=format:"- %s (%h)" --grep="^test" 2>/dev/null || true)
-            if [ -n "$TESTS" ]; then
-              echo "### Tests"
-              echo "$TESTS"
-              echo ""
-            fi
-
-            # Full commit list
-            echo "### All Changes"
-            git log "$LATEST_TAG"..HEAD --pretty=format:"- %s (%h) by @%an" 2>/dev/null || git log --pretty=format:"- %s (%h) by @%an"
-            echo ""
-
-            echo "CHANGELOG_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Build Archive
-        run: |
-          xcodebuild archive \
-            -scheme binthere \
-            -archivePath build/binthere.xcarchive \
-            -destination 'generic/platform=iOS' \
-            -skipPackagePluginValidation \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.new_version }}
-          name: ${{ steps.version.outputs.new_version }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
+      - name: Auto-merge release PR
+        if: steps.release.outputs.prs_created == 'true'
+        run: gh pr merge ${{ fromJSON(steps.release.outputs.pr).number }} --squash --auto
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

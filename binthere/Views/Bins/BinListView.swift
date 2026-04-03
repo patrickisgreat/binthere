@@ -3,13 +3,14 @@ import SwiftData
 
 struct BinListView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Bin.name) private var bins: [Bin]
+    @Query(sort: \Bin.code) private var bins: [Bin]
     @State private var searchText = ""
     @State private var showingAddBin = false
 
     private var filteredBins: [Bin] {
         if searchText.isEmpty { return bins }
         return bins.filter { bin in
+            bin.code.localizedCaseInsensitiveContains(searchText) ||
             bin.name.localizedCaseInsensitiveContains(searchText) ||
             bin.location.localizedCaseInsensitiveContains(searchText) ||
             (bin.zone?.name.localizedCaseInsensitiveContains(searchText) ?? false) ||
@@ -38,7 +39,7 @@ struct BinListView: View {
         .navigationDestination(for: Bin.self) { bin in
             BinDetailView(bin: bin)
         }
-        .searchable(text: $searchText, prompt: "Search bins and items")
+        .searchable(text: $searchText, prompt: "Search by code, label, or items")
         .toolbar {
             Button(action: { showingAddBin = true }) {
                 Label("Add Bin", systemImage: "plus")
@@ -60,23 +61,34 @@ private struct BinRowView: View {
     let bin: Bin
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(bin.name)
-                .font(.headline)
-            HStack(spacing: 12) {
-                if let zone = bin.zone {
-                    Label(zone.name, systemImage: "mappin")
+        HStack(spacing: 12) {
+            ColorDot(colorName: bin.color, size: 16)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(bin.code)
+                        .font(.headline.monospaced())
+                    if !bin.name.isEmpty {
+                        Text(bin.name)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                HStack(spacing: 12) {
+                    if let zone = bin.zone {
+                        Label(zone.name, systemImage: "mappin")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if !bin.location.isEmpty {
+                        Label(bin.location, systemImage: "location")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Label("\(bin.items.count) items", systemImage: "cube.box")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                if !bin.location.isEmpty {
-                    Label(bin.location, systemImage: "location")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Label("\(bin.items.count) items", systemImage: "cube.box")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 2)

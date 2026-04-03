@@ -9,6 +9,7 @@ final class Item {
     var imagePaths: [String] = []
     var tags: [String] = []
     var customFields: [String: String] = [:]
+    var color: String = ""
     var createdAt: Date = Date()
     var isCheckedOut: Bool = false
 
