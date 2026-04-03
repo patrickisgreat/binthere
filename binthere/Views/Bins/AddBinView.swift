@@ -17,6 +17,7 @@ struct AddBinView: View {
     @State private var showingImagePicker = false
     @State private var analysisService = ImageAnalysisService()
     @State private var hasAnalyzed = false
+    @State private var showingAddItem = false
 
     enum CreationStep {
         case details
@@ -105,6 +106,11 @@ struct AddBinView: View {
         .sheet(isPresented: $showingImagePicker) {
             ImagePickerView(selectedImage: $contentPhoto, sourceType: .photoLibrary)
         }
+        .sheet(isPresented: $showingAddItem) {
+            if let bin = createdBin {
+                AddItemView(bin: bin)
+            }
+        }
     }
 
     private func qrCodeSection(for bin: Bin) -> some View {
@@ -178,6 +184,16 @@ struct AddBinView: View {
                 }
                 .padding(.horizontal)
             }
+
+            Divider()
+                .padding(.horizontal)
+
+            Button(action: { showingAddItem = true }) {
+                Label("Add Items Manually", systemImage: "plus.circle")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .padding(.horizontal)
         }
     }
 
