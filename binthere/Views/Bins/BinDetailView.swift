@@ -8,6 +8,7 @@ struct BinDetailView: View {
     @State private var showingAddItem = false
     @State private var showingAIAnalysis = false
     @State private var showingQRCode = false
+    @State private var showingContentCamera = false
     @State private var itemFilter: ItemFilter = .all
 
     enum ItemFilter: String, CaseIterable {
@@ -28,6 +29,26 @@ struct BinDetailView: View {
         List {
             Section {
                 binInfoSection
+            }
+
+            if !bin.contentImagePaths.isEmpty {
+                Section("Bin Photos") {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(bin.contentImagePaths, id: \.self) { path in
+                                if let image = ImageStorageService.loadImage(filename: path) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 150, height: 150)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .listRowInsets(EdgeInsets())
+                }
             }
 
             Section {
@@ -79,8 +100,15 @@ struct BinDetailView: View {
                 }
             }
             ToolbarItem(placement: .secondaryAction) {
-                Button(action: { showingQRCode = true }) {
-                    Label("Show QR Code", systemImage: "qrcode")
+                Menu {
+                    Button(action: { showingQRCode = true }) {
+                        Label("Show QR Code", systemImage: "qrcode")
+                    }
+                    Button(action: { showingContentCamera = true }) {
+                        Label("Add Bin Photo", systemImage: "camera")
+                    }
+                } label: {
+                    Label("More", systemImage: "ellipsis.circle")
                 }
             }
         }
@@ -92,6 +120,16 @@ struct BinDetailView: View {
         }
         .sheet(isPresented: $showingQRCode) {
             QRCodeSheet(bin: bin)
+        }
+        .sheet(isPresented: $showingContentCamera) {
+            ImagePickerView(selectedImage: .init(
+                get: { nil },
+                set: { newImage in
+                    if let image = newImage, let path = ImageStorageService.saveImage(image) {
+                        bin.contentImagePaths.append(path)
+                    }
+                }
+            ), sourceType: .camera)
         }
     }
 
@@ -170,33 +208,46 @@ private struct QRCodeSheet: View {
     let bin: Bin
     @Environment(\.dismiss) private var dismiss
 
+    private var qrImage: UIImage? {
+        if let qrPath = bin.qrCodeImagePath,
+           let stored = ImageStorageService.loadImage(filename: qrPath) {
+            return stored
+        }
+        return QRGeneratorService.generateQRCode(from: bin.id.uuidString)
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
                 Text(bin.name)
                     .font(.title2.weight(.semibold))
 
-                if let qrImage = QRGeneratorService.generateQRCode(from: bin.id.uuidString) {
+                if let qrImage {
                     Image(uiImage: qrImage)
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 250, height: 250)
-                        .padding()
+
+                    HStack(spacing: 16) {
+                        ShareLink(
+                            item: Image(uiImage: qrImage),
+                            preview: SharePreview("QR Code: \(bin.name)", image: Image(uiImage: qrImage))
+                        ) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.bordered)
+
+                        Button(action: { printQRCode(qrImage) }) {
+                            Label("Print", systemImage: "printer")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 } else {
                     ContentUnavailableView(
                         "QR Generation Failed",
                         systemImage: "exclamationmark.triangle"
                     )
-                }
-
-                Text(bin.id.uuidString)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-
-                ShareLink(item: bin.id.uuidString, subject: Text("Bin: \(bin.name)")) {
-                    Label("Share QR Data", systemImage: "square.and.arrow.up")
                 }
             }
             .padding()
@@ -207,5 +258,16 @@ private struct QRCodeSheet: View {
                 }
             }
         }
+    }
+
+    private func printQRCode(_ image: UIImage) {
+        let printInfo = UIPrintInfo(dictionary: nil)
+        printInfo.jobName = "QR Code: \(bin.name)"
+        printInfo.outputType = .photo
+
+        let printer = UIPrintInteractionController.shared
+        printer.printInfo = printInfo
+        printer.printingItem = image
+        printer.present(animated: true)
     }
 }

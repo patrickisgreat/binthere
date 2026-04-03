@@ -8,6 +8,8 @@ final class Bin {
     var binDescription: String = ""
     var location: String = ""
     var createdAt: Date = Date()
+    var qrCodeImagePath: String?
+    var contentImagePaths: [String] = []
 
     var zone: Zone?
 
