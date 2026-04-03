@@ -125,17 +125,38 @@ struct AddBinView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
+
+                HStack(spacing: 16) {
+                    ShareLink(
+                        item: Image(uiImage: qrImage),
+                        preview: SharePreview("QR Code: \(bin.name)", image: Image(uiImage: qrImage))
+                    ) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button(action: { printQRCode(qrImage) }) {
+                        Label("Print", systemImage: "printer")
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
             }
 
-            Text("Print this and stick it on your bin")
+            Text("Stick it on your bin so you can scan it later")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-
-            Text(bin.id.uuidString)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-                .textSelection(.enabled)
         }
+    }
+
+    private func printQRCode(_ image: UIImage) {
+        let printInfo = UIPrintInfo(dictionary: nil)
+        printInfo.jobName = "QR Code: \(name)"
+        printInfo.outputType = .photo
+
+        let printer = UIPrintInteractionController.shared
+        printer.printInfo = printInfo
+        printer.printingItem = image
+        printer.present(animated: true)
     }
 
     private var photoSection: some View {
