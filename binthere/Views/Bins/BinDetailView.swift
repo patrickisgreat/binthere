@@ -4,6 +4,7 @@ import SwiftData
 struct BinDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var bin: Bin
+    @Query(sort: \Zone.name) private var allZones: [Zone]
 
     @State private var showingAddItem = false
     @State private var showingAIAnalysis = false
@@ -155,21 +156,25 @@ struct BinDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            HStack(spacing: 16) {
-                if let zone = bin.zone {
+
+            Picker("Zone", selection: $bin.zone) {
+                Text("No Zone").tag(nil as Zone?)
+                ForEach(allZones) { zone in
                     Label {
                         Text(zone.name)
                     } icon: {
-                        ZoneIcon(iconName: zone.icon, colorName: zone.color, size: 14)
+                        ZoneIcon(iconName: zone.icon, colorName: zone.color)
                     }
-                    .font(.caption)
-                }
-                if !bin.location.isEmpty {
-                    Label(bin.location, systemImage: "location")
-                        .font(.caption)
+                    .tag(zone as Zone?)
                 }
             }
-            .foregroundStyle(.secondary)
+            .font(.subheadline)
+
+            if !bin.location.isEmpty {
+                Label(bin.location, systemImage: "location")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
