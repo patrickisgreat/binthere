@@ -152,8 +152,12 @@ struct BinDetailView: View {
             }
             HStack(spacing: 16) {
                 if let zone = bin.zone {
-                    Label(zone.name, systemImage: "mappin")
-                        .font(.caption)
+                    Label {
+                        Text(zone.name)
+                    } icon: {
+                        ZoneIcon(iconName: zone.icon, colorName: zone.color, size: 14)
+                    }
+                    .font(.caption)
                 }
                 if !bin.location.isEmpty {
                     Label(bin.location, systemImage: "location")

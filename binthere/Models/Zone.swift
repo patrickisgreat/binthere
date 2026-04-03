@@ -6,13 +6,21 @@ final class Zone {
     var id: UUID = UUID()
     var name: String = ""
     var locationDescription: String = ""
+    var color: String = ""
+    var icon: String = ""
 
     @Relationship(deleteRule: .nullify, inverse: \Bin.zone)
     var bins: [Bin] = []
 
-    init(name: String, locationDescription: String = "") {
+    var totalItemCount: Int {
+        bins.reduce(0) { $0 + $1.items.count }
+    }
+
+    init(name: String, locationDescription: String = "", color: String = "", icon: String = "") {
         self.id = UUID()
         self.name = name
         self.locationDescription = locationDescription
+        self.color = color
+        self.icon = icon
     }
 }

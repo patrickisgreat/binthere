@@ -6,12 +6,6 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Zones") {
-                NavigationLink("Manage Zones") {
-                    ZoneManagementView()
-                }
-            }
-
             Section("AI Analysis") {
                 HStack {
                     if showingAPIKey {

@@ -35,6 +35,10 @@
 		AA00000100000012AAAAAA01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E252BEAC2D100B0C02C /* ContentView.swift */; };
 		BB00000100000001AAAAAA01 /* ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000001BBBBBB01 /* ColorPalette.swift */; };
 		BB00000100000002AAAAAA01 /* CodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002BBBBBB01 /* CodeGenerator.swift */; };
+		CC00000100000001AAAAAA01 /* IconPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000001BBBBBB01 /* IconPalette.swift */; };
+		CC00000100000002AAAAAA01 /* ZoneDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000002BBBBBB01 /* ZoneDetailView.swift */; };
+		CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000003BBBBBB01 /* HomeKitService.swift */; };
+		CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000004BBBBBB01 /* ZonesGridView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +90,10 @@
 		AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAnalysisService.swift; sourceTree = "<group>"; };
 		BB00000100000001BBBBBB01 /* ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPalette.swift; sourceTree = "<group>"; };
 		BB00000100000002BBBBBB01 /* CodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenerator.swift; sourceTree = "<group>"; };
+		CC00000100000001BBBBBB01 /* IconPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconPalette.swift; sourceTree = "<group>"; };
+		CC00000100000002BBBBBB01 /* ZoneDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneDetailView.swift; sourceTree = "<group>"; };
+		CC00000100000003BBBBBB01 /* HomeKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeKitService.swift; sourceTree = "<group>"; };
+		CC00000100000004BBBBBB01 /* ZonesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesGridView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +200,7 @@
 				AA00000100000005BBBBBB01 /* MainTabView.swift */,
 				AA00000100000023CCCCCC01 /* Bins */,
 				AA00000100000024CCCCCC01 /* Items */,
+				CC00000100000005CCCCCC01 /* Zones */,
 				AA00000100000025CCCCCC01 /* Scanner */,
 				AA00000100000026CCCCCC01 /* Settings */,
 			);
@@ -204,6 +213,7 @@
 				AA0000010000000FBBBBBB01 /* ImageStorageService.swift */,
 				AA00000100000010BBBBBB01 /* QRGeneratorService.swift */,
 				AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */,
+				CC00000100000003BBBBBB01 /* HomeKitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -241,8 +251,17 @@
 			children = (
 				AA0000010000000DBBBBBB01 /* SettingsView.swift */,
 				AA0000010000000EBBBBBB01 /* ZoneManagementView.swift */,
+				CC00000100000002BBBBBB01 /* ZoneDetailView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		CC00000100000005CCCCCC01 /* Zones */ = {
+			isa = PBXGroup;
+			children = (
+				CC00000100000004BBBBBB01 /* ZonesGridView.swift */,
+			);
+			path = Zones;
 			sourceTree = "<group>";
 		};
 		BB00000100000003CCCCCC01 /* Utilities */ = {
@@ -250,6 +269,7 @@
 			children = (
 				BB00000100000001BBBBBB01 /* ColorPalette.swift */,
 				BB00000100000002BBBBBB01 /* CodeGenerator.swift */,
+				CC00000100000001BBBBBB01 /* IconPalette.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -407,6 +427,10 @@
 				AA00000100000011AAAAAA01 /* ImageAnalysisService.swift in Sources */,
 				BB00000100000001AAAAAA01 /* ColorPalette.swift in Sources */,
 				BB00000100000002AAAAAA01 /* CodeGenerator.swift in Sources */,
+				CC00000100000001AAAAAA01 /* IconPalette.swift in Sources */,
+				CC00000100000002AAAAAA01 /* ZoneDetailView.swift in Sources */,
+				CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */,
+				CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -574,6 +598,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
+				INFOPLIST_KEY_NSHomeKitUsageDescription = "binthere can import room names from HomeKit to use as zones.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -604,6 +629,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
+				INFOPLIST_KEY_NSHomeKitUsageDescription = "binthere can import room names from HomeKit to use as zones.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -11,6 +11,13 @@ struct MainTabView: View {
             }
 
             NavigationStack {
+                ZonesGridView()
+            }
+            .tabItem {
+                Label("Zones", systemImage: "square.grid.2x2")
+            }
+
+            NavigationStack {
                 ScannerTab()
             }
             .tabItem {
