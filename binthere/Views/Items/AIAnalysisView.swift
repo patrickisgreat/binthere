@@ -154,7 +154,7 @@ struct AIAnalysisView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .frame(maxWidth: .infinity)
-                        .disabled(analysisService.suggestedItems.filter(\.isSelected).isEmpty)
+                        .disabled(!analysisService.suggestedItems.contains(where: \.isSelected))
                     }
                 }
             }

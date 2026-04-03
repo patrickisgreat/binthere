@@ -35,11 +35,22 @@ final class ImageAnalysisService {
     var suggestedItems: [SuggestedItem] = []
     var error: ImageAnalysisError?
 
+    private static let analysisPrompt = """
+    Analyze this image of items in a storage bin or drawer. Identify each distinct item you can see. \
+    Respond with ONLY a JSON array of objects, each with: "name" (short item name), \
+    "description" (brief description including color, size, condition if visible), \
+    "tags" (array of relevant category tags). \
+    Example: [{"name": "Phillips Screwdriver", \
+    "description": "Red-handled Phillips head screwdriver, medium size", \
+    "tags": ["tools", "screwdriver"]}] \
+    If you cannot identify items clearly, make your best guess. Return ONLY the JSON array, no other text.
+    """
+
     private static let apiKeyKey = "claude_api_key"
 
     static var apiKey: String? {
-        get { UserDefaults.standard.string(forKey: apiKeyKey) }
-        set { UserDefaults.standard.set(newValue, forKey: apiKeyKey) }
+        get { UserDefaults.standard.string(forKey: Self.apiKeyKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.apiKeyKey) }
     }
 
     func analyzeImage(_ image: UIImage) async {
@@ -53,14 +64,27 @@ final class ImageAnalysisService {
             return
         }
 
-        let base64Image = imageData.base64EncodedString()
-
         isAnalyzing = true
         error = nil
         suggestedItems = []
-
         defer { isAnalyzing = false }
 
+        guard let request = buildRequest(apiKey: apiKey, base64Image: imageData.base64EncodedString()) else {
+            error = .decodingError("Failed to create request")
+            return
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            try parseResponse(data)
+        } catch let analysisError as ImageAnalysisError {
+            error = analysisError
+        } catch {
+            self.error = .networkError(error)
+        }
+    }
+
+    private func buildRequest(apiKey: String, base64Image: String) -> URLRequest? {
         let requestBody: [String: Any] = [
             "model": "claude-sonnet-4-20250514",
             "max_tokens": 1024,
@@ -78,43 +102,25 @@ final class ImageAnalysisService {
                         ],
                         [
                             "type": "text",
-                            "text": """
-                            Analyze this image of items in a storage bin or drawer. \
-                            Identify each distinct item you can see. \
-                            Respond with ONLY a JSON array of objects, each with: \
-                            "name" (short item name), \
-                            "description" (brief description including color, size, condition if visible), \
-                            "tags" (array of relevant category tags). \
-                            Example: [{"name": "Phillips Screwdriver", "description": "Red-handled Phillips head screwdriver, medium size", "tags": ["tools", "screwdriver"]}] \
-                            If you cannot identify items clearly, make your best guess. \
-                            Return ONLY the JSON array, no other text.
-                            """,
+                            "text": Self.analysisPrompt,
                         ],
                     ],
                 ]
             ],
         ]
 
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) else {
-            error = .decodingError("Failed to create request")
-            return
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
+              let apiURL = URL(string: "https://api.anthropic.com/v1/messages") else {
+            return nil
         }
 
-        var request = URLRequest(url: URL(string: "https://api.anthropic.com/v1/messages")!)
+        var request = URLRequest(url: apiURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "content-type")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.httpBody = jsonData
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            try parseResponse(data)
-        } catch let analysisError as ImageAnalysisError {
-            error = analysisError
-        } catch {
-            self.error = .networkError(error)
-        }
+        return request
     }
 
     private func parseResponse(_ data: Data) throws {

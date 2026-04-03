@@ -182,9 +182,9 @@ final class ModelTests: XCTestCase {
         XCTAssertFalse(record.isActive)
     }
 
-    func test_checkoutRecord_withExpectedReturnDate() {
+    func test_checkoutRecord_withExpectedReturnDate() throws {
         let item = Item(name: "Drill Press")
-        let returnDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+        let returnDate = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: 7, to: Date()))
         let record = CheckoutRecord(
             item: item,
             checkedOutTo: "Dave",
@@ -222,11 +222,10 @@ final class QRGeneratorServiceTests: XCTestCase {
         XCTAssertNotNil(image)
     }
 
-    func test_generateQRCode_producesNonZeroSizeImage() {
-        let image = QRGeneratorService.generateQRCode(from: "test-data")
-        XCTAssertNotNil(image)
-        XCTAssertGreaterThan(image!.size.width, 0)
-        XCTAssertGreaterThan(image!.size.height, 0)
+    func test_generateQRCode_producesNonZeroSizeImage() throws {
+        let image = try XCTUnwrap(QRGeneratorService.generateQRCode(from: "test-data"))
+        XCTAssertGreaterThan(image.size.width, 0)
+        XCTAssertGreaterThan(image.size.height, 0)
     }
 }
 

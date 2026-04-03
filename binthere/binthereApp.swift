@@ -2,13 +2,13 @@ import SwiftUI
 import SwiftData
 
 @main
-struct binthereApp: App {
+struct binthereApp: App { // swiftlint:disable:this type_name
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Zone.self,
             Bin.self,
             Item.self,
-            CheckoutRecord.self,
+            CheckoutRecord.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,

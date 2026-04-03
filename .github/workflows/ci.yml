@@ -32,7 +32,7 @@ jobs:
         run: |
           xcodebuild build \
             -scheme binthere \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO
 
@@ -48,7 +48,7 @@ jobs:
         run: |
           xcodebuild test \
             -scheme binthere \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -skipPackagePluginValidation \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
