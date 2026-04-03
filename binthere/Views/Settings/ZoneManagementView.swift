@@ -143,7 +143,7 @@ struct AddZoneSheet: View {
     }
 }
 
-private struct HomeKitImportSheet: View {
+struct HomeKitImportSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \Zone.name) private var existingZones: [Zone]

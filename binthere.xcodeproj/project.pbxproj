@@ -38,6 +38,7 @@
 		CC00000100000001AAAAAA01 /* IconPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000001BBBBBB01 /* IconPalette.swift */; };
 		CC00000100000002AAAAAA01 /* ZoneDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000002BBBBBB01 /* ZoneDetailView.swift */; };
 		CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000003BBBBBB01 /* HomeKitService.swift */; };
+		CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000004BBBBBB01 /* ZonesGridView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +93,7 @@
 		CC00000100000001BBBBBB01 /* IconPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconPalette.swift; sourceTree = "<group>"; };
 		CC00000100000002BBBBBB01 /* ZoneDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneDetailView.swift; sourceTree = "<group>"; };
 		CC00000100000003BBBBBB01 /* HomeKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeKitService.swift; sourceTree = "<group>"; };
+		CC00000100000004BBBBBB01 /* ZonesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesGridView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,6 +200,7 @@
 				AA00000100000005BBBBBB01 /* MainTabView.swift */,
 				AA00000100000023CCCCCC01 /* Bins */,
 				AA00000100000024CCCCCC01 /* Items */,
+				CC00000100000005CCCCCC01 /* Zones */,
 				AA00000100000025CCCCCC01 /* Scanner */,
 				AA00000100000026CCCCCC01 /* Settings */,
 			);
@@ -251,6 +254,14 @@
 				CC00000100000002BBBBBB01 /* ZoneDetailView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		CC00000100000005CCCCCC01 /* Zones */ = {
+			isa = PBXGroup;
+			children = (
+				CC00000100000004BBBBBB01 /* ZonesGridView.swift */,
+			);
+			path = Zones;
 			sourceTree = "<group>";
 		};
 		BB00000100000003CCCCCC01 /* Utilities */ = {
@@ -419,6 +430,7 @@
 				CC00000100000001AAAAAA01 /* IconPalette.swift in Sources */,
 				CC00000100000002AAAAAA01 /* ZoneDetailView.swift in Sources */,
 				CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */,
+				CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
