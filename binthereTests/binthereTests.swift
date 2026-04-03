@@ -62,6 +62,8 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(bin.zone)
         XCTAssertNotNil(bin.id)
         XCTAssertTrue(bin.color.isEmpty)
+        XCTAssertNil(bin.qrCodeImagePath)
+        XCTAssertTrue(bin.contentImagePaths.isEmpty)
     }
 
     func test_binCreation_withoutName() {
@@ -90,6 +92,36 @@ final class ModelTests: XCTestCase {
         try context.save()
 
         XCTAssertEqual(bin.color, "blue")
+    }
+
+    func test_binQRCodeStorage() throws {
+        let bin = Bin(code: "QR01")
+        context.insert(bin)
+
+        guard let qrImage = QRGeneratorService.generateQRCode(from: bin.id.uuidString),
+              let qrPath = ImageStorageService.saveImage(qrImage) else {
+            XCTFail("Failed to generate/save QR code")
+            return
+        }
+
+        bin.qrCodeImagePath = qrPath
+        try context.save()
+
+        XCTAssertNotNil(bin.qrCodeImagePath)
+        XCTAssertNotNil(ImageStorageService.loadImage(filename: qrPath))
+
+        ImageStorageService.deleteImage(filename: qrPath)
+    }
+
+    func test_binContentImagePaths() throws {
+        let bin = Bin(code: "PH01")
+        context.insert(bin)
+
+        bin.contentImagePaths = ["photo1.jpg", "photo2.jpg"]
+        try context.save()
+
+        XCTAssertEqual(bin.contentImagePaths.count, 2)
+        XCTAssertTrue(bin.contentImagePaths.contains("photo1.jpg"))
     }
 
     func test_binDelete_cascadesItems() throws {
