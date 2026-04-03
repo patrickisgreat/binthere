@@ -1,20 +1,19 @@
-//
-//  binthereApp.swift
-//  binthere
-//
-//  Created by Patrick Bennett on 5/7/24.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
-struct binthereApp: App {
+struct binthereApp: App { // swiftlint:disable:this type_name
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
+            Zone.self,
+            Bin.self,
             Item.self,
+            CheckoutRecord.self
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -25,7 +24,7 @@ struct binthereApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
         }
         .modelContainer(sharedModelContainer)
     }

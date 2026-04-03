@@ -8,16 +8,31 @@
 
 /* Begin PBXBuildFile section */
 		2FBD3E242BEAC2D100B0C02C /* binthereApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E232BEAC2D100B0C02C /* binthereApp.swift */; };
-		2FBD3E262BEAC2D100B0C02C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E252BEAC2D100B0C02C /* ContentView.swift */; };
 		2FBD3E282BEAC2D100B0C02C /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E272BEAC2D100B0C02C /* Item.swift */; };
 		2FBD3E2A2BEAC2D300B0C02C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FBD3E292BEAC2D300B0C02C /* Assets.xcassets */; };
 		2FBD3E2D2BEAC2D300B0C02C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FBD3E2C2BEAC2D300B0C02C /* Preview Assets.xcassets */; };
 		2FBD3E372BEAC2D300B0C02C /* binthereTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E362BEAC2D300B0C02C /* binthereTests.swift */; };
 		2FBD3E412BEAC2D300B0C02C /* binthereUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E402BEAC2D300B0C02C /* binthereUITests.swift */; };
 		2FBD3E432BEAC2D300B0C02C /* binthereUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E422BEAC2D300B0C02C /* binthereUITestsLaunchTests.swift */; };
-		2FE5B7ED2BEAC4EA00A9001C /* QRScannerView.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FE5B7EC2BEAC4EA00A9001C /* QRScannerView.swift.swift */; };
 		2FE5B7EF2BEAC6B800A9001C /* ImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FE5B7EE2BEAC6B800A9001C /* ImagePickerView.swift */; };
-		2FE5B7F12BEAC7F000A9001C /* PersistentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FE5B7F02BEAC7F000A9001C /* PersistentModel.swift */; };
+		AA00000100000001AAAAAA01 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000001BBBBBB01 /* QRScannerView.swift */; };
+		AA00000100000002AAAAAA01 /* Zone.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000002BBBBBB01 /* Zone.swift */; };
+		AA00000100000003AAAAAA01 /* Bin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000003BBBBBB01 /* Bin.swift */; };
+		AA00000100000004AAAAAA01 /* CheckoutRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000004BBBBBB01 /* CheckoutRecord.swift */; };
+		AA00000100000005AAAAAA01 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000005BBBBBB01 /* MainTabView.swift */; };
+		AA00000100000006AAAAAA01 /* BinListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000006BBBBBB01 /* BinListView.swift */; };
+		AA00000100000007AAAAAA01 /* AddBinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000007BBBBBB01 /* AddBinView.swift */; };
+		AA00000100000008AAAAAA01 /* BinDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000008BBBBBB01 /* BinDetailView.swift */; };
+		AA00000100000009AAAAAA01 /* AddItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000009BBBBBB01 /* AddItemView.swift */; };
+		AA0000010000000AAAAAAA01 /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000ABBBBBB01 /* ItemDetailView.swift */; };
+		AA0000010000000BAAAAAA01 /* AIAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000BBBBBBB01 /* AIAnalysisView.swift */; };
+		AA0000010000000CAAAAAA01 /* ScannerTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000CBBBBBB01 /* ScannerTab.swift */; };
+		AA0000010000000DAAAAAA01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000DBBBBBB01 /* SettingsView.swift */; };
+		AA0000010000000EAAAAAA01 /* ZoneManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000EBBBBBB01 /* ZoneManagementView.swift */; };
+		AA0000010000000FAAAAAA01 /* ImageStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000FBBBBBB01 /* ImageStorageService.swift */; };
+		AA00000100000010AAAAAA01 /* QRGeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000010BBBBBB01 /* QRGeneratorService.swift */; };
+		AA00000100000011AAAAAA01 /* ImageAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */; };
+		AA00000100000012AAAAAA01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E252BEAC2D100B0C02C /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,9 +64,24 @@
 		2FBD3E3C2BEAC2D300B0C02C /* binthereUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = binthereUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FBD3E402BEAC2D300B0C02C /* binthereUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = binthereUITests.swift; sourceTree = "<group>"; };
 		2FBD3E422BEAC2D300B0C02C /* binthereUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = binthereUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		2FE5B7EC2BEAC4EA00A9001C /* QRScannerView.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift.swift; sourceTree = "<group>"; };
 		2FE5B7EE2BEAC6B800A9001C /* ImagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerView.swift; sourceTree = "<group>"; };
-		2FE5B7F02BEAC7F000A9001C /* PersistentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentModel.swift; sourceTree = "<group>"; };
+		AA00000100000001BBBBBB01 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		AA00000100000002BBBBBB01 /* Zone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zone.swift; sourceTree = "<group>"; };
+		AA00000100000003BBBBBB01 /* Bin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bin.swift; sourceTree = "<group>"; };
+		AA00000100000004BBBBBB01 /* CheckoutRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutRecord.swift; sourceTree = "<group>"; };
+		AA00000100000005BBBBBB01 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		AA00000100000006BBBBBB01 /* BinListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinListView.swift; sourceTree = "<group>"; };
+		AA00000100000007BBBBBB01 /* AddBinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBinView.swift; sourceTree = "<group>"; };
+		AA00000100000008BBBBBB01 /* BinDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinDetailView.swift; sourceTree = "<group>"; };
+		AA00000100000009BBBBBB01 /* AddItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemView.swift; sourceTree = "<group>"; };
+		AA0000010000000ABBBBBB01 /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailView.swift; sourceTree = "<group>"; };
+		AA0000010000000BBBBBBB01 /* AIAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAnalysisView.swift; sourceTree = "<group>"; };
+		AA0000010000000CBBBBBB01 /* ScannerTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerTab.swift; sourceTree = "<group>"; };
+		AA0000010000000DBBBBBB01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA0000010000000EBBBBBB01 /* ZoneManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneManagementView.swift; sourceTree = "<group>"; };
+		AA0000010000000FBBBBBB01 /* ImageStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStorageService.swift; sourceTree = "<group>"; };
+		AA00000100000010BBBBBB01 /* QRGeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRGeneratorService.swift; sourceTree = "<group>"; };
+		AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAnalysisService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,11 +135,13 @@
 				2FBD3E232BEAC2D100B0C02C /* binthereApp.swift */,
 				2FBD3E252BEAC2D100B0C02C /* ContentView.swift */,
 				2FBD3E272BEAC2D100B0C02C /* Item.swift */,
+				2FE5B7EE2BEAC6B800A9001C /* ImagePickerView.swift */,
+				AA00000100000001BBBBBB01 /* QRScannerView.swift */,
+				AA00000100000020CCCCCC01 /* Models */,
+				AA00000100000021CCCCCC01 /* Views */,
+				AA00000100000022CCCCCC01 /* Services */,
 				2FBD3E292BEAC2D300B0C02C /* Assets.xcassets */,
 				2FBD3E2B2BEAC2D300B0C02C /* Preview Content */,
-				2FE5B7EC2BEAC4EA00A9001C /* QRScannerView.swift.swift */,
-				2FE5B7EE2BEAC6B800A9001C /* ImagePickerView.swift */,
-				2FE5B7F02BEAC7F000A9001C /* PersistentModel.swift */,
 			);
 			path = binthere;
 			sourceTree = "<group>";
@@ -137,6 +169,75 @@
 				2FBD3E422BEAC2D300B0C02C /* binthereUITestsLaunchTests.swift */,
 			);
 			path = binthereUITests;
+			sourceTree = "<group>";
+		};
+		AA00000100000020CCCCCC01 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000100000002BBBBBB01 /* Zone.swift */,
+				AA00000100000003BBBBBB01 /* Bin.swift */,
+				AA00000100000004BBBBBB01 /* CheckoutRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA00000100000021CCCCCC01 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000100000005BBBBBB01 /* MainTabView.swift */,
+				AA00000100000023CCCCCC01 /* Bins */,
+				AA00000100000024CCCCCC01 /* Items */,
+				AA00000100000025CCCCCC01 /* Scanner */,
+				AA00000100000026CCCCCC01 /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA00000100000022CCCCCC01 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000010000000FBBBBBB01 /* ImageStorageService.swift */,
+				AA00000100000010BBBBBB01 /* QRGeneratorService.swift */,
+				AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA00000100000023CCCCCC01 /* Bins */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000100000006BBBBBB01 /* BinListView.swift */,
+				AA00000100000007BBBBBB01 /* AddBinView.swift */,
+				AA00000100000008BBBBBB01 /* BinDetailView.swift */,
+			);
+			path = Bins;
+			sourceTree = "<group>";
+		};
+		AA00000100000024CCCCCC01 /* Items */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000100000009BBBBBB01 /* AddItemView.swift */,
+				AA0000010000000ABBBBBB01 /* ItemDetailView.swift */,
+				AA0000010000000BBBBBBB01 /* AIAnalysisView.swift */,
+			);
+			path = Items;
+			sourceTree = "<group>";
+		};
+		AA00000100000025CCCCCC01 /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000010000000CBBBBBB01 /* ScannerTab.swift */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
+		AA00000100000026CCCCCC01 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000010000000DBBBBBB01 /* SettingsView.swift */,
+				AA0000010000000EBBBBBB01 /* ZoneManagementView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -269,12 +370,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2FBD3E262BEAC2D100B0C02C /* ContentView.swift in Sources */,
+				AA00000100000012AAAAAA01 /* ContentView.swift in Sources */,
 				2FBD3E282BEAC2D100B0C02C /* Item.swift in Sources */,
-				2FE5B7F12BEAC7F000A9001C /* PersistentModel.swift in Sources */,
 				2FBD3E242BEAC2D100B0C02C /* binthereApp.swift in Sources */,
-				2FE5B7ED2BEAC4EA00A9001C /* QRScannerView.swift.swift in Sources */,
+				AA00000100000001AAAAAA01 /* QRScannerView.swift in Sources */,
 				2FE5B7EF2BEAC6B800A9001C /* ImagePickerView.swift in Sources */,
+				AA00000100000002AAAAAA01 /* Zone.swift in Sources */,
+				AA00000100000003AAAAAA01 /* Bin.swift in Sources */,
+				AA00000100000004AAAAAA01 /* CheckoutRecord.swift in Sources */,
+				AA00000100000005AAAAAA01 /* MainTabView.swift in Sources */,
+				AA00000100000006AAAAAA01 /* BinListView.swift in Sources */,
+				AA00000100000007AAAAAA01 /* AddBinView.swift in Sources */,
+				AA00000100000008AAAAAA01 /* BinDetailView.swift in Sources */,
+				AA00000100000009AAAAAA01 /* AddItemView.swift in Sources */,
+				AA0000010000000AAAAAAA01 /* ItemDetailView.swift in Sources */,
+				AA0000010000000BAAAAAA01 /* AIAnalysisView.swift in Sources */,
+				AA0000010000000CAAAAAA01 /* ScannerTab.swift in Sources */,
+				AA0000010000000DAAAAAA01 /* SettingsView.swift in Sources */,
+				AA0000010000000EAAAAAA01 /* ZoneManagementView.swift in Sources */,
+				AA0000010000000FAAAAAA01 /* ImageStorageService.swift in Sources */,
+				AA00000100000010AAAAAA01 /* QRGeneratorService.swift in Sources */,
+				AA00000100000011AAAAAA01 /* ImageAnalysisService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -441,6 +557,7 @@
 				DEVELOPMENT_TEAM = DNNRHTZRQY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -470,6 +587,7 @@
 				DEVELOPMENT_TEAM = DNNRHTZRQY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
