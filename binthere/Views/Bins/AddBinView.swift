@@ -74,7 +74,12 @@ struct AddBinView: View {
                 Picker("Zone", selection: $selectedZone) {
                     Text("None").tag(nil as Zone?)
                     ForEach(zones) { zone in
-                        Text(zone.name).tag(zone as Zone?)
+                        Label {
+                            Text(zone.name)
+                        } icon: {
+                            ZoneIcon(iconName: zone.icon, colorName: zone.color)
+                        }
+                        .tag(zone as Zone?)
                     }
                 }
                 TextField("Location (optional)", text: $location)
