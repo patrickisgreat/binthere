@@ -39,11 +39,12 @@ struct IconPickerGrid: View {
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 6)
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: 12) {
             ForEach(IconPalette.groups) { group in
                 Text(group.name)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(group.icons, id: \.self) { icon in
