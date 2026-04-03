@@ -1,28 +1,27 @@
-// Item.swift
 import Foundation
+import SwiftData
 
-class Item: Identifiable, PersistentModel {
+@Model
+final class Item {
     var id: UUID = UUID()
-    var timestamp: Date
-    var imagePath: String?
+    var name: String = ""
+    var itemDescription: String = ""
+    var imagePaths: [String] = []
+    var tags: [String] = []
+    var customFields: [String: String] = [:]
+    var createdAt: Date = Date()
+    var isCheckedOut: Bool = false
 
-    init(timestamp: Date, imagePath: String? = nil) {
-        self.timestamp = timestamp
-        self.imagePath = imagePath
-    }
+    var bin: Bin?
 
-    func insert() {
-        // Implementation of how to insert this item into your database or storage
-        print("Item inserted")
-    }
+    @Relationship(deleteRule: .cascade, inverse: \CheckoutRecord.item)
+    var checkoutHistory: [CheckoutRecord] = []
 
-    func update() {
-        // Implementation of how to update this item in your database or storage
-        print("Item updated")
-    }
-
-    func delete() {
-        // Implementation of how to delete this item from your database or storage
-        print("Item deleted")
+    init(name: String, itemDescription: String = "", bin: Bin? = nil) {
+        self.id = UUID()
+        self.name = name
+        self.itemDescription = itemDescription
+        self.bin = bin
+        self.createdAt = Date()
     }
 }
