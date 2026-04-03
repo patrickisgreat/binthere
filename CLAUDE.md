@@ -231,7 +231,8 @@ No PR is mergeable without tests that cover the behavior introduced or changed.
 ## Git Workflow
 
 - **Always work from a feature branch.** Never commit directly to `main`. Use descriptive branch names: `feat/qr-scanner-improvements`, `fix/checkout-date-bug`.
-- **Commit often.** Small, frequent commits that each represent a logical unit of work.
+- **Commit often.** Small, frequent commits that each represent a logical unit of work. Do not batch unrelated changes. Each commit should be independently understandable.
+- **Keep PRs reasonably sized for human review.** A PR should be small enough that a reviewer can understand the full scope in one sitting. If a feature is large, break it into incremental PRs that each deliver a coherent slice. Avoid monster PRs — they delay review, hide bugs, and are painful to revert.
 - **Conventional commit messages:**
   - `feat:` — New feature or capability
   - `fix:` — Bug fix
