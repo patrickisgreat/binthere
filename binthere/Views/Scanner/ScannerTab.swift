@@ -58,9 +58,8 @@ struct ScannerTab: View {
                 handleScannedCode(binID)
             }
         }
-        .onChange(of: nfcService.error) { _, newValue in
+        .onChange(of: nfcService.error) { _, _ in
             // NFC errors are shown by the system NFC sheet
-            // No additional handling needed
         }
     }
 

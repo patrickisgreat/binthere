@@ -2,6 +2,7 @@ import XCTest
 import SwiftData
 @testable import binthere
 
+@MainActor
 final class ModelTests: XCTestCase {
 
     private var container: ModelContainer!
@@ -392,6 +393,9 @@ final class QRGeneratorServiceTests: XCTestCase {
 
 // MARK: - NFC Service Tests
 
+#if !targetEnvironment(simulator)
+import CoreNFC
+
 final class NFCServiceTests: XCTestCase {
 
     func test_createPayload_returnsNonNil() {
@@ -422,6 +426,7 @@ final class NFCServiceTests: XCTestCase {
         XCTAssertNil(result)
     }
 }
+#endif
 
 // MARK: - Image Storage Tests
 
