@@ -7,6 +7,7 @@ struct ZoneDetailView: View {
     @Bindable var zone: Zone
 
     @State private var showingDeleteConfirmation = false
+    @State private var showingAddBin = false
 
     var body: some View {
         List {
@@ -74,6 +75,14 @@ struct ZoneDetailView: View {
         .navigationDestination(for: Bin.self) { bin in
             BinDetailView(bin: bin)
         }
+        .toolbar {
+            Button(action: { showingAddBin = true }) {
+                Label("Add Bin", systemImage: "plus")
+            }
+        }
+        .sheet(isPresented: $showingAddBin) {
+            AddBinToZoneSheet(zone: zone)
+        }
         .alert("Delete Zone?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {
                 modelContext.delete(zone)
@@ -103,5 +112,70 @@ struct ZoneDetailView: View {
                 .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+private struct AddBinToZoneSheet: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Query private var allBins: [Bin]
+
+    let zone: Zone
+
+    @State private var label = ""
+    @State private var binDescription = ""
+    @State private var location = ""
+    @State private var selectedColor = ""
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Label (optional)") {
+                    TextField("e.g. Garage Shelf, Junk Drawer", text: $label)
+                }
+                Section("Location") {
+                    TextField("Location (optional)", text: $location)
+                }
+                Section("Color") {
+                    ColorPickerRow(selectedColor: $selectedColor)
+                }
+                Section("Description") {
+                    TextField("Description (optional)", text: $binDescription, axis: .vertical)
+                        .lineLimit(3...6)
+                }
+            }
+            .navigationTitle("New Bin in \(zone.name)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Create") { createBin() }
+                }
+            }
+        }
+    }
+
+    private func createBin() {
+        let existingCodes = Set(allBins.map(\.code))
+        let code = CodeGenerator.generateCode(existingCodes: existingCodes)
+
+        let bin = Bin(
+            code: code,
+            name: label.trimmingCharacters(in: .whitespaces),
+            binDescription: binDescription,
+            location: location
+        )
+        bin.zone = zone
+        bin.color = selectedColor
+
+        if let labelImage = QRGeneratorService.generateQRLabel(code: code, binID: bin.id.uuidString),
+           let labelPath = ImageStorageService.saveImage(labelImage) {
+            bin.qrCodeImagePath = labelPath
+        }
+
+        modelContext.insert(bin)
+        dismiss()
     }
 }

@@ -2,6 +2,7 @@ import XCTest
 import SwiftData
 @testable import binthere
 
+@MainActor
 final class ModelTests: XCTestCase {
 
     private var container: ModelContainer!
@@ -389,6 +390,43 @@ final class QRGeneratorServiceTests: XCTestCase {
         XCTAssertGreaterThan(label.size.height, rawQR.size.height)
     }
 }
+
+// MARK: - NFC Service Tests
+
+#if !targetEnvironment(simulator)
+import CoreNFC
+
+final class NFCServiceTests: XCTestCase {
+
+    func test_createPayload_returnsNonNil() {
+        let uuid = UUID().uuidString
+        let payload = NFCService.createPayload(binID: uuid)
+        XCTAssertNotNil(payload)
+    }
+
+    func test_createPayload_roundTrip() {
+        let uuid = UUID().uuidString
+        guard let payload = NFCService.createPayload(binID: uuid) else {
+            XCTFail("Failed to create payload")
+            return
+        }
+
+        let extracted = NFCService.extractBinID(from: payload)
+        XCTAssertEqual(extracted, uuid)
+    }
+
+    func test_extractBinID_returnsNilForNonTextPayload() {
+        let payload = NFCNDEFPayload(
+            format: .unknown,
+            type: Data(),
+            identifier: Data(),
+            payload: Data()
+        )
+        let result = NFCService.extractBinID(from: payload)
+        XCTAssertNil(result)
+    }
+}
+#endif
 
 // MARK: - Image Storage Tests
 

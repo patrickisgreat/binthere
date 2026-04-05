@@ -152,7 +152,7 @@ struct HomeKitImportSheet: View {
     @State private var selectedRooms = Set<String>()
 
     private var availableRooms: [String] {
-        let existingNames = Set(existingZones.map(\.name.lowercased()))
+        let existingNames = Set(existingZones.map { $0.name.lowercased() })
         return homeKitService.rooms.filter { !existingNames.contains($0.lowercased()) }
     }
 

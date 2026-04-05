@@ -4,11 +4,14 @@ import SwiftData
 struct BinDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var bin: Bin
+    @Query(sort: \Zone.name) private var allZones: [Zone]
 
     @State private var showingAddItem = false
     @State private var showingAIAnalysis = false
     @State private var showingQRCode = false
     @State private var showingContentCamera = false
+    @State private var nfcService = NFCService()
+    @State private var showingNFCResult = false
     @State private var itemFilter: ItemFilter = .all
 
     enum ItemFilter: String, CaseIterable {
@@ -104,6 +107,9 @@ struct BinDetailView: View {
                     Button(action: { showingQRCode = true }) {
                         Label("Show QR Label", systemImage: "qrcode")
                     }
+                    Button(action: { nfcService.writeTag(binID: bin.id.uuidString) }) {
+                        Label("Write NFC Tag", systemImage: "wave.3.right")
+                    }
                     Button(action: { showingContentCamera = true }) {
                         Label("Add Bin Photo", systemImage: "camera")
                     }
@@ -150,21 +156,25 @@ struct BinDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            HStack(spacing: 16) {
-                if let zone = bin.zone {
+
+            Picker("Zone", selection: $bin.zone) {
+                Text("No Zone").tag(nil as Zone?)
+                ForEach(allZones) { zone in
                     Label {
                         Text(zone.name)
                     } icon: {
-                        ZoneIcon(iconName: zone.icon, colorName: zone.color, size: 14)
+                        ZoneIcon(iconName: zone.icon, colorName: zone.color)
                     }
-                    .font(.caption)
-                }
-                if !bin.location.isEmpty {
-                    Label(bin.location, systemImage: "location")
-                        .font(.caption)
+                    .tag(zone as Zone?)
                 }
             }
-            .foregroundStyle(.secondary)
+            .font(.subheadline)
+
+            if !bin.location.isEmpty {
+                Label(bin.location, systemImage: "location")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
