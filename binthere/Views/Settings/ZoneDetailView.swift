@@ -15,31 +15,12 @@ struct ZoneDetailView: View {
                 headerSection
             }
 
-            Section("Details") {
-                LabeledContent("Name") {
-                    TextField("Name", text: $zone.name)
-                        .multilineTextAlignment(.trailing)
-                }
-                LabeledContent("Description") {
-                    TextField("Description", text: $zone.locationDescription, axis: .vertical)
-                        .multilineTextAlignment(.trailing)
-                }
-            }
-
-            Section("Color") {
-                ColorPickerRow(selectedColor: $zone.color)
-            }
-
-            Section("Icon") {
-                IconPickerGrid(selectedIcon: $zone.icon)
-            }
-
             Section("Bins (\(zone.bins.count))") {
                 if zone.bins.isEmpty {
                     ContentUnavailableView(
                         "No Bins",
                         systemImage: "archivebox",
-                        description: Text("No bins are assigned to this zone yet.")
+                        description: Text("Tap + to add a bin to this zone.")
                     )
                 } else {
                     ForEach(zone.bins.sorted(by: { $0.code < $1.code })) { bin in
@@ -62,6 +43,33 @@ struct ZoneDetailView: View {
                             }
                         }
                     }
+                }
+            }
+
+            Section {
+                DisclosureGroup("Zone Settings") {
+                    LabeledContent("Name") {
+                        TextField("Name", text: $zone.name)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    LabeledContent("Description") {
+                        TextField("Description", text: $zone.locationDescription, axis: .vertical)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Color")
+                            .font(.subheadline)
+                        ColorPickerRow(selectedColor: $zone.color)
+                    }
+                    .padding(.vertical, 4)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Icon")
+                            .font(.subheadline)
+                        IconPickerGrid(selectedIcon: $zone.icon)
+                    }
+                    .padding(.vertical, 4)
                 }
             }
 
