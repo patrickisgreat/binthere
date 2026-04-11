@@ -40,6 +40,10 @@
 		CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000003BBBBBB01 /* HomeKitService.swift */; };
 		CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000004BBBBBB01 /* ZonesGridView.swift */; };
 		DD00000100000001AAAAAA01 /* NFCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000100000001BBBBBB01 /* NFCService.swift */; };
+		EE00000100000001AAAAAA01 /* CustomAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000001BBBBBB01 /* CustomAttribute.swift */; };
+		EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */; };
+		EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000003BBBBBB01 /* SetValueSheet.swift */; };
+		EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +100,10 @@
 		CC00000100000003BBBBBB01 /* HomeKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeKitService.swift; sourceTree = "<group>"; };
 		CC00000100000004BBBBBB01 /* ZonesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesGridView.swift; sourceTree = "<group>"; };
 		DD00000100000001BBBBBB01 /* NFCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCService.swift; sourceTree = "<group>"; };
+		EE00000100000001BBBBBB01 /* CustomAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAttribute.swift; sourceTree = "<group>"; };
+		EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		EE00000100000003BBBBBB01 /* SetValueSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetValueSheet.swift; sourceTree = "<group>"; };
+		EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAttributeSheet.swift; sourceTree = "<group>"; };
 		DD00000100000002BBBBBB01 /* binthere.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = binthere.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -194,6 +202,7 @@
 				AA00000100000002BBBBBB01 /* Zone.swift */,
 				AA00000100000003BBBBBB01 /* Bin.swift */,
 				AA00000100000004BBBBBB01 /* CheckoutRecord.swift */,
+				EE00000100000001BBBBBB01 /* CustomAttribute.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -239,6 +248,8 @@
 				AA00000100000009BBBBBB01 /* AddItemView.swift */,
 				AA0000010000000ABBBBBB01 /* ItemDetailView.swift */,
 				AA0000010000000BBBBBBB01 /* AIAnalysisView.swift */,
+				EE00000100000003BBBBBB01 /* SetValueSheet.swift */,
+				EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */,
 			);
 			path = Items;
 			sourceTree = "<group>";
@@ -267,6 +278,7 @@
 				BB00000100000001BBBBBB01 /* ColorPalette.swift */,
 				BB00000100000002BBBBBB01 /* CodeGenerator.swift */,
 				CC00000100000001BBBBBB01 /* IconPalette.swift */,
+				EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -437,6 +449,10 @@
 				CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */,
 				CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */,
 				DD00000100000001AAAAAA01 /* NFCService.swift in Sources */,
+				EE00000100000001AAAAAA01 /* CustomAttribute.swift in Sources */,
+				EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */,
+				EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */,
+				EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
