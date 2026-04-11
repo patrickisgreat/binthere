@@ -175,6 +175,16 @@ struct BinDetailView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            if bin.totalValue > 0 {
+                Label {
+                    Text("\(CurrencyFormatter.format(bin.totalValue)) · \(bin.itemsWithValueCount) item\(bin.itemsWithValueCount == 1 ? "" : "s")")
+                } icon: {
+                    Image(systemName: "dollarsign.circle")
+                }
+                .font(.caption)
+                .foregroundStyle(.green)
+            }
         }
     }
 }

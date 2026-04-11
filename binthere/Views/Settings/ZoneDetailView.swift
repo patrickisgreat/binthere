@@ -118,6 +118,11 @@ struct ZoneDetailView: View {
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                if zone.totalValue > 0 {
+                    Label(CurrencyFormatter.format(zone.totalValue), systemImage: "dollarsign.circle")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
             }
         }
     }
