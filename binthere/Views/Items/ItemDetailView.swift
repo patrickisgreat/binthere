@@ -11,6 +11,9 @@ struct ItemDetailView: View {
     @State private var showingMoveBin = false
     @State private var showingDeleteConfirmation = false
     @State private var showingImagePicker = false
+    @State private var showingSetValue = false
+    @State private var editingAttribute: CustomAttribute?
+    @State private var showingNewAttribute = false
 
     var body: some View {
         List {
@@ -46,6 +49,59 @@ struct ItemDetailView: View {
                 if let bin = item.bin {
                     LabeledContent("Bin", value: bin.displayName)
                 }
+            }
+
+            Section("Value") {
+                Button(action: { showingSetValue = true }) {
+                    HStack {
+                        Image(systemName: "dollarsign.circle")
+                        Text(CurrencyFormatter.format(item.value))
+                            .foregroundStyle(item.value == nil ? .secondary : .primary)
+                        Spacer()
+                        if !item.valueSource.isEmpty {
+                            Text(item.valueSource == "ai" ? "AI" : "Manual")
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(.quaternary)
+                                .clipShape(Capsule())
+                        }
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
+            Section("Notes") {
+                TextField("Add notes about this item...", text: $item.notes, axis: .vertical)
+                    .lineLimit(3...10)
+            }
+
+            Section {
+                ForEach(item.customAttributes.sorted(by: { $0.sortOrder < $1.sortOrder })) { attribute in
+                    Button(action: { editingAttribute = attribute }) {
+                        HStack {
+                            Image(systemName: attribute.attributeType.systemImage)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 20)
+                            Text(attribute.name)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Text(attribute.displayValue)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                .onDelete(perform: deleteAttributes)
+
+                Button(action: { showingNewAttribute = true }) {
+                    Label("Add Attribute", systemImage: "plus.circle")
+                }
+            } header: {
+                Text("Custom Attributes")
             }
 
             Section("Color") {
@@ -128,6 +184,22 @@ struct ItemDetailView: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will permanently remove this item and its checkout history.")
+        }
+        .sheet(isPresented: $showingSetValue) {
+            SetValueSheet(item: item)
+        }
+        .sheet(isPresented: $showingNewAttribute) {
+            EditAttributeSheet(item: item, existing: nil)
+        }
+        .sheet(item: $editingAttribute) { attribute in
+            EditAttributeSheet(item: item, existing: attribute)
+        }
+    }
+
+    private func deleteAttributes(at offsets: IndexSet) {
+        let sorted = item.customAttributes.sorted(by: { $0.sortOrder < $1.sortOrder })
+        for index in offsets {
+            modelContext.delete(sorted[index])
         }
     }
 
