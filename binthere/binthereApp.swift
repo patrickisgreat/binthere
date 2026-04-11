@@ -8,7 +8,8 @@ struct binthereApp: App { // swiftlint:disable:this type_name
             Zone.self,
             Bin.self,
             Item.self,
-            CheckoutRecord.self
+            CheckoutRecord.self,
+            CustomAttribute.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,

@@ -26,6 +26,14 @@ final class Bin {
         return "\(code) — \(name)"
     }
 
+    var totalValue: Double {
+        items.compactMap(\.value).reduce(0, +)
+    }
+
+    var itemsWithValueCount: Int {
+        items.filter { $0.value != nil }.count
+    }
+
     init(code: String, name: String = "", binDescription: String = "", location: String = "") {
         self.id = UUID()
         self.code = code
