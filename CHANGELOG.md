@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/patrickisgreat/binthere/compare/v0.3.0...v0.4.0) (2026-04-12)
+
+
+### Features
+
+* reports, manifests, and analytics dashboard ([ece92ff](https://github.com/patrickisgreat/binthere/commit/ece92ff202a537df69fef53e4d09383461b15008))
+
 ## [0.3.0](https://github.com/patrickisgreat/binthere/compare/v0.2.0...v0.3.0) (2026-04-12)
 
 
