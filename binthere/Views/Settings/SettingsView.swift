@@ -6,6 +6,14 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Reports & Export") {
+                NavigationLink {
+                    ReportsView()
+                } label: {
+                    Label("Reports & Analytics", systemImage: "chart.bar.doc.horizontal")
+                }
+            }
+
             Section("AI Analysis") {
                 HStack {
                     if showingAPIKey {
