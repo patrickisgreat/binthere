@@ -19,10 +19,9 @@ final class SupabaseManager {
               let anonKey = Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String,
               !urlString.contains("YOUR_PROJECT") else {
             // Fallback for development without Supabase configured
-            client = SupabaseClient(
-                supabaseURL: URL(string: "https://placeholder.supabase.co")!,
-                supabaseKey: "placeholder"
-            )
+            // swiftlint:disable:next force_unwrapping
+            let placeholderURL = URL(string: "https://placeholder.supabase.co")!
+            client = SupabaseClient(supabaseURL: placeholderURL, supabaseKey: "placeholder")
             return
         }
 

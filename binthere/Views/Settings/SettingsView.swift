@@ -1,11 +1,23 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(AuthService.self) private var authService
     @State private var apiKey = ImageAnalysisService.apiKey ?? ""
     @State private var showingAPIKey = false
 
     var body: some View {
         Form {
+            Section("Account") {
+                if let email = authService.currentEmail {
+                    LabeledContent("Email", value: email)
+                }
+                Button(role: .destructive) {
+                    Task { await authService.signOut() }
+                } label: {
+                    Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            }
+
             Section("Reports & Export") {
                 NavigationLink {
                     ReportsView()

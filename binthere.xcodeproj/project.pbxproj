@@ -48,6 +48,10 @@
 		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
 		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
 		AB00000100000001AAAAAA01 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000001BBBBBB01 /* SupabaseClient.swift */; };
+		AB00000100000002AAAAAA01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000002BBBBBB01 /* AuthService.swift */; };
+		AB00000100000003AAAAAA01 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000003BBBBBB01 /* SignInView.swift */; };
+		AB00000100000004AAAAAA01 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000004BBBBBB01 /* SignUpView.swift */; };
+		AB00000100000005AAAAAA01 /* AuthGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000005BBBBBB01 /* AuthGateView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +117,10 @@
 		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
 		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
 		AB00000100000001BBBBBB01 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
+		AB00000100000002BBBBBB01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		AB00000100000003BBBBBB01 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		AB00000100000004BBBBBB01 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		AB00000100000005BBBBBB01 /* AuthGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthGateView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				AA00000100000005BBBBBB01 /* MainTabView.swift */,
+				AB00000100000006CCCCCC01 /* Auth */,
 				AA00000100000023CCCCCC01 /* Bins */,
 				AA00000100000024CCCCCC01 /* Items */,
 				CC00000100000005CCCCCC01 /* Zones */,
@@ -239,6 +248,7 @@
 				DD00000100000001BBBBBB01 /* NFCService.swift */,
 				FF00000100000001BBBBBB01 /* ReportService.swift */,
 				AB00000100000001BBBBBB01 /* SupabaseClient.swift */,
+				AB00000100000002BBBBBB01 /* AuthService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -292,6 +302,16 @@
 				EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		AB00000100000006CCCCCC01 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				AB00000100000003BBBBBB01 /* SignInView.swift */,
+				AB00000100000004BBBBBB01 /* SignUpView.swift */,
+				AB00000100000005BBBBBB01 /* AuthGateView.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		FF00000100000004CCCCCC01 /* Reports */ = {
@@ -483,6 +503,10 @@
 				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
 				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,
 				AB00000100000001AAAAAA01 /* SupabaseClient.swift in Sources */,
+				AB00000100000002AAAAAA01 /* AuthService.swift in Sources */,
+				AB00000100000003AAAAAA01 /* SignInView.swift in Sources */,
+				AB00000100000004AAAAAA01 /* SignUpView.swift in Sources */,
+				AB00000100000005AAAAAA01 /* AuthGateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
