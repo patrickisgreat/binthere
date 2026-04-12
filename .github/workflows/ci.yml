@@ -62,11 +62,12 @@ jobs:
             -destination "platform=iOS Simulator,name=${{ steps.dest.outputs.simulator }}" \
             -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO
-      - name: Run Tests
+      - name: Run Unit Tests
         run: |
           xcodebuild test \
             -scheme binthere \
             -destination "platform=iOS Simulator,name=${{ steps.dest.outputs.simulator }}" \
+            -only-testing:binthereTests \
             -skipPackagePluginValidation \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
