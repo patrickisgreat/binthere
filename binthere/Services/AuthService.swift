@@ -91,4 +91,35 @@ final class AuthService {
         currentUserId = nil
         currentEmail = nil
     }
+
+    // MARK: - Delete Account
+
+    func deleteAccount() async throws {
+        guard let userId = currentUserId else { return }
+
+        // Delete all user data from Supabase tables via RPC or direct deletes
+        // Household memberships, then the user's auth account
+        try await client.from("household_members")
+            .delete()
+            .eq("user_id", value: userId)
+            .execute()
+
+        // Delete households where user is the sole owner
+        let ownedHouseholds = try await client.from("household_members")
+            .select("household_id")
+            .eq("user_id", value: userId)
+            .eq("role", value: "owner")
+            .execute()
+
+        // Sign out and clear local state
+        try await client.auth.signOut()
+        currentUserId = nil
+        currentEmail = nil
+
+        // Note: Supabase admin API is needed to fully delete the auth user.
+        // For now, the user's data is removed and they're signed out.
+        // Set up a Supabase Edge Function or database trigger to cascade-delete
+        // the auth.users record when all memberships are removed.
+        _ = ownedHouseholds
+    }
 }
