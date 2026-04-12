@@ -68,6 +68,26 @@
 - Offline-first with conflict resolution
 - Row Level Security for household isolation
 
+### Phase 11: UI/UX Overhaul — Things-Inspired Design
+Redesign the app's visual language and interaction patterns to match the polish and feel of [Things 3](https://culturedcode.com/things/) by Cultured Code:
+
+- **Clean, minimal chrome** — reduce visual noise, let content breathe with generous whitespace and subtle separators instead of heavy section borders
+- **Smooth animations** — spring-based transitions for sheet presentations, item additions/deletions, and navigation. Everything should feel fluid and intentional.
+- **Custom navigation** — replace default NavigationStack push with Things-style full-screen detail views that slide up as cards/sheets
+- **Inline editing** — tap a field to edit in-place (no separate edit mode). Text fields that look like labels until tapped.
+- **Drag and drop** — reorder items within bins, move items between bins via drag
+- **Quick add** — persistent "Add Item" row at the bottom of bin detail (like Things' quick entry), not hidden behind a + button and sheet
+- **Haptic feedback** — subtle haptics on check-in/check-out, item creation, drag actions
+- **Typography** — SF Pro with clear hierarchy: large bold titles, medium body, light metadata. No visual clutter.
+- **Color system** — refined palette with muted backgrounds, vibrant accents only on interactive elements and color dots
+- **Dark mode polish** — proper dark mode with true black backgrounds and adjusted color palette (not just inverted)
+- **Empty states** — illustrated/branded empty states instead of generic SF Symbol + text
+- **Pull to refresh** — even though data is local, the gesture should feel natural for future sync
+- **Swipe gestures** — rich swipe actions (check out, move, delete) with color-coded backgrounds like Things' swipe-to-complete
+- **Contextual menus** — long-press context menus on items and bins for quick actions
+- **Keyboard shortcuts** — for iPad: Cmd+N (new bin), Cmd+F (search), etc.
+- **Accessibility** — VoiceOver labels, Dynamic Type support, reduce motion preferences
+
 ## Ideas (Unprioritized)
 - Apple Home / Google Home room live sync
 - Barcode scanning for commercial products
