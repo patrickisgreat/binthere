@@ -44,6 +44,9 @@
 		EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */; };
 		EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000003BBBBBB01 /* SetValueSheet.swift */; };
 		EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */; };
+		FF00000100000001AAAAAA01 /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000001BBBBBB01 /* ReportService.swift */; };
+		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
+		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +108,9 @@
 		EE00000100000003BBBBBB01 /* SetValueSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetValueSheet.swift; sourceTree = "<group>"; };
 		EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAttributeSheet.swift; sourceTree = "<group>"; };
 		DD00000100000002BBBBBB01 /* binthere.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = binthere.entitlements; sourceTree = "<group>"; };
+		FF00000100000001BBBBBB01 /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
+		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
+		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,6 +220,7 @@
 				AA00000100000023CCCCCC01 /* Bins */,
 				AA00000100000024CCCCCC01 /* Items */,
 				CC00000100000005CCCCCC01 /* Zones */,
+				FF00000100000004CCCCCC01 /* Reports */,
 				AA00000100000025CCCCCC01 /* Scanner */,
 				AA00000100000026CCCCCC01 /* Settings */,
 			);
@@ -228,6 +235,7 @@
 				AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */,
 				CC00000100000003BBBBBB01 /* HomeKitService.swift */,
 				DD00000100000001BBBBBB01 /* NFCService.swift */,
+				FF00000100000001BBBBBB01 /* ReportService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -281,6 +289,15 @@
 				EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		FF00000100000004CCCCCC01 /* Reports */ = {
+			isa = PBXGroup;
+			children = (
+				FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */,
+				FF00000100000003BBBBBB01 /* ReportsView.swift */,
+			);
+			path = Reports;
 			sourceTree = "<group>";
 		};
 		CC00000100000005CCCCCC01 /* Zones */ = {
@@ -453,6 +470,9 @@
 				EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */,
 				EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */,
 				EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */,
+				FF00000100000001AAAAAA01 /* ReportService.swift in Sources */,
+				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
+				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
