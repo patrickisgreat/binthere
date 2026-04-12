@@ -317,6 +317,174 @@ final class ModelTests: XCTestCase {
     }
 }
 
+// MARK: - Item Enrichment Tests
+
+@MainActor
+final class ItemEnrichmentTests: XCTestCase {
+
+    private var container: ModelContainer!
+    private var context: ModelContext!
+
+    override func setUpWithError() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
+            configurations: config
+        )
+        context = container.mainContext
+    }
+
+    override func tearDownWithError() throws {
+        container = nil
+        context = nil
+    }
+
+    func test_itemValue_defaultsNil() {
+        let item = Item(name: "Drill")
+        context.insert(item)
+        XCTAssertNil(item.value)
+        XCTAssertTrue(item.valueSource.isEmpty)
+        XCTAssertNil(item.valueUpdatedAt)
+    }
+
+    func test_itemValueTracking() throws {
+        let item = Item(name: "Drill")
+        context.insert(item)
+        item.value = 150.00
+        item.valueSource = "manual"
+        item.valueUpdatedAt = Date()
+        try context.save()
+
+        XCTAssertEqual(item.value, 150.00)
+        XCTAssertEqual(item.valueSource, "manual")
+        XCTAssertNotNil(item.valueUpdatedAt)
+    }
+
+    func test_binTotalValue_rollup() throws {
+        let bin = Bin(code: "V001")
+        let item1 = Item(name: "Item 1", bin: bin)
+        let item2 = Item(name: "Item 2", bin: bin)
+        let item3 = Item(name: "Item 3", bin: bin)
+        item1.value = 50.00
+        item2.value = 100.00
+        // item3 has no value
+        context.insert(bin)
+        context.insert(item1)
+        context.insert(item2)
+        context.insert(item3)
+        try context.save()
+
+        XCTAssertEqual(bin.totalValue, 150.00)
+        XCTAssertEqual(bin.itemsWithValueCount, 2)
+    }
+
+    func test_zoneTotalValue_rollup() throws {
+        let zone = Zone(name: "Garage")
+        let bin1 = Bin(code: "G001")
+        let bin2 = Bin(code: "G002")
+        bin1.zone = zone
+        bin2.zone = zone
+        let item1 = Item(name: "Tool", bin: bin1)
+        let item2 = Item(name: "Gadget", bin: bin2)
+        item1.value = 25.00
+        item2.value = 75.00
+        context.insert(zone)
+        context.insert(bin1)
+        context.insert(bin2)
+        context.insert(item1)
+        context.insert(item2)
+        try context.save()
+
+        XCTAssertEqual(zone.totalValue, 100.00)
+    }
+
+    func test_customAttribute_persists() throws {
+        let item = Item(name: "Watch")
+        context.insert(item)
+
+        let brand = CustomAttribute(name: "Brand", type: .text)
+        brand.textValue = "Seiko"
+        brand.item = item
+        context.insert(brand)
+
+        let year = CustomAttribute(name: "Year", type: .number)
+        year.numberValue = 1985
+        year.item = item
+        context.insert(year)
+        try context.save()
+
+        XCTAssertEqual(item.customAttributes.count, 2)
+    }
+
+    func test_customAttribute_cascadeDelete() throws {
+        let item = Item(name: "Watch")
+        let attribute = CustomAttribute(name: "Brand", type: .text)
+        attribute.textValue = "Seiko"
+        attribute.item = item
+        context.insert(item)
+        context.insert(attribute)
+        try context.save()
+
+        context.delete(item)
+        try context.save()
+
+        let descriptor = FetchDescriptor<CustomAttribute>()
+        let remaining = try context.fetch(descriptor)
+        XCTAssertTrue(remaining.isEmpty)
+    }
+
+    func test_customAttribute_displayValue_byType() {
+        let textAttr = CustomAttribute(name: "Brand", type: .text)
+        textAttr.textValue = "Seiko"
+        XCTAssertEqual(textAttr.displayValue, "Seiko")
+
+        let boolAttr = CustomAttribute(name: "Waterproof", type: .boolean)
+        boolAttr.boolValue = true
+        XCTAssertEqual(boolAttr.displayValue, "Yes")
+
+        boolAttr.boolValue = false
+        XCTAssertEqual(boolAttr.displayValue, "No")
+
+        let dateAttr = CustomAttribute(name: "Purchased", type: .date)
+        dateAttr.dateValue = nil
+        XCTAssertEqual(dateAttr.displayValue, "—")
+    }
+
+    func test_itemNotes_persist() throws {
+        let item = Item(name: "Box")
+        context.insert(item)
+        item.notes = "Contains grandma's china. Handle with care."
+        try context.save()
+
+        XCTAssertEqual(item.notes, "Contains grandma's china. Handle with care.")
+    }
+}
+
+// MARK: - CurrencyFormatter Tests
+
+final class CurrencyFormatterTests: XCTestCase {
+
+    func test_format_nilReturnsDash() {
+        XCTAssertEqual(CurrencyFormatter.format(nil), "—")
+    }
+
+    func test_format_zeroReturnsDash() {
+        XCTAssertEqual(CurrencyFormatter.format(0), "—")
+    }
+
+    func test_format_positiveValue() {
+        let result = CurrencyFormatter.format(123.45)
+        XCTAssertFalse(result.isEmpty)
+        XCTAssertNotEqual(result, "—")
+    }
+
+    func test_parse_currencyString() {
+        XCTAssertEqual(CurrencyFormatter.parse("$123.45"), 123.45)
+        XCTAssertEqual(CurrencyFormatter.parse("1000"), 1000)
+        XCTAssertEqual(CurrencyFormatter.parse("49.99"), 49.99)
+    }
+}
+
 // MARK: - CodeGenerator Tests
 
 final class CodeGeneratorTests: XCTestCase {

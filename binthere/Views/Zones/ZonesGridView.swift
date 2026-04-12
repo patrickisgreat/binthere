@@ -95,6 +95,16 @@ private struct ZoneCard: View {
                 }
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.8))
+
+                if zone.totalValue > 0 {
+                    Text(CurrencyFormatter.format(zone.totalValue))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.white.opacity(0.2))
+                        .clipShape(Capsule())
+                }
             }
 
             if !zone.locationDescription.isEmpty {

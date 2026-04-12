@@ -12,11 +12,18 @@ final class Item {
     var color: String = ""
     var createdAt: Date = Date()
     var isCheckedOut: Bool = false
+    var notes: String = ""
+    var value: Double?
+    var valueSource: String = ""
+    var valueUpdatedAt: Date?
 
     var bin: Bin?
 
     @Relationship(deleteRule: .cascade, inverse: \CheckoutRecord.item)
     var checkoutHistory: [CheckoutRecord] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \CustomAttribute.item)
+    var customAttributes: [CustomAttribute] = []
 
     init(name: String, itemDescription: String = "", bin: Bin? = nil) {
         self.id = UUID()

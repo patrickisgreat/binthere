@@ -16,6 +16,10 @@ final class Zone {
         bins.reduce(0) { $0 + $1.items.count }
     }
 
+    var totalValue: Double {
+        bins.reduce(0) { $0 + $1.totalValue }
+    }
+
     init(name: String, locationDescription: String = "", color: String = "", icon: String = "") {
         self.id = UUID()
         self.name = name

@@ -145,4 +145,122 @@ final class ImageAnalysisService {
             return SuggestedItem(name: name, description: description, tags: tags)
         }
     }
+
+    // MARK: - Value Estimation
+
+    struct ValueEstimate {
+        let value: Double
+        let reasoning: String
+    }
+
+    func estimateValue(
+        for image: UIImage,
+        itemName: String,
+        itemDescription: String
+    ) async -> ValueEstimate? {
+        guard let apiKey = Self.apiKey, !apiKey.isEmpty else {
+            error = .noAPIKey
+            return nil
+        }
+
+        guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+            error = .imageConversionFailed
+            return nil
+        }
+
+        isAnalyzing = true
+        error = nil
+        defer { isAnalyzing = false }
+
+        let prompt = """
+        Estimate the current resale value of this item in US dollars.
+        Item name: \(itemName)
+        Description: \(itemDescription.isEmpty ? "(none)" : itemDescription)
+
+        Consider the visible condition in the photo and typical market prices \
+        for similar items. Respond with ONLY a JSON object with two keys: \
+        "estimated_value" (a number in USD, no currency symbol) and \
+        "reasoning" (a brief 1-2 sentence explanation of how you arrived at \
+        the estimate). Example: {"estimated_value": 25.00, "reasoning": \
+        "Used hand tool in good condition, similar items retail for $20-30."}
+        """
+
+        guard let request = buildValueRequest(
+            apiKey: apiKey,
+            base64Image: imageData.base64EncodedString(),
+            prompt: prompt
+        ) else {
+            error = .decodingError("Failed to create request")
+            return nil
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            return try parseValueResponse(data)
+        } catch let analysisError as ImageAnalysisError {
+            error = analysisError
+            return nil
+        } catch {
+            self.error = .networkError(error)
+            return nil
+        }
+    }
+
+    private func buildValueRequest(apiKey: String, base64Image: String, prompt: String) -> URLRequest? {
+        let requestBody: [String: Any] = [
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 512,
+            "messages": [
+                [
+                    "role": "user",
+                    "content": [
+                        [
+                            "type": "image",
+                            "source": [
+                                "type": "base64",
+                                "media_type": "image/jpeg",
+                                "data": base64Image,
+                            ],
+                        ],
+                        [
+                            "type": "text",
+                            "text": prompt,
+                        ],
+                    ],
+                ]
+            ],
+        ]
+
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
+              let apiURL = URL(string: "https://api.anthropic.com/v1/messages") else {
+            return nil
+        }
+
+        var request = URLRequest(url: apiURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.httpBody = jsonData
+        return request
+    }
+
+    private func parseValueResponse(_ data: Data) throws -> ValueEstimate {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let content = json["content"] as? [[String: Any]],
+              let firstBlock = content.first,
+              let text = firstBlock["text"] as? String else {
+            throw ImageAnalysisError.decodingError("Unexpected response format")
+        }
+
+        let jsonText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let valueData = jsonText.data(using: .utf8),
+              let parsed = try? JSONSerialization.jsonObject(with: valueData) as? [String: Any],
+              let estimatedValue = parsed["estimated_value"] as? Double else {
+            throw ImageAnalysisError.decodingError("Could not parse value estimate")
+        }
+
+        let reasoning = parsed["reasoning"] as? String ?? ""
+        return ValueEstimate(value: estimatedValue, reasoning: reasoning)
+    }
 }
