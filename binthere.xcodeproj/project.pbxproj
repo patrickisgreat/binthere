@@ -47,6 +47,7 @@
 		FF00000100000001AAAAAA01 /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000001BBBBBB01 /* ReportService.swift */; };
 		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
 		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
+		AB00000100000001AAAAAA01 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000001BBBBBB01 /* SupabaseClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +112,7 @@
 		FF00000100000001BBBBBB01 /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
 		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
+		AB00000100000001BBBBBB01 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +238,7 @@
 				CC00000100000003BBBBBB01 /* HomeKitService.swift */,
 				DD00000100000001BBBBBB01 /* NFCService.swift */,
 				FF00000100000001BBBBBB01 /* ReportService.swift */,
+				AB00000100000001BBBBBB01 /* SupabaseClient.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -324,6 +327,9 @@
 			dependencies = (
 			);
 			name = binthere;
+			packageProductDependencies = (
+				AABB000100000001DDDDDD01 /* Supabase */,
+			);
 			productName = binthere;
 			productReference = 2FBD3E202BEAC2D100B0C02C /* binthere.app */;
 			productType = "com.apple.product-type.application";
@@ -397,6 +403,9 @@
 			);
 			mainGroup = 2FBD3E172BEAC2D100B0C02C;
 			productRefGroup = 2FBD3E212BEAC2D100B0C02C /* Products */;
+			packageReferences = (
+				AABB000100000001EEEEEE01 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -473,6 +482,7 @@
 				FF00000100000001AAAAAA01 /* ReportService.swift in Sources */,
 				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
 				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,
+				AB00000100000001AAAAAA01 /* SupabaseClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -644,6 +654,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
 				INFOPLIST_KEY_NFCReaderUsageDescription = "binthere scans NFC tags to identify bins and items.";
+				SUPABASE_URL = "$(SUPABASE_URL)";
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "binthere can import room names from HomeKit to use as zones.";
 				CODE_SIGN_ENTITLEMENTS = binthere/binthere.entitlements;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -676,6 +688,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
 				INFOPLIST_KEY_NFCReaderUsageDescription = "binthere scans NFC tags to identify bins and items.";
+				SUPABASE_URL = "$(SUPABASE_URL)";
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "binthere can import room names from HomeKit to use as zones.";
 				CODE_SIGN_ENTITLEMENTS = binthere/binthere.entitlements;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -804,6 +818,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AABB000100000001EEEEEE01 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AABB000100000001DDDDDD01 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AABB000100000001EEEEEE01 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2FBD3E182BEAC2D100B0C02C /* Project object */;
 }
