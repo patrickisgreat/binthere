@@ -1,42 +1,23 @@
-//
-//  binthereUITests.swift
-//  binthereUITests
-//
-//  Created by Patrick Bennett on 5/7/24.
-//
-
 import XCTest
 
 // swiftlint:disable:next type_name
 final class binthereUITests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // Set initial state (interface orientation, etc.) before tests run.
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testAppLaunchesAndShowsAuthScreen() throws {
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
+        // App should show the auth gate — either "binthere" logo or "Sign In"
+        let signInButton = app.buttons["Sign In"]
+        let logo = app.staticTexts["binthere"]
 
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+        let authScreenAppeared = signInButton.waitForExistence(timeout: 10)
+            || logo.waitForExistence(timeout: 5)
+
+        XCTAssertTrue(authScreenAppeared, "Auth screen should appear on launch")
     }
 }
