@@ -26,6 +26,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
+      - name: Create Secrets.xcconfig
+        run: |
+          cat > Secrets.xcconfig << EOF
+          SUPABASE_URL = ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY = ${{ secrets.SUPABASE_ANON_KEY }}
+          EOF
       - name: Select latest Xcode
         run: |
           LATEST_XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
