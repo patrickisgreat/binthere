@@ -485,6 +485,95 @@ final class CurrencyFormatterTests: XCTestCase {
     }
 }
 
+// MARK: - ReportService Tests
+
+@MainActor
+final class ReportServiceTests: XCTestCase {
+
+    private var container: ModelContainer!
+    private var context: ModelContext!
+
+    override func setUpWithError() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
+            configurations: config
+        )
+        context = container.mainContext
+    }
+
+    override func tearDownWithError() throws {
+        container = nil
+        context = nil
+    }
+
+    func test_generateCSV_producesValidOutput() throws {
+        let zone = Zone(name: "Garage")
+        let bin = Bin(code: "G001", name: "Shelf")
+        bin.zone = zone
+        let item = Item(name: "Hammer", itemDescription: "Ball peen", bin: bin)
+        item.value = 25.00
+        item.tags = ["tools"]
+        context.insert(zone)
+        context.insert(bin)
+        context.insert(item)
+        try context.save()
+
+        guard let data = ReportService.generateCSV(zones: [zone], bins: [bin]),
+              let csv = String(data: data, encoding: .utf8) else {
+            XCTFail("Failed to generate CSV")
+            return
+        }
+
+        XCTAssertTrue(csv.contains("Zone,Bin Code,Bin Label"))
+        XCTAssertTrue(csv.contains("Garage"))
+        XCTAssertTrue(csv.contains("G001"))
+        XCTAssertTrue(csv.contains("Hammer"))
+        XCTAssertTrue(csv.contains("25.00"))
+    }
+
+    func test_generateCSV_escapesCommasInFields() throws {
+        let bin = Bin(code: "T001")
+        let item = Item(name: "Drill, cordless", bin: bin)
+        context.insert(bin)
+        context.insert(item)
+        try context.save()
+
+        guard let data = ReportService.generateCSV(zones: [], bins: [bin]),
+              let csv = String(data: data, encoding: .utf8) else {
+            XCTFail("Failed to generate CSV")
+            return
+        }
+
+        XCTAssertTrue(csv.contains("\"Drill, cordless\""))
+    }
+
+    func test_generateInsuranceReport_returnsData() throws {
+        let bin = Bin(code: "R001")
+        let item = Item(name: "Wrench", bin: bin)
+        item.value = 15.00
+        context.insert(bin)
+        context.insert(item)
+        try context.save()
+
+        let data = ReportService.generateInsuranceReport(zones: [], bins: [bin])
+        XCTAssertNotNil(data)
+        XCTAssertGreaterThan(data?.count ?? 0, 0)
+    }
+
+    func test_generateBinManifest_returnsData() throws {
+        let bin = Bin(code: "M001")
+        let item = Item(name: "Tape", bin: bin)
+        context.insert(bin)
+        context.insert(item)
+        try context.save()
+
+        let data = ReportService.generateBinManifest(bin: bin)
+        XCTAssertNotNil(data)
+        XCTAssertGreaterThan(data?.count ?? 0, 0)
+    }
+}
+
 // MARK: - CodeGenerator Tests
 
 final class CodeGeneratorTests: XCTestCase {

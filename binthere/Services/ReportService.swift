@@ -41,106 +41,110 @@ enum ReportService {
 
     // MARK: - Insurance Report PDF
 
-    static func generateInsuranceReport(zones: [Zone], bins: [Bin]) -> Data? {
-        let pageWidth: CGFloat = 612
-        let pageHeight: CGFloat = 792
-        let margin: CGFloat = 50
-        let contentWidth = pageWidth - margin * 2
+    private static let pageWidth: CGFloat = 612
+    private static let pageHeight: CGFloat = 792
+    private static let margin: CGFloat = 50
+    private static var contentWidth: CGFloat { pageWidth - margin * 2 }
 
+    static func generateInsuranceReport(zones: [Zone], bins: [Bin]) -> Data? {
         let pdfData = NSMutableData()
         UIGraphicsBeginPDFContextToData(pdfData, CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight), nil)
 
-        var yPosition: CGFloat = 0
+        drawCoverPage(zones: zones, bins: bins)
+        drawContentPages(bins: bins)
 
-        // Cover page
+        UIGraphicsEndPDFContext()
+        return pdfData as Data
+    }
+
+    private static func drawCoverPage(zones: [Zone], bins: [Bin]) {
         UIGraphicsBeginPDFPage()
-        yPosition = margin
+        var yPos = margin + 200
 
-        yPosition = drawText("binthere", at: CGPoint(x: margin, y: yPosition + 200), width: contentWidth,
-                             font: .systemFont(ofSize: 36, weight: .bold), alignment: .center)
-        yPosition = drawText("Inventory Report", at: CGPoint(x: margin, y: yPosition + 10), width: contentWidth,
-                             font: .systemFont(ofSize: 24, weight: .medium), color: .darkGray, alignment: .center)
-        yPosition = drawText(Date().formatted(date: .long, time: .omitted),
-                             at: CGPoint(x: margin, y: yPosition + 20), width: contentWidth,
-                             font: .systemFont(ofSize: 14), color: .gray, alignment: .center)
+        yPos = drawText("binthere", at: CGPoint(x: margin, y: yPos), width: contentWidth,
+                        font: .systemFont(ofSize: 36, weight: .bold), alignment: .center)
+        yPos = drawText("Inventory Report", at: CGPoint(x: margin, y: yPos + 10), width: contentWidth,
+                        font: .systemFont(ofSize: 24, weight: .medium), color: .darkGray, alignment: .center)
+        yPos = drawText(Date().formatted(date: .long, time: .omitted),
+                        at: CGPoint(x: margin, y: yPos + 20), width: contentWidth,
+                        font: .systemFont(ofSize: 14), color: .gray, alignment: .center)
 
         let totalItems = bins.reduce(0) { $0 + $1.items.count }
         let totalValue = bins.reduce(0.0) { $0 + $1.totalValue }
 
-        yPosition += 60
-        yPosition = drawText("\(bins.count) Bins · \(totalItems) Items · \(zones.count) Zones",
-                             at: CGPoint(x: margin, y: yPosition), width: contentWidth,
-                             font: .systemFont(ofSize: 16), color: .darkGray, alignment: .center)
-        yPosition = drawText("Total Value: \(CurrencyFormatter.format(totalValue))",
-                             at: CGPoint(x: margin, y: yPosition + 10), width: contentWidth,
-                             font: .systemFont(ofSize: 20, weight: .semibold), alignment: .center)
+        yPos += 60
+        yPos = drawText("\(bins.count) Bins · \(totalItems) Items · \(zones.count) Zones",
+                        at: CGPoint(x: margin, y: yPos), width: contentWidth,
+                        font: .systemFont(ofSize: 16), color: .darkGray, alignment: .center)
+        _ = drawText("Total Value: \(CurrencyFormatter.format(totalValue))",
+                     at: CGPoint(x: margin, y: yPos + 10), width: contentWidth,
+                     font: .systemFont(ofSize: 20, weight: .semibold), alignment: .center)
+    }
 
-        // Content pages — grouped by zone
-        let groupedBins = Dictionary(grouping: bins) { $0.zone?.name ?? "No Zone" }
-        let sortedZoneNames = groupedBins.keys.sorted()
+    private static func drawContentPages(bins: [Bin]) {
+        let grouped = Dictionary(grouping: bins) { $0.zone?.name ?? "No Zone" }
+        var yPos = margin
 
-        for zoneName in sortedZoneNames {
-            guard let zoneBins = groupedBins[zoneName] else { continue }
+        for zoneName in grouped.keys.sorted() {
+            guard let zoneBins = grouped[zoneName] else { continue }
 
-            // Zone header
-            yPosition = ensureSpace(yPosition: yPosition, needed: 80, pageHeight: pageHeight, margin: margin)
-            yPosition = drawText(zoneName, at: CGPoint(x: margin, y: yPosition), width: contentWidth,
-                                 font: .systemFont(ofSize: 18, weight: .bold))
+            yPos = ensureSpace(yPosition: yPos, needed: 80, pageHeight: pageHeight, margin: margin)
+            yPos = drawText(zoneName, at: CGPoint(x: margin, y: yPos), width: contentWidth,
+                            font: .systemFont(ofSize: 18, weight: .bold))
             let zoneValue = zoneBins.reduce(0.0) { $0 + $1.totalValue }
             if zoneValue > 0 {
-                yPosition = drawText("Zone total: \(CurrencyFormatter.format(zoneValue))",
-                                     at: CGPoint(x: margin, y: yPosition), width: contentWidth,
-                                     font: .systemFont(ofSize: 12), color: .gray)
+                yPos = drawText("Zone total: \(CurrencyFormatter.format(zoneValue))",
+                                at: CGPoint(x: margin, y: yPos), width: contentWidth,
+                                font: .systemFont(ofSize: 12), color: .gray)
             }
-            yPosition += 10
+            yPos += 10
 
             for bin in zoneBins.sorted(by: { $0.code < $1.code }) {
-                // Bin header
-                yPosition = ensureSpace(yPosition: yPosition, needed: 50, pageHeight: pageHeight, margin: margin)
-                let binTitle = bin.name.isEmpty ? bin.code : "\(bin.code) — \(bin.name)"
-                yPosition = drawText(binTitle, at: CGPoint(x: margin + 10, y: yPosition), width: contentWidth - 10,
-                                     font: .systemFont(ofSize: 14, weight: .semibold))
-                if bin.totalValue > 0 {
-                    yPosition = drawText("\(bin.items.count) items · \(CurrencyFormatter.format(bin.totalValue))",
-                                         at: CGPoint(x: margin + 10, y: yPosition), width: contentWidth - 10,
-                                         font: .systemFont(ofSize: 10), color: .gray)
-                }
-                yPosition += 5
-
-                // Items
-                for item in bin.items.sorted(by: { $0.name < $1.name }) {
-                    yPosition = ensureSpace(yPosition: yPosition, needed: 60, pageHeight: pageHeight, margin: margin)
-
-                    // Photo thumbnail
-                    if let path = item.imagePaths.first,
-                       let image = ImageStorageService.loadImage(filename: path) {
-                        let thumbRect = CGRect(x: margin + 20, y: yPosition, width: 40, height: 40)
-                        image.draw(in: thumbRect)
-                    }
-
-                    let textX = margin + 70
-                    let textWidth = contentWidth - 70
-                    let nameY = drawText(item.name, at: CGPoint(x: textX, y: yPosition), width: textWidth,
-                                         font: .systemFont(ofSize: 12, weight: .medium))
-                    var detailText = ""
-                    if let value = item.value { detailText += CurrencyFormatter.format(value) }
-                    if !item.tags.isEmpty {
-                        if !detailText.isEmpty { detailText += " · " }
-                        detailText += item.tags.joined(separator: ", ")
-                    }
-                    if !detailText.isEmpty {
-                        _ = drawText(detailText, at: CGPoint(x: textX, y: nameY), width: textWidth,
-                                     font: .systemFont(ofSize: 10), color: .gray)
-                    }
-
-                    yPosition = max(yPosition + 45, nameY + 15)
-                }
-                yPosition += 10
+                yPos = drawBinSection(bin: bin, yPosition: yPos)
             }
         }
+    }
 
-        UIGraphicsEndPDFContext()
-        return pdfData as Data
+    private static func drawBinSection(bin: Bin, yPosition: CGFloat) -> CGFloat {
+        var yPos = ensureSpace(yPosition: yPosition, needed: 50, pageHeight: pageHeight, margin: margin)
+        let binTitle = bin.name.isEmpty ? bin.code : "\(bin.code) — \(bin.name)"
+        yPos = drawText(binTitle, at: CGPoint(x: margin + 10, y: yPos), width: contentWidth - 10,
+                        font: .systemFont(ofSize: 14, weight: .semibold))
+        if bin.totalValue > 0 {
+            yPos = drawText("\(bin.items.count) items · \(CurrencyFormatter.format(bin.totalValue))",
+                            at: CGPoint(x: margin + 10, y: yPos), width: contentWidth - 10,
+                            font: .systemFont(ofSize: 10), color: .gray)
+        }
+        yPos += 5
+
+        for item in bin.items.sorted(by: { $0.name < $1.name }) {
+            yPos = drawItemRow(item: item, yPosition: yPos)
+        }
+        return yPos + 10
+    }
+
+    private static func drawItemRow(item: Item, yPosition: CGFloat) -> CGFloat {
+        var yPos = ensureSpace(yPosition: yPosition, needed: 60, pageHeight: pageHeight, margin: margin)
+
+        if let path = item.imagePaths.first,
+           let image = ImageStorageService.loadImage(filename: path) {
+            image.draw(in: CGRect(x: margin + 20, y: yPos, width: 40, height: 40))
+        }
+
+        let textX = margin + 70
+        let textWidth = contentWidth - 70
+        let nameY = drawText(item.name, at: CGPoint(x: textX, y: yPos), width: textWidth,
+                             font: .systemFont(ofSize: 12, weight: .medium))
+
+        var detailParts: [String] = []
+        if let value = item.value { detailParts.append(CurrencyFormatter.format(value)) }
+        if !item.tags.isEmpty { detailParts.append(item.tags.joined(separator: ", ")) }
+        if !detailParts.isEmpty {
+            _ = drawText(detailParts.joined(separator: " · "), at: CGPoint(x: textX, y: nameY), width: textWidth,
+                         font: .systemFont(ofSize: 10), color: .gray)
+        }
+
+        return max(yPos + 45, nameY + 15)
     }
 
     // MARK: - Bin Manifest PDF

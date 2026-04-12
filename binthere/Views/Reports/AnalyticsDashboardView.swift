@@ -87,22 +87,22 @@ struct AnalyticsDashboardView: View {
 
     private var itemsByZoneChart: some View {
         ChartSection(title: "Items per Zone") {
-            let data = zones.map { (name: $0.name, count: $0.totalItemCount, color: $0.color) }
-                .filter { $0.count > 0 }
-                .sorted { $0.count > $1.count }
+            let data = zones.map { (name: $0.name, itemCount: $0.totalItemCount, color: $0.color) }
+                .filter { $0.itemCount > 0 }
+                .sorted { $0.itemCount > $1.itemCount }
 
             if data.isEmpty {
                 emptyChart("No items in zones yet")
             } else {
                 Chart(data, id: \.name) { item in
                     SectorMark(
-                        angle: .value("Items", item.count),
+                        angle: .value("Items", item.itemCount),
                         innerRadius: .ratio(0.5),
                         angularInset: 1.5
                     )
                     .foregroundStyle(ColorPalette.from(item.color).color)
                     .annotation(position: .overlay) {
-                        Text("\(item.count)")
+                        Text("\(item.itemCount)")
                             .font(.caption2.bold())
                             .foregroundStyle(.white)
                     }
