@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.0](https://github.com/patrickisgreat/binthere/compare/v0.5.0...v0.6.0) (2026-04-13)
+
+
+### Features
+
+* add sync fields to all models ([ab9e7a1](https://github.com/patrickisgreat/binthere/commit/ab9e7a1ec2b20e1ff4802c95b3e3cb800ea9e717))
+* add SyncService for bidirectional Supabase sync ([e950c6a](https://github.com/patrickisgreat/binthere/commit/e950c6a56f4938349e6b37f8d95b4fcfb7dbbe0b))
+* sync service with bidirectional Supabase sync ([4d0cfde](https://github.com/patrickisgreat/binthere/commit/4d0cfde6ebe9d72b8f367fbbfb4d71a87a55fb98))
+
 ## [0.5.0](https://github.com/patrickisgreat/binthere/compare/v0.4.0...v0.5.0) (2026-04-13)
 
 
