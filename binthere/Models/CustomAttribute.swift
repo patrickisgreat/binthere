@@ -34,6 +34,7 @@ enum AttributeType: String, CaseIterable, Identifiable {
 @Model
 final class CustomAttribute {
     var id: UUID = UUID()
+    var householdId: String = ""
     var name: String = ""
     var type: String = AttributeType.text.rawValue
     var textValue: String = ""

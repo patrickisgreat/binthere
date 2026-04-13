@@ -4,9 +4,11 @@ import SwiftData
 @Model
 final class CheckoutRecord {
     var id: UUID = UUID()
+    var householdId: String = ""
     var checkedOutAt: Date = Date()
     var checkedInAt: Date?
     var checkedOutTo: String = ""
+    var checkedOutBy: String = ""
     var notes: String = ""
     var expectedReturnDate: Date?
 
@@ -19,6 +21,15 @@ final class CheckoutRecord {
     init(item: Item, checkedOutTo: String, expectedReturnDate: Date? = nil, notes: String = "") {
         self.id = UUID()
         self.item = item
+        self.checkedOutTo = checkedOutTo
+        self.checkedOutAt = Date()
+        self.expectedReturnDate = expectedReturnDate
+        self.notes = notes
+    }
+
+    /// Init for sync — item is set separately after fetching from local store
+    init(checkedOutTo: String, expectedReturnDate: Date? = nil, notes: String = "") {
+        self.id = UUID()
         self.checkedOutTo = checkedOutTo
         self.checkedOutAt = Date()
         self.expectedReturnDate = expectedReturnDate

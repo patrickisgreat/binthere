@@ -4,12 +4,14 @@ import SwiftData
 @Model
 final class Bin {
     var id: UUID = UUID()
+    var householdId: String = ""
     var code: String = ""
     var name: String = ""
     var binDescription: String = ""
     var location: String = ""
     var color: String = ""
     var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var qrCodeImagePath: String?
     var contentImagePaths: [String] = []
 
