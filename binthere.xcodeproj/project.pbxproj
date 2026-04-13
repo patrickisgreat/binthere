@@ -53,6 +53,11 @@
 		AB00000100000004AAAAAA01 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000004BBBBBB01 /* SignUpView.swift */; };
 		AB00000100000005AAAAAA01 /* AuthGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000005BBBBBB01 /* AuthGateView.swift */; };
 		AB00000100000007AAAAAA01 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000007BBBBBB01 /* SyncService.swift */; };
+		AB00000100000008AAAAAA01 /* HouseholdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000008BBBBBB01 /* HouseholdService.swift */; };
+		AB00000100000009AAAAAA01 /* HouseholdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000009BBBBBB01 /* HouseholdView.swift */; };
+		AB0000010000000AAAAAAA01 /* InviteMemberSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000ABBBBBB01 /* InviteMemberSheet.swift */; };
+		AB0000010000000BAAAAAA01 /* JoinHouseholdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */; };
+		AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +128,11 @@
 		AB00000100000004BBBBBB01 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		AB00000100000005BBBBBB01 /* AuthGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthGateView.swift; sourceTree = "<group>"; };
 		AB00000100000007BBBBBB01 /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		AB00000100000008BBBBBB01 /* HouseholdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdService.swift; sourceTree = "<group>"; };
+		AB00000100000009BBBBBB01 /* HouseholdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdView.swift; sourceTree = "<group>"; };
+		AB0000010000000ABBBBBB01 /* InviteMemberSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberSheet.swift; sourceTree = "<group>"; };
+		AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinHouseholdView.swift; sourceTree = "<group>"; };
+		AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdSetupView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,6 +240,7 @@
 			children = (
 				AA00000100000005BBBBBB01 /* MainTabView.swift */,
 				AB00000100000006CCCCCC01 /* Auth */,
+				AB0000010000000DCCCCCC01 /* Household */,
 				AA00000100000023CCCCCC01 /* Bins */,
 				AA00000100000024CCCCCC01 /* Items */,
 				CC00000100000005CCCCCC01 /* Zones */,
@@ -252,6 +263,7 @@
 				AB00000100000001BBBBBB01 /* SupabaseClient.swift */,
 				AB00000100000002BBBBBB01 /* AuthService.swift */,
 				AB00000100000007BBBBBB01 /* SyncService.swift */,
+				AB00000100000008BBBBBB01 /* HouseholdService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -305,6 +317,17 @@
 				EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		AB0000010000000DCCCCCC01 /* Household */ = {
+			isa = PBXGroup;
+			children = (
+				AB00000100000009BBBBBB01 /* HouseholdView.swift */,
+				AB0000010000000ABBBBBB01 /* InviteMemberSheet.swift */,
+				AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */,
+				AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */,
+			);
+			path = Household;
 			sourceTree = "<group>";
 		};
 		AB00000100000006CCCCCC01 /* Auth */ = {
@@ -511,6 +534,11 @@
 				AB00000100000004AAAAAA01 /* SignUpView.swift in Sources */,
 				AB00000100000005AAAAAA01 /* AuthGateView.swift in Sources */,
 				AB00000100000007AAAAAA01 /* SyncService.swift in Sources */,
+				AB00000100000008AAAAAA01 /* HouseholdService.swift in Sources */,
+				AB00000100000009AAAAAA01 /* HouseholdView.swift in Sources */,
+				AB0000010000000AAAAAAA01 /* InviteMemberSheet.swift in Sources */,
+				AB0000010000000BAAAAAA01 /* JoinHouseholdView.swift in Sources */,
+				AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -5,31 +5,46 @@ struct AuthGateView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var authService = AuthService()
     @State private var syncService = SyncService()
+    @State private var householdService = HouseholdService()
     @State private var hasCheckedSession = false
 
     var body: some View {
         Group {
             if !hasCheckedSession {
                 ProgressView("Loading...")
-            } else if authService.isAuthenticated {
-                MainTabView()
-            } else {
+            } else if !authService.isAuthenticated {
                 SignInView()
+            } else if householdService.currentHousehold == nil && !householdService.isLoading {
+                HouseholdSetupView()
+            } else {
+                MainTabView()
             }
         }
         .environment(authService)
         .environment(syncService)
+        .environment(householdService)
         .task {
             await authService.restoreSession()
-            hasCheckedSession = true
             syncService.configure(modelContext: modelContext)
+            hasCheckedSession = true
+            if let userId = authService.currentUserId {
+                await householdService.loadHousehold(userId: userId)
+                if !householdService.currentHouseholdId.isEmpty {
+                    await syncService.syncAll(householdId: householdService.currentHouseholdId)
+                }
+            }
         }
         .onChange(of: authService.isAuthenticated) { _, isAuth in
-            if isAuth {
-                // Sync on sign-in — for now uses empty householdId
-                // Will be populated by HouseholdService in PR D
+            if isAuth, let userId = authService.currentUserId {
                 Task {
-                    await syncService.syncAll(householdId: "")
+                    await householdService.loadHousehold(userId: userId)
+                }
+            }
+        }
+        .onChange(of: householdService.currentHouseholdId) { _, newId in
+            if !newId.isEmpty {
+                Task {
+                    await syncService.syncAll(householdId: newId)
                 }
             }
         }
