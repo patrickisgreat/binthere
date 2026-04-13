@@ -4,6 +4,7 @@ import SwiftData
 @Model
 final class Item {
     var id: UUID = UUID()
+    var householdId: String = ""
     var name: String = ""
     var itemDescription: String = ""
     var imagePaths: [String] = []
@@ -11,11 +12,16 @@ final class Item {
     var customFields: [String: String] = [:]
     var color: String = ""
     var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var isCheckedOut: Bool = false
     var notes: String = ""
     var value: Double?
     var valueSource: String = ""
     var valueUpdatedAt: Date?
+    var createdBy: String = ""
+    var checkoutPermission: String = "anyone"
+    var allowedCheckoutUsers: [String] = []
+    var maxCheckoutDays: Int?
 
     var bin: Bin?
 

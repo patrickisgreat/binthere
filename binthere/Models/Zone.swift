@@ -4,10 +4,12 @@ import SwiftData
 @Model
 final class Zone {
     var id: UUID = UUID()
+    var householdId: String = ""
     var name: String = ""
     var locationDescription: String = ""
     var color: String = ""
     var icon: String = ""
+    var updatedAt: Date = Date()
 
     @Relationship(deleteRule: .nullify, inverse: \Bin.zone)
     var bins: [Bin] = []
