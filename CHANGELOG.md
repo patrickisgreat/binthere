@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.0](https://github.com/patrickisgreat/binthere/compare/v0.6.0...v0.7.0) (2026-04-13)
+
+
+### Features
+
+* add household UI — setup, members, invite, join ([81345c3](https://github.com/patrickisgreat/binthere/commit/81345c3e573ec51e357136de060cbf7f66fc1df5))
+* add HouseholdService for multi-user management ([520898c](https://github.com/patrickisgreat/binthere/commit/520898c6c1278543e1be2b3e50357fa655560ffd))
+* household management — create, invite, join, members ([bfc94d8](https://github.com/patrickisgreat/binthere/commit/bfc94d8d8bfd8bbeaff4cacf0d8b4f7fb52920cb))
+
 ## [0.6.0](https://github.com/patrickisgreat/binthere/compare/v0.5.0...v0.6.0) (2026-04-13)
 
 
