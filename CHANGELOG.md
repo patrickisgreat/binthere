@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.0](https://github.com/patrickisgreat/binthere/compare/v0.4.0...v0.5.0) (2026-04-13)
+
+
+### Features
+
+* add account deletion (App Store requirement) ([78d5755](https://github.com/patrickisgreat/binthere/commit/78d5755ece0ca4589eaa66ae453c396aff832b85))
+* add auth UI with gate, sign-in, sign-up, and account settings ([0f6c896](https://github.com/patrickisgreat/binthere/commit/0f6c8963d11aaad1a975ae3a6b28e4222692df84))
+* add AuthService with Sign in with Apple and email auth ([e2f7744](https://github.com/patrickisgreat/binthere/commit/e2f7744cbc10543ee8c7a2464188ca6496b7f4a3))
+* add Supabase database schema and RLS policies ([c8f22b3](https://github.com/patrickisgreat/binthere/commit/c8f22b3bdb09a9c4074a97eb529a70ae4363cfee))
+* add supabase-swift SPM dependency and client singleton ([b1a8b3e](https://github.com/patrickisgreat/binthere/commit/b1a8b3ea6288da43cc65a687b233424dabdacede))
+* authentication with Sign in with Apple and email/password ([6fce6c3](https://github.com/patrickisgreat/binthere/commit/6fce6c3e6f2bd287e589da41d0837452cdf3ce15))
+* Supabase client setup, database schema, and RLS policies ([7d398b6](https://github.com/patrickisgreat/binthere/commit/7d398b6346d101579adf17a7c463c251da9bc321))
+
+
+### Bug Fixes
+
+* remove UI tests from CI pipeline ([c604c31](https://github.com/patrickisgreat/binthere/commit/c604c31cffab6cc3c77500a41c04580a9e4ece0a))
+* replace stub UI tests with auth-aware tests ([88e94e9](https://github.com/patrickisgreat/binthere/commit/88e94e905a724fa2d09f986cf1007881df058d98))
+
 ## [0.4.0](https://github.com/patrickisgreat/binthere/compare/v0.3.0...v0.4.0) (2026-04-12)
 
 
