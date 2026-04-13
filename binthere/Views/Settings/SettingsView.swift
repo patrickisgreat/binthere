@@ -1,11 +1,39 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(AuthService.self) private var authService
     @State private var apiKey = ImageAnalysisService.apiKey ?? ""
     @State private var showingAPIKey = false
+    @State private var showingDeleteConfirmation = false
+    @State private var deleteError: String?
 
     var body: some View {
         Form {
+            Section("Account") {
+                if let email = authService.currentEmail {
+                    LabeledContent("Email", value: email)
+                }
+                Button(role: .destructive) {
+                    Task { await authService.signOut() }
+                } label: {
+                    Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            }
+
+            Section {
+                Button(role: .destructive, action: { showingDeleteConfirmation = true }) {
+                    Label("Delete Account", systemImage: "trash")
+                }
+
+                if let deleteError {
+                    Text(deleteError)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            } footer: {
+                Text("This permanently deletes your account and all associated data. This cannot be undone.")
+            }
+
             Section("Reports & Export") {
                 NavigationLink {
                     ReportsView()
@@ -45,5 +73,19 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .alert("Delete Account?", isPresented: $showingDeleteConfirmation) {
+            Button("Delete Everything", role: .destructive) {
+                Task {
+                    do {
+                        try await authService.deleteAccount()
+                    } catch {
+                        deleteError = error.localizedDescription
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will permanently delete your account, all your bins, items, and data. This action cannot be undone.")
+        }
     }
 }
