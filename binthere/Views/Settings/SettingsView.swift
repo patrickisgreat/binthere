@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AuthService.self) private var authService
+    @Environment(HouseholdService.self) private var householdService
     @State private var apiKey = ImageAnalysisService.apiKey ?? ""
     @State private var showingAPIKey = false
     @State private var showingDeleteConfirmation = false
@@ -32,6 +33,28 @@ struct SettingsView: View {
                 }
             } footer: {
                 Text("This permanently deletes your account and all associated data. This cannot be undone.")
+            }
+
+            Section("Household") {
+                if let household = householdService.currentHousehold {
+                    NavigationLink {
+                        HouseholdView()
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(household.name)
+                                Text("\(householdService.members.count) members")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "house")
+                        }
+                    }
+                } else {
+                    Text("No household")
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section("Reports & Export") {
