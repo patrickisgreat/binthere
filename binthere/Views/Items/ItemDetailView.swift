@@ -4,6 +4,8 @@ import SwiftData
 struct ItemDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(AuthService.self) private var authService
+    @Environment(HouseholdService.self) private var householdService
     @Bindable var item: Item
 
     @Query(sort: \Bin.name) private var allBins: [Bin]
@@ -12,6 +14,7 @@ struct ItemDetailView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingImagePicker = false
     @State private var showingSetValue = false
+    @State private var showingRequestReturn = false
     @State private var editingAttribute: CustomAttribute?
     @State private var showingNewAttribute = false
 
@@ -135,6 +138,17 @@ struct ItemDetailView: View {
                 }
             }
 
+            Section("Checkout Permissions") {
+                Picker("Who can check out", selection: $item.checkoutPermission) {
+                    Text("Anyone").tag("anyone")
+                    Text("Nobody").tag("none")
+                }
+
+                if let maxDays = item.maxCheckoutDays {
+                    LabeledContent("Max checkout", value: "\(maxDays) days")
+                }
+            }
+
             Section("Status") {
                 statusSection
             }
@@ -161,7 +175,12 @@ struct ItemDetailView: View {
         }
         .navigationTitle(item.name)
         .sheet(isPresented: $showingCheckout) {
-            CheckoutSheet(item: item)
+            CheckoutSheet(item: item, defaultName: currentUserDisplayName)
+        }
+        .sheet(isPresented: $showingRequestReturn) {
+            if let activeRecord = item.checkoutHistory.first(where: { $0.isActive }) {
+                RequestItemSheet(item: item, activeRecord: activeRecord)
+            }
         }
         .sheet(isPresented: $showingMoveBin) {
             MoveBinSheet(item: item, bins: allBins)
@@ -224,9 +243,22 @@ struct ItemDetailView: View {
             Button("Check In") {
                 activeRecord.checkedInAt = Date()
                 item.isCheckedOut = false
+                item.updatedAt = Date()
             }
             .buttonStyle(.borderedProminent)
             .tint(.green)
+
+            Button("Request Return") {
+                showingRequestReturn = true
+            }
+            .buttonStyle(.bordered)
+            .tint(.orange)
+        } else if item.checkoutPermission == "none" {
+            HStack {
+                Label("Not available for checkout", systemImage: "lock")
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
         } else {
             HStack {
                 Label("Available", systemImage: "checkmark.circle")
@@ -238,6 +270,12 @@ struct ItemDetailView: View {
             }
             .buttonStyle(.borderedProminent)
         }
+    }
+
+    private var currentUserDisplayName: String {
+        householdService.members
+            .first { $0.userId.uuidString == authService.currentUserId }?
+            .displayName ?? authService.currentEmail ?? ""
     }
 }
 
@@ -282,6 +320,7 @@ private struct CheckoutSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     let item: Item
+    var defaultName: String = ""
 
     @State private var checkedOutTo = ""
     @State private var notes = ""
@@ -316,6 +355,11 @@ private struct CheckoutSheet: View {
                         .disabled(checkedOutTo.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .onAppear {
+                if checkedOutTo.isEmpty && !defaultName.isEmpty {
+                    checkedOutTo = defaultName
+                }
+            }
         }
     }
 
@@ -328,6 +372,7 @@ private struct CheckoutSheet: View {
         )
         modelContext.insert(record)
         item.isCheckedOut = true
+        item.updatedAt = Date()
         dismiss()
     }
 }
