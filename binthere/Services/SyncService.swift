@@ -1,4 +1,5 @@
 import Foundation
+import Network
 import SwiftData
 import Supabase
 
@@ -7,29 +8,177 @@ final class SyncService {
     var isSyncing = false
     var lastSyncedAt: Date?
     var error: String?
+    var isOnline = true
+    var syncStatus: SyncStatus = .idle
+
+    enum SyncStatus: String {
+        case idle = "Idle"
+        case syncing = "Syncing..."
+        case synced = "Synced"
+        case offline = "Offline"
+        case error = "Error"
+    }
 
     private var client: SupabaseClient { SupabaseManager.shared.client }
     private var modelContext: ModelContext?
+    private var realtimeChannel: RealtimeChannelV2?
+    private let networkMonitor = NWPathMonitor()
+    private let monitorQueue = DispatchQueue(label: "network-monitor")
+    private var pendingHouseholdId: String?
 
     func configure(modelContext: ModelContext) {
         self.modelContext = modelContext
+        startNetworkMonitoring()
+    }
+
+    // MARK: - Network Monitoring
+
+    private func startNetworkMonitoring() {
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor in
+                let wasOffline = !(self?.isOnline ?? true)
+                self?.isOnline = path.status == .satisfied
+
+                if wasOffline && path.status == .satisfied {
+                    // Back online — flush pending changes
+                    if let householdId = self?.pendingHouseholdId {
+                        await self?.syncAll(householdId: householdId)
+                    }
+                }
+
+                if path.status != .satisfied {
+                    self?.syncStatus = .offline
+                }
+            }
+        }
+        networkMonitor.start(queue: monitorQueue)
     }
 
     // MARK: - Full Sync
 
     func syncAll(householdId: String) async {
         guard !isSyncing else { return }
+        pendingHouseholdId = householdId
+
+        guard isOnline else {
+            syncStatus = .offline
+            return
+        }
+
         isSyncing = true
+        syncStatus = .syncing
         error = nil
         defer { isSyncing = false }
 
         do {
+            // Push local changes first
+            try await pushAllDirty(householdId: householdId)
+
+            // Then pull remote changes
             try await pullZones(householdId: householdId)
             try await pullBins(householdId: householdId)
             try await pullItems(householdId: householdId)
             try await pullCheckoutRecords(householdId: householdId)
             try await pullCustomAttributes(householdId: householdId)
             lastSyncedAt = Date()
+            syncStatus = .synced
+        } catch {
+            self.error = error.localizedDescription
+            syncStatus = .error
+        }
+    }
+
+    // MARK: - Auto-push dirty records
+
+    func pushAllDirty(householdId: String) async throws {
+        guard let context = modelContext, !householdId.isEmpty else { return }
+        let cutoff = lastSyncedAt ?? Date.distantPast
+
+        // Push dirty zones
+        let zonePredicate = #Predicate<Zone> { $0.updatedAt > cutoff }
+        let dirtyZones = try context.fetch(FetchDescriptor(predicate: zonePredicate))
+        for zone in dirtyZones {
+            try await pushZone(zone, householdId: householdId)
+        }
+
+        // Push dirty bins
+        let binPredicate = #Predicate<Bin> { $0.updatedAt > cutoff }
+        let dirtyBins = try context.fetch(FetchDescriptor(predicate: binPredicate))
+        for bin in dirtyBins {
+            try await pushBin(bin, householdId: householdId)
+            await CloudStorageService.syncBinImages(bin: bin, householdId: householdId)
+        }
+
+        // Push dirty items
+        let itemPredicate = #Predicate<Item> { $0.updatedAt > cutoff }
+        let dirtyItems = try context.fetch(FetchDescriptor(predicate: itemPredicate))
+        for item in dirtyItems {
+            try await pushItem(item, householdId: householdId)
+            await CloudStorageService.syncItemImages(item: item, householdId: householdId)
+        }
+    }
+
+    // MARK: - Realtime Subscriptions
+
+    func subscribeToChanges(householdId: String) async {
+        // Unsubscribe from any existing channel
+        await unsubscribe()
+
+        let channel = client.realtimeV2.channel("household-\(householdId)")
+
+        let zonesChanges = channel.postgresChange(
+            AnyAction.self, schema: "public", table: "zones",
+            filter: "household_id=eq.\(householdId)"
+        )
+
+        let binsChanges = channel.postgresChange(
+            AnyAction.self, schema: "public", table: "bins",
+            filter: "household_id=eq.\(householdId)"
+        )
+
+        let itemsChanges = channel.postgresChange(
+            AnyAction.self, schema: "public", table: "items",
+            filter: "household_id=eq.\(householdId)"
+        )
+
+        await channel.subscribe()
+        realtimeChannel = channel
+
+        // Listen for changes in background tasks
+        Task {
+            for await change in zonesChanges {
+                await handleRealtimeChange(table: "zones", action: change, householdId: householdId)
+            }
+        }
+        Task {
+            for await change in binsChanges {
+                await handleRealtimeChange(table: "bins", action: change, householdId: householdId)
+            }
+        }
+        Task {
+            for await change in itemsChanges {
+                await handleRealtimeChange(table: "items", action: change, householdId: householdId)
+            }
+        }
+    }
+
+    func unsubscribe() async {
+        if let channel = realtimeChannel {
+            await channel.unsubscribe()
+            realtimeChannel = nil
+        }
+    }
+
+    private func handleRealtimeChange(table: String, action: AnyAction, householdId: String) async {
+        // Re-pull the affected table to get the latest state
+        // This is simpler and more reliable than parsing individual change payloads
+        do {
+            switch table {
+            case "zones": try await pullZones(householdId: householdId)
+            case "bins": try await pullBins(householdId: householdId)
+            case "items": try await pullItems(householdId: householdId)
+            default: break
+            }
         } catch {
             self.error = error.localizedDescription
         }

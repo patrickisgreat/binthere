@@ -40,12 +40,15 @@ struct AuthGateView: View {
                 Task {
                     await householdService.loadHousehold(userId: userId)
                 }
+            } else {
+                Task { await syncService.unsubscribe() }
             }
         }
         .onChange(of: householdService.currentHouseholdId) { _, newId in
             if !newId.isEmpty {
                 Task {
                     await syncService.syncAll(householdId: newId)
+                    await syncService.subscribeToChanges(householdId: newId)
                 }
             }
         }
