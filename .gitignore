@@ -13,6 +13,8 @@ Package.resolved
 
 # Secrets
 Secrets.xcconfig
+GoogleService-Info.plist
+client_*.apps.googleusercontent.com.plist
 .env
 .env.*
 

@@ -113,6 +113,20 @@ final class AuthService {
         }
     }
 
+    // MARK: - Sign in with Google
+
+    func signInWithGoogle() async {
+        isLoading = true
+        error = nil
+        defer { isLoading = false }
+
+        do {
+            try await client.auth.signInWithOAuth(provider: .google)
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
     // MARK: - Sign Out
 
     func signOut() async {
