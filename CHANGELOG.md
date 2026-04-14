@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0](https://github.com/patrickisgreat/binthere/compare/v0.8.0...v0.9.0) (2026-04-14)
+
+
+### Features
+
+* add bulk select, move, and delete for items in bins ([e4a7fc1](https://github.com/patrickisgreat/binthere/commit/e4a7fc1a16e788ab7ddf838efc38009b0a249d27))
+* add bulk select, zone move, and delete for bins ([462a059](https://github.com/patrickisgreat/binthere/commit/462a0598262286f99c49eb81e95f0f0394a54899))
+* bulk operations — multi-select, move, delete for items and bins ([77384a7](https://github.com/patrickisgreat/binthere/commit/77384a79b122491113ecce2d1c2897c81972c8aa))
+
 ## [0.8.0](https://github.com/patrickisgreat/binthere/compare/v0.7.0...v0.8.0) (2026-04-14)
 
 
