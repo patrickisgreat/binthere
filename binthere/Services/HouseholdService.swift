@@ -108,12 +108,15 @@ final class HouseholdService {
         do {
             let householdId = UUID()
 
-            // Create household
+            // Create household — created_by defaults to auth.uid() via DB default
             let householdPayload: [String: AnyJSON] = [
                 "id": .string(householdId.uuidString),
                 "name": .string(name),
                 "created_by": .string(userId),
             ]
+
+            // Use rpc or direct insert. The RLS policy checks auth.uid() = created_by,
+            // so the userId must exactly match what auth.uid() returns (lowercase UUID).
             try await client.from("households").insert(householdPayload).execute()
 
             // Add creator as owner

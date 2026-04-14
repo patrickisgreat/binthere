@@ -18,7 +18,7 @@ final class AuthService {
     func restoreSession() async {
         do {
             let session = try await client.auth.session
-            currentUserId = session.user.id.uuidString
+            currentUserId = session.user.id.uuidString.lowercased()
             currentEmail = session.user.email
         } catch {
             currentUserId = nil
@@ -35,7 +35,7 @@ final class AuthService {
 
         do {
             let response = try await client.auth.signUp(email: email, password: password)
-            currentUserId = response.user.id.uuidString
+            currentUserId = response.user.id.uuidString.lowercased()
             currentEmail = response.user.email
         } catch {
             self.error = error.localizedDescription
@@ -49,7 +49,7 @@ final class AuthService {
 
         do {
             let session = try await client.auth.signIn(email: email, password: password)
-            currentUserId = session.user.id.uuidString
+            currentUserId = session.user.id.uuidString.lowercased()
             currentEmail = session.user.email
         } catch {
             self.error = error.localizedDescription
@@ -73,7 +73,7 @@ final class AuthService {
             let session = try await client.auth.signInWithIdToken(
                 credentials: .init(provider: .apple, idToken: tokenString)
             )
-            currentUserId = session.user.id.uuidString
+            currentUserId = session.user.id.uuidString.lowercased()
             currentEmail = session.user.email
         } catch {
             self.error = error.localizedDescription
