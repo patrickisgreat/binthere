@@ -10,5 +10,10 @@ import Supabase
 
 let supabase = SupabaseClient(
     supabaseURL: URL(string: "https://graxolpusjcqlzikbnpr.supabase.co")!,
-    supabaseKey: "sb_publishable_1O3xXBqBCO-g_-gdgyFUSA_UmSpp7RJ"
+    supabaseKey: "sb_publishable_1O3xXBqBCO-g_-gdgyFUSA_UmSpp7RJ",
+    options: .init(
+        auth: .init(
+            redirectToURL: URL(string: "beeBetter.binthere://auth-callback")
+        )
+    )
 )

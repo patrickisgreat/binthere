@@ -12,9 +12,10 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.126790508102-us31jlq55g59a02o68m3ream9vpmrb5o</string>
+				<string>beeBetter.binthere</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>Google Sign-In</string>
+			<string>Auth Callback</string>
 		</dict>
 	</array>
 </dict>
