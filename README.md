@@ -120,8 +120,19 @@ See [CLAUDE.md](CLAUDE.md) for the full coding conventions and architecture guid
 - Bin auto-codes and color coding
 - Zone overhaul with icons, detail views, HomeKit import
 - NFC tag reading and writing
+- Custom attributes, valuations, AI value estimation
+- PDF/CSV reports and analytics dashboard
+- Multi-user auth (Apple, Google, email), households, permissions
+- Notifications (due-back reminders, return requests)
+- Bulk operations (multi-select, move, delete)
+- Supabase sync with Realtime, cloud storage, offline support
+- Things-inspired UI polish (design system, haptics, animations)
 
-**Next:** Custom attributes, valuations, insurance reports, multi-user permissions, notifications. See [ROADMAP.md](ROADMAP.md) for the full list.
+See [ROADMAP.md](ROADMAP.md) for future plans and ideas.
+
+## Privacy Policy
+
+[Privacy Policy](https://patrickisgreat.github.io/binthere/privacy-policy)
 
 ## License
 
