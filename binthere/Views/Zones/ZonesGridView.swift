@@ -77,7 +77,7 @@ private struct ZoneCard: View {
                 Spacer()
 
                 Text("\(zone.bins.count)")
-                    .font(.title2.weight(.bold))
+                    .font(Theme.Typography.title)
                     .foregroundStyle(.white)
             }
 
@@ -85,15 +85,15 @@ private struct ZoneCard: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(zone.name)
-                    .font(.headline)
+                    .font(Theme.Typography.headline)
                     .foregroundStyle(.white)
                     .lineLimit(1)
 
-                HStack(spacing: 12) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Label("\(zone.bins.count) bins", systemImage: "archivebox")
                     Label("\(zone.totalItemCount) items", systemImage: "cube.box")
                 }
-                .font(.caption)
+                .font(Theme.Typography.caption)
                 .foregroundStyle(.white.opacity(0.8))
 
                 if zone.totalValue > 0 {
@@ -114,12 +114,12 @@ private struct ZoneCard: View {
                     .lineLimit(1)
             }
         }
-        .padding()
+        .padding(Theme.Spacing.md)
         .frame(minHeight: 140)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
                 .fill(zoneColor.gradient)
         )
-        .shadow(color: zoneColor.opacity(0.3), radius: 6, y: 3)
+        .shadow(color: zoneColor.opacity(0.3), radius: 8, y: 4)
     }
 }

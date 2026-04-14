@@ -280,33 +280,33 @@ struct ItemRowView: View {
     let item: Item
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Spacing.sm) {
             if let firstImagePath = item.imagePaths.first,
                let image = ImageStorageService.loadImage(filename: firstImagePath) {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.sm))
             } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.quaternary)
-                    .frame(width: 50, height: 50)
+                RoundedRectangle(cornerRadius: Theme.Radius.sm)
+                    .fill(Theme.Colors.secondaryBackground)
+                    .frame(width: 48, height: 48)
                     .overlay {
                         Image(systemName: "cube.box")
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(Theme.Colors.tertiaryText)
                     }
             }
 
             ColorDot(colorName: item.color)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                 Text(item.name)
-                    .font(.headline)
+                    .font(Theme.Typography.headline)
                 if !item.tags.isEmpty {
                     Text(item.tags.joined(separator: ", "))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.secondaryText)
                         .lineLimit(1)
                 }
             }
@@ -315,11 +315,11 @@ struct ItemRowView: View {
 
             if item.isCheckedOut {
                 Text("OUT")
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.orange.opacity(0.2))
-                    .foregroundStyle(.orange)
+                    .font(Theme.Typography.caption2.weight(.bold))
+                    .padding(.horizontal, Theme.Spacing.xs)
+                    .padding(.vertical, Theme.Spacing.xxs)
+                    .background(Theme.Colors.checkedOut.opacity(0.15))
+                    .foregroundStyle(Theme.Colors.checkedOut)
                     .clipShape(Capsule())
             }
         }
