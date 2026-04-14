@@ -5,6 +5,7 @@ struct BinDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var bin: Bin
     @Query(sort: \Zone.name) private var allZones: [Zone]
+    @Query(sort: \Bin.code) private var allBins: [Bin]
 
     @State private var showingAddItem = false
     @State private var showingAIAnalysis = false
@@ -13,6 +14,10 @@ struct BinDetailView: View {
     @State private var nfcService = NFCService()
     @State private var showingNFCResult = false
     @State private var itemFilter: ItemFilter = .all
+    @State private var selectedItems = Set<UUID>()
+    @State private var isEditMode = false
+    @State private var showingBulkMove = false
+    @State private var showingBulkDeleteConfirmation = false
 
     enum ItemFilter: String, CaseIterable {
         case all = "All"
@@ -66,7 +71,7 @@ struct BinDetailView: View {
                 .padding(.horizontal)
             }
 
-            Section("Items (\(filteredItems.count))") {
+            Section(isEditMode ? "Select Items (\(selectedItems.count) selected)" : "Items (\(filteredItems.count))") {
                 if filteredItems.isEmpty {
                     ContentUnavailableView(
                         "No Items",
@@ -75,14 +80,30 @@ struct BinDetailView: View {
                     )
                 } else {
                     ForEach(filteredItems) { item in
-                        NavigationLink(value: item) {
-                            ItemRowView(item: item)
-                        }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                modelContext.delete(item)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                        if isEditMode {
+                            HStack {
+                                Image(systemName: selectedItems.contains(item.id) ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(selectedItems.contains(item.id) ? .blue : .secondary)
+                                ItemRowView(item: item)
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if selectedItems.contains(item.id) {
+                                    selectedItems.remove(item.id)
+                                } else {
+                                    selectedItems.insert(item.id)
+                                }
+                            }
+                        } else {
+                            NavigationLink(value: item) {
+                                ItemRowView(item: item)
+                            }
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    modelContext.delete(item)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
@@ -94,27 +115,61 @@ struct BinDetailView: View {
             ItemDetailView(item: item)
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button(action: { showingAIAnalysis = true }) {
-                    Label("AI Scan", systemImage: "sparkles")
+            if isEditMode {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") {
+                        isEditMode = false
+                        selectedItems.removeAll()
+                    }
                 }
-                Button(action: { showingAddItem = true }) {
-                    Label("Add Item", systemImage: "plus")
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button(action: { showingBulkMove = true }) {
+                        Label("Move", systemImage: "arrow.right.arrow.left")
+                    }
+                    .disabled(selectedItems.isEmpty)
+
+                    Spacer()
+
+                    Button(action: selectAll) {
+                        Label(
+                            selectedItems.count == filteredItems.count ? "Deselect All" : "Select All",
+                            systemImage: selectedItems.count == filteredItems.count ? "circle" : "checkmark.circle"
+                        )
+                    }
+
+                    Spacer()
+
+                    Button(role: .destructive, action: { showingBulkDeleteConfirmation = true }) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(selectedItems.isEmpty)
                 }
-            }
-            ToolbarItem(placement: .secondaryAction) {
-                Menu {
-                    Button(action: { showingQRCode = true }) {
-                        Label("Show QR Label", systemImage: "qrcode")
+            } else {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button(action: { showingAIAnalysis = true }) {
+                        Label("AI Scan", systemImage: "sparkles")
                     }
-                    Button(action: { nfcService.writeTag(binID: bin.id.uuidString) }) {
-                        Label("Write NFC Tag", systemImage: "wave.3.right")
+                    Button(action: { showingAddItem = true }) {
+                        Label("Add Item", systemImage: "plus")
                     }
-                    Button(action: { showingContentCamera = true }) {
-                        Label("Add Bin Photo", systemImage: "camera")
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    Menu {
+                        Button(action: { isEditMode = true }) {
+                            Label("Select Items", systemImage: "checkmark.circle")
+                        }
+                        Button(action: { showingQRCode = true }) {
+                            Label("Show QR Label", systemImage: "qrcode")
+                        }
+                        Button(action: { nfcService.writeTag(binID: bin.id.uuidString) }) {
+                            Label("Write NFC Tag", systemImage: "wave.3.right")
+                        }
+                        Button(action: { showingContentCamera = true }) {
+                            Label("Add Bin Photo", systemImage: "camera")
+                        }
+                    } label: {
+                        Label("More", systemImage: "ellipsis.circle")
                     }
-                } label: {
-                    Label("More", systemImage: "ellipsis.circle")
                 }
             }
         }
@@ -137,6 +192,38 @@ struct BinDetailView: View {
                 }
             ), sourceType: .camera)
         }
+        .sheet(isPresented: $showingBulkMove) {
+            BulkMoveSheet(items: selectedItemObjects, allBins: allBins) {
+                isEditMode = false
+                selectedItems.removeAll()
+            }
+        }
+        .alert("Delete \(selectedItems.count) Items?", isPresented: $showingBulkDeleteConfirmation) {
+            Button("Delete", role: .destructive) { bulkDelete() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will permanently delete the selected items and their checkout history.")
+        }
+    }
+
+    private var selectedItemObjects: [Item] {
+        bin.items.filter { selectedItems.contains($0.id) }
+    }
+
+    private func selectAll() {
+        if selectedItems.count == filteredItems.count {
+            selectedItems.removeAll()
+        } else {
+            selectedItems = Set(filteredItems.map(\.id))
+        }
+    }
+
+    private func bulkDelete() {
+        for item in selectedItemObjects {
+            modelContext.delete(item)
+        }
+        selectedItems.removeAll()
+        isEditMode = false
     }
 
     private var binInfoSection: some View {
@@ -312,5 +399,43 @@ private struct QRLabelSheet: View {
         printer.printInfo = printInfo
         printer.printingItem = image
         printer.present(animated: true)
+    }
+}
+
+private struct BulkMoveSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let items: [Item]
+    let allBins: [Bin]
+    let onComplete: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List(allBins) { bin in
+                Button {
+                    for item in items {
+                        item.bin = bin
+                        item.updatedAt = Date()
+                    }
+                    onComplete()
+                    dismiss()
+                } label: {
+                    HStack {
+                        ColorDot(colorName: bin.color, size: 14)
+                        Text(bin.displayName)
+                        Spacer()
+                        Text("\(bin.items.count) items")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("Move \(items.count) Items")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
     }
 }
