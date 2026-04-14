@@ -51,6 +51,7 @@
 		AB00000100000011AAAAAA01 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000011BBBBBB01 /* Theme.swift */; };
 		AB00000100000012AAAAAA01 /* CardPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000012BBBBBB01 /* CardPresentation.swift */; };
 		AB00000100000013AAAAAA01 /* BrandedEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */; };
+		AB00000100000014AAAAAA01 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000014BBBBBB01 /* SupabaseConfig.swift */; };
 		BB00000100000001AAAAAA01 /* ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000001BBBBBB01 /* ColorPalette.swift */; };
 		BB00000100000002AAAAAA01 /* CodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002BBBBBB01 /* CodeGenerator.swift */; };
 		CC00000100000001AAAAAA01 /* IconPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000001BBBBBB01 /* IconPalette.swift */; };
@@ -65,7 +66,6 @@
 		FF00000100000001AAAAAA01 /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000001BBBBBB01 /* ReportService.swift */; };
 		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
 		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
-		AB00000100000014AAAAAA01 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000014BBBBBB01 /* SupabaseConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +133,7 @@
 		AB00000100000011BBBBBB01 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AB00000100000012BBBBBB01 /* CardPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPresentation.swift; sourceTree = "<group>"; };
 		AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedEmptyState.swift; sourceTree = "<group>"; };
+		AB00000100000014BBBBBB01 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		BB00000100000001BBBBBB01 /* ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPalette.swift; sourceTree = "<group>"; };
 		BB00000100000002BBBBBB01 /* CodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenerator.swift; sourceTree = "<group>"; };
 		CC00000100000001BBBBBB01 /* IconPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconPalette.swift; sourceTree = "<group>"; };
@@ -148,7 +149,6 @@
 		FF00000100000001BBBBBB01 /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
 		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
-		AB00000100000014BBBBBB01 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -609,6 +609,7 @@
 /* Begin XCBuildConfiguration section */
 		2FBD3E442BEAC2D300B0C02C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2FD8306E2F8DEB0600726C2F /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -769,6 +770,7 @@
 		};
 		2FBD3E482BEAC2D300B0C02C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2FD8306E2F8DEB0600726C2F /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -804,6 +806,7 @@
 		};
 		2FBD3E4A2BEAC2D300B0C02C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2FD8306E2F8DEB0600726C2F /* Secrets.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -822,6 +825,7 @@
 		};
 		2FBD3E4B2BEAC2D300B0C02C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2FD8306E2F8DEB0600726C2F /* Secrets.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -840,6 +844,7 @@
 		};
 		2FBD3E4D2BEAC2D300B0C02C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2FD8306E2F8DEB0600726C2F /* Secrets.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -856,6 +861,7 @@
 		};
 		2FBD3E4E2BEAC2D300B0C02C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2FD8306E2F8DEB0600726C2F /* Secrets.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
