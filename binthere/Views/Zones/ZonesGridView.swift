@@ -21,15 +21,16 @@ struct ZonesGridView: View {
                 )
                 .padding(.top, 60)
             } else {
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: columns, spacing: Theme.Spacing.md) {
                     ForEach(zones) { zone in
                         NavigationLink(value: zone) {
                             ZoneCard(zone: zone)
+                                .animatedAppearance()
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .padding()
+                .padding(Theme.Spacing.md)
             }
         }
         .navigationTitle("Zones")
@@ -52,6 +53,7 @@ struct ZonesGridView: View {
         }
         .sheet(isPresented: $showingAddZone) {
             AddZoneSheet()
+                .cardPresentation()
         }
         .sheet(isPresented: $showingHomeKitImport) {
             HomeKitImportSheet()
