@@ -164,6 +164,7 @@ struct BinListView: View {
         }
         .sheet(isPresented: $showingAddBin) {
             AddBinView()
+                .cardPresentation()
         }
         .sheet(isPresented: $showingBulkZoneMove) {
             BulkZoneMoveSheet(bins: selectedBinObjects, allZones: allZones) {

@@ -175,12 +175,15 @@ struct BinDetailView: View {
         }
         .sheet(isPresented: $showingAddItem) {
             AddItemView(bin: bin)
+                .cardPresentation()
         }
         .sheet(isPresented: $showingAIAnalysis) {
             AIAnalysisView(bin: bin)
+                .cardPresentation()
         }
         .sheet(isPresented: $showingQRCode) {
             QRLabelSheet(bin: bin)
+                .cardPresentation()
         }
         .sheet(isPresented: $showingContentCamera) {
             ImagePickerView(selectedImage: .init(

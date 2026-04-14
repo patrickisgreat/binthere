@@ -176,14 +176,17 @@ struct ItemDetailView: View {
         .navigationTitle(item.name)
         .sheet(isPresented: $showingCheckout) {
             CheckoutSheet(item: item, defaultName: currentUserDisplayName)
+                .cardPresentation()
         }
         .sheet(isPresented: $showingRequestReturn) {
             if let activeRecord = item.checkoutHistory.first(where: { $0.isActive }) {
                 RequestItemSheet(item: item, activeRecord: activeRecord)
+                    .cardPresentation()
             }
         }
         .sheet(isPresented: $showingMoveBin) {
             MoveBinSheet(item: item, bins: allBins)
+                .cardPresentation()
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePickerView(selectedImage: .init(
@@ -206,12 +209,15 @@ struct ItemDetailView: View {
         }
         .sheet(isPresented: $showingSetValue) {
             SetValueSheet(item: item)
+                .cardPresentation()
         }
         .sheet(isPresented: $showingNewAttribute) {
             EditAttributeSheet(item: item, existing: nil)
+                .cardPresentation()
         }
         .sheet(item: $editingAttribute) { attribute in
             EditAttributeSheet(item: item, existing: attribute)
+                .cardPresentation()
         }
     }
 
