@@ -4,9 +4,14 @@ import SwiftData
 struct BinListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Bin.code) private var bins: [Bin]
+    @Query(sort: \Zone.name) private var allZones: [Zone]
     @State private var searchText = ""
     @State private var showingAddBin = false
     @State private var groupByZone = false
+    @State private var isEditMode = false
+    @State private var selectedBins = Set<UUID>()
+    @State private var showingBulkZoneMove = false
+    @State private var showingBulkDeleteConfirmation = false
 
     private var filteredBins: [Bin] {
         if searchText.isEmpty { return bins }
@@ -77,39 +82,171 @@ struct BinListView: View {
                 }
             } else {
                 ForEach(filteredBins) { bin in
-                    NavigationLink(value: bin) {
-                        BinRowView(bin: bin)
+                    if isEditMode {
+                        HStack {
+                            Image(systemName: selectedBins.contains(bin.id) ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(selectedBins.contains(bin.id) ? .blue : .secondary)
+                            BinRowView(bin: bin)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if selectedBins.contains(bin.id) {
+                                selectedBins.remove(bin.id)
+                            } else {
+                                selectedBins.insert(bin.id)
+                            }
+                        }
+                    } else {
+                        NavigationLink(value: bin) {
+                            BinRowView(bin: bin)
+                        }
                     }
                 }
-                .onDelete(perform: deleteBins)
+                .onDelete(perform: isEditMode ? nil : deleteBins)
             }
         }
-        .navigationTitle("Bins")
+        .navigationTitle(isEditMode ? "\(selectedBins.count) Selected" : "Bins")
         .navigationDestination(for: Bin.self) { bin in
             BinDetailView(bin: bin)
         }
         .searchable(text: $searchText, prompt: "Search by code, label, or items")
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button(action: { groupByZone.toggle() }) {
-                    Label(
-                        groupByZone ? "Flat List" : "Group by Zone",
-                        systemImage: groupByZone ? "list.bullet" : "rectangle.3.group"
-                    )
+            if isEditMode {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") {
+                        isEditMode = false
+                        selectedBins.removeAll()
+                    }
                 }
-                Button(action: { showingAddBin = true }) {
-                    Label("Add Bin", systemImage: "plus")
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button(action: { showingBulkZoneMove = true }) {
+                        Label("Move to Zone", systemImage: "mappin.and.ellipse")
+                    }
+                    .disabled(selectedBins.isEmpty)
+
+                    Spacer()
+
+                    Button(action: selectAllBins) {
+                        Label(
+                            selectedBins.count == filteredBins.count ? "Deselect All" : "Select All",
+                            systemImage: selectedBins.count == filteredBins.count ? "circle" : "checkmark.circle"
+                        )
+                    }
+
+                    Spacer()
+
+                    Button(role: .destructive, action: { showingBulkDeleteConfirmation = true }) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(selectedBins.isEmpty)
+                }
+            } else {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Menu {
+                        Button(action: { groupByZone.toggle() }) {
+                            Label(
+                                groupByZone ? "Flat List" : "Group by Zone",
+                                systemImage: groupByZone ? "list.bullet" : "rectangle.3.group"
+                            )
+                        }
+                        Button(action: { isEditMode = true }) {
+                            Label("Select Bins", systemImage: "checkmark.circle")
+                        }
+                    } label: {
+                        Label("Options", systemImage: "ellipsis.circle")
+                    }
+
+                    Button(action: { showingAddBin = true }) {
+                        Label("Add Bin", systemImage: "plus")
+                    }
                 }
             }
         }
         .sheet(isPresented: $showingAddBin) {
             AddBinView()
         }
+        .sheet(isPresented: $showingBulkZoneMove) {
+            BulkZoneMoveSheet(bins: selectedBinObjects, allZones: allZones) {
+                isEditMode = false
+                selectedBins.removeAll()
+            }
+        }
+        .alert("Delete \(selectedBins.count) Bins?", isPresented: $showingBulkDeleteConfirmation) {
+            Button("Delete", role: .destructive) { bulkDeleteBins() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will permanently delete the selected bins and all their items.")
+        }
+    }
+
+    private var selectedBinObjects: [Bin] {
+        bins.filter { selectedBins.contains($0.id) }
+    }
+
+    private func selectAllBins() {
+        if selectedBins.count == filteredBins.count {
+            selectedBins.removeAll()
+        } else {
+            selectedBins = Set(filteredBins.map(\.id))
+        }
     }
 
     private func deleteBins(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(filteredBins[index])
+        }
+    }
+
+    private func bulkDeleteBins() {
+        for bin in selectedBinObjects {
+            modelContext.delete(bin)
+        }
+        selectedBins.removeAll()
+        isEditMode = false
+    }
+}
+
+private struct BulkZoneMoveSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let bins: [Bin]
+    let allZones: [Zone]
+    let onComplete: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Button {
+                    for bin in bins { bin.zone = nil; bin.updatedAt = Date() }
+                    onComplete()
+                    dismiss()
+                } label: {
+                    Label("No Zone", systemImage: "minus.circle")
+                }
+
+                ForEach(allZones) { zone in
+                    Button {
+                        for bin in bins { bin.zone = zone; bin.updatedAt = Date() }
+                        onComplete()
+                        dismiss()
+                    } label: {
+                        HStack {
+                            ZoneIcon(iconName: zone.icon, colorName: zone.color)
+                            Text(zone.name)
+                            Spacer()
+                            Text("\(zone.bins.count) bins")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Move \(bins.count) Bins")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
         }
     }
 }
