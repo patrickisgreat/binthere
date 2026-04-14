@@ -100,6 +100,20 @@ struct BinListView: View {
                         NavigationLink(value: bin) {
                             BinRowView(bin: bin)
                         }
+                        .contextMenu {
+                            Button {
+                                // QR label handled via navigation
+                            } label: {
+                                Label("Show QR Label", systemImage: "qrcode")
+                            }
+                            Divider()
+                            Button(role: .destructive) {
+                                Haptics.medium()
+                                modelContext.delete(bin)
+                            } label: {
+                                Label("Delete Bin", systemImage: "trash")
+                            }
+                        }
                     }
                 }
                 .onDelete(perform: isEditMode ? nil : deleteBins)
