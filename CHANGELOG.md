@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.0](https://github.com/patrickisgreat/binthere/compare/v0.9.0...v0.10.0) (2026-04-14)
+
+
+### Features
+
+* add CloudStorageService and Supabase Storage migration ([59f84a7](https://github.com/patrickisgreat/binthere/commit/59f84a7a9b33299b4504f3a23b9af799fe8162b7))
+* Realtime subscriptions, auto-push, network monitoring, sync UI ([dbce913](https://github.com/patrickisgreat/binthere/commit/dbce913054b30134b6372c950ea13fda9994c4bf))
+* sync polish — Realtime, auto-push, cloud storage, offline support ([20a7e14](https://github.com/patrickisgreat/binthere/commit/20a7e145c4c63a49a9a8cb51b3de2cb4e4ef8813))
+
 ## [0.9.0](https://github.com/patrickisgreat/binthere/compare/v0.8.0...v0.9.0) (2026-04-14)
 
 
