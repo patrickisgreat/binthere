@@ -63,6 +63,7 @@
 		AB00000100000010AAAAAA01 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000010BBBBBB01 /* StorageService.swift */; };
 		AB00000100000011AAAAAA01 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000011BBBBBB01 /* Theme.swift */; };
 		AB00000100000012AAAAAA01 /* CardPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000012BBBBBB01 /* CardPresentation.swift */; };
+		AB00000100000013AAAAAA01 /* BrandedEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,6 +144,7 @@
 		AB00000100000010BBBBBB01 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		AB00000100000011BBBBBB01 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AB00000100000012BBBBBB01 /* CardPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPresentation.swift; sourceTree = "<group>"; };
+		AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedEmptyState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -330,6 +332,7 @@
 				EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */,
 				AB00000100000011BBBBBB01 /* Theme.swift */,
 				AB00000100000012BBBBBB01 /* CardPresentation.swift */,
+				AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -559,6 +562,7 @@
 				AB00000100000010AAAAAA01 /* StorageService.swift in Sources */,
 				AB00000100000011AAAAAA01 /* Theme.swift in Sources */,
 				AB00000100000012AAAAAA01 /* CardPresentation.swift in Sources */,
+				AB00000100000013AAAAAA01 /* BrandedEmptyState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,12 +14,8 @@ struct ZonesGridView: View {
     var body: some View {
         ScrollView {
             if zones.isEmpty {
-                ContentUnavailableView(
-                    "No Zones",
-                    systemImage: "square.grid.2x2",
-                    description: Text("Zones represent rooms or areas. Tap + to create one.")
-                )
-                .padding(.top, 60)
+                BrandedEmptyState.noZones
+                    .padding(.top, Theme.Spacing.xxl)
             } else {
                 LazyVGrid(columns: columns, spacing: Theme.Spacing.md) {
                     ForEach(zones) { zone in

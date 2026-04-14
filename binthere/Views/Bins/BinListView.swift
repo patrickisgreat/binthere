@@ -50,11 +50,11 @@ struct BinListView: View {
     var body: some View {
         List {
             if filteredBins.isEmpty {
-                ContentUnavailableView(
-                    searchText.isEmpty ? "No Bins Yet" : "No Results",
-                    systemImage: searchText.isEmpty ? "archivebox" : "magnifyingglass",
-                    description: Text(searchText.isEmpty ? "Tap + to create your first bin." : "No bins match your search.")
-                )
+                if searchText.isEmpty {
+                    BrandedEmptyState.noBins
+                } else {
+                    BrandedEmptyState.noSearchResults
+                }
             } else if groupByZone {
                 ForEach(groupedBins, id: \.zone?.id) { group in
                     Section {
@@ -173,6 +173,8 @@ struct BinListView: View {
                     Button(action: { showingAddBin = true }) {
                         Label("Add Bin", systemImage: "plus")
                     }
+                    .keyboardShortcut("n", modifiers: .command)
+                    .accessibilityIdentifier("addBinButton")
                 }
             }
         }
