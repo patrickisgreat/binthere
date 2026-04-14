@@ -5,7 +5,8 @@ import Supabase
 final class SupabaseManager {
     static let shared = SupabaseManager()
 
-    let client: SupabaseClient
+    // Use the global supabase client from SupabaseConfig.swift
+    let client: SupabaseClient = supabase
 
     var isAuthenticated: Bool {
         currentUserId != nil
@@ -13,20 +14,7 @@ final class SupabaseManager {
 
     var currentUserId: String?
 
-    private init() {
-        guard let urlString = Bundle.main.infoDictionary?["SUPABASE_URL"] as? String,
-              let url = URL(string: urlString),
-              let anonKey = Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String,
-              !urlString.contains("YOUR_PROJECT") else {
-            // Fallback for development without Supabase configured
-            // swiftlint:disable:next force_unwrapping
-            let placeholderURL = URL(string: "https://placeholder.supabase.co")!
-            client = SupabaseClient(supabaseURL: placeholderURL, supabaseKey: "placeholder")
-            return
-        }
-
-        client = SupabaseClient(supabaseURL: url, supabaseKey: anonKey)
-    }
+    private init() {}
 
     func refreshAuthState() async {
         do {

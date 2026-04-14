@@ -16,15 +16,48 @@ final class AuthService {
     // MARK: - Session
 
     func restoreSession() async {
+        // Try to restore with a timeout so the app doesn't freeze on launch
         do {
-            let session = try await client.auth.session
-            currentUserId = session.user.id.uuidString
+            let session = try await withThrowingTaskGroup(of: Session.self) { group in
+                group.addTask {
+                    try await self.client.auth.session
+                }
+                group.addTask {
+                    try await Task.sleep(for: .seconds(5))
+                    throw CancellationError()
+                }
+                let result = try await group.next()!
+                group.cancelAll()
+                return result
+            }
+            currentUserId = session.user.id.uuidString.lowercased()
             currentEmail = session.user.email
         } catch {
             currentUserId = nil
             currentEmail = nil
+
+            #if DEBUG
+            // Auto-login with test user in debug builds
+            await devAutoLogin()
+            #endif
         }
     }
+
+    #if DEBUG
+    private func devAutoLogin() async {
+        do {
+            let session = try await client.auth.signIn(
+                email: "test@binthere.dev",
+                password: "testtest123"
+            )
+            currentUserId = session.user.id.uuidString.lowercased()
+            currentEmail = session.user.email
+            print("[AuthService] Dev auto-login successful: \(currentEmail ?? "")")
+        } catch {
+            print("[AuthService] Dev auto-login failed: \(error.localizedDescription)")
+        }
+    }
+    #endif
 
     // MARK: - Email Auth
 
@@ -35,7 +68,7 @@ final class AuthService {
 
         do {
             let response = try await client.auth.signUp(email: email, password: password)
-            currentUserId = response.user.id.uuidString
+            currentUserId = response.user.id.uuidString.lowercased()
             currentEmail = response.user.email
         } catch {
             self.error = error.localizedDescription
@@ -49,7 +82,7 @@ final class AuthService {
 
         do {
             let session = try await client.auth.signIn(email: email, password: password)
-            currentUserId = session.user.id.uuidString
+            currentUserId = session.user.id.uuidString.lowercased()
             currentEmail = session.user.email
         } catch {
             self.error = error.localizedDescription
@@ -73,7 +106,7 @@ final class AuthService {
             let session = try await client.auth.signInWithIdToken(
                 credentials: .init(provider: .apple, idToken: tokenString)
             )
-            currentUserId = session.user.id.uuidString
+            currentUserId = session.user.id.uuidString.lowercased()
             currentEmail = session.user.email
         } catch {
             self.error = error.localizedDescription
