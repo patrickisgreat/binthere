@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.0](https://github.com/patrickisgreat/binthere/compare/v0.11.0...v0.12.0) (2026-04-14)
+
+
+### Features
+
+* add card presentation system for Things-style sheets ([d789de7](https://github.com/patrickisgreat/binthere/commit/d789de78eb9d4b95500d1481ed471e8e751c4fea))
+* Things-style card presentations and animated transitions ([3718170](https://github.com/patrickisgreat/binthere/commit/3718170e7666d1c8e81ceaef39aa3e8e1f03b973))
+
 ## [0.11.0](https://github.com/patrickisgreat/binthere/compare/v0.10.0...v0.11.0) (2026-04-14)
 
 
