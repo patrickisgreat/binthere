@@ -35,6 +35,25 @@ struct SignInView: View {
             .frame(height: 50)
             .padding(.horizontal, 40)
 
+            // Sign in with Google
+            Button(action: { Task { await authService.signInWithGoogle() } }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "g.circle.fill")
+                        .font(.title2)
+                    Text("Sign in with Google")
+                        .font(.headline)
+                }
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .background(.white)
+                .foregroundStyle(.black)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(.quaternary, lineWidth: 1)
+                )
+            }
+            .padding(.horizontal, 40)
+
             // Divider
             HStack {
                 Rectangle().fill(.quaternary).frame(height: 1)
