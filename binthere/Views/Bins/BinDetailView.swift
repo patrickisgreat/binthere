@@ -77,11 +77,7 @@ struct BinDetailView: View {
 
             Section(isEditMode ? "Select Items (\(selectedItems.count) selected)" : "Items (\(filteredItems.count))") {
                 if filteredItems.isEmpty && quickAddName.isEmpty {
-                    ContentUnavailableView(
-                        "No Items",
-                        systemImage: "cube.box",
-                        description: Text("Type below to quick-add, or tap + for full details.")
-                    )
+                    BrandedEmptyState.noItems
                 } else {
                     ForEach(filteredItems) { item in
                         if isEditMode {
