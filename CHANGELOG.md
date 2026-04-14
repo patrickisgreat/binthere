@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.13.0](https://github.com/patrickisgreat/binthere/compare/v0.12.0...v0.13.0) (2026-04-14)
+
+
+### Features
+
+* add context menus to bin list rows ([b61ed4d](https://github.com/patrickisgreat/binthere/commit/b61ed4d6b47b05077e69bb410e62cf8a2e000a53))
+* quick add, rich swipe actions, haptics, and context menus ([503f072](https://github.com/patrickisgreat/binthere/commit/503f072300ceb5870c87e22dffcf02a7bdd1ed67))
+* quick add, rich swipe gestures, haptics, and context menus ([5c6079a](https://github.com/patrickisgreat/binthere/commit/5c6079a19009f9db18dd321a5cbdd40ee8674d1b))
+
 ## [0.12.0](https://github.com/patrickisgreat/binthere/compare/v0.11.0...v0.12.0) (2026-04-14)
 
 
