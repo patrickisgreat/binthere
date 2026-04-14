@@ -8,12 +8,17 @@ import Supabase
 // for client-side use (RLS protects the data). It's equivalent to
 // a Firebase config file.
 
+// swiftlint:disable force_unwrapping
+private let supabaseURL = URL(string: "https://graxolpusjcqlzikbnpr.supabase.co")!
+private let authCallbackURL = URL(string: "beeBetter.binthere://auth-callback")!
+// swiftlint:enable force_unwrapping
+
 let supabase = SupabaseClient(
-    supabaseURL: URL(string: "https://graxolpusjcqlzikbnpr.supabase.co")!,
+    supabaseURL: supabaseURL,
     supabaseKey: "sb_publishable_1O3xXBqBCO-g_-gdgyFUSA_UmSpp7RJ",
     options: .init(
         auth: .init(
-            redirectToURL: URL(string: "beeBetter.binthere://auth-callback")
+            redirectToURL: authCallbackURL
         )
     )
 )

@@ -26,6 +26,7 @@ final class AuthService {
                     try await Task.sleep(for: .seconds(5))
                     throw CancellationError()
                 }
+                // swiftlint:disable:next force_unwrapping
                 let result = try await group.next()!
                 group.cancelAll()
                 return result
@@ -35,29 +36,8 @@ final class AuthService {
         } catch {
             currentUserId = nil
             currentEmail = nil
-
-            #if DEBUG
-            // Auto-login with test user in debug builds
-            await devAutoLogin()
-            #endif
         }
     }
-
-    #if DEBUG
-    private func devAutoLogin() async {
-        do {
-            let session = try await client.auth.signIn(
-                email: "test@binthere.dev",
-                password: "testtest123"
-            )
-            currentUserId = session.user.id.uuidString.lowercased()
-            currentEmail = session.user.email
-            print("[AuthService] Dev auto-login successful: \(currentEmail ?? "")")
-        } catch {
-            print("[AuthService] Dev auto-login failed: \(error.localizedDescription)")
-        }
-    }
-    #endif
 
     // MARK: - Email Auth
 
