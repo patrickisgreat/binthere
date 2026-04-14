@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/patrickisgreat/binthere/compare/v0.10.0...v0.11.0) (2026-04-14)
+
+
+### Features
+
+* add design system — Theme with colors, typography, spacing, haptics ([0fa3e05](https://github.com/patrickisgreat/binthere/commit/0fa3e05b30ff1e1ef95c451a835b6d6fd5171f0e))
+* design system — Theme, typography, spacing, haptics ([6100fba](https://github.com/patrickisgreat/binthere/commit/6100fba005f44e1ce966d4ac5681841b0395d0c8))
+
 ## [0.10.0](https://github.com/patrickisgreat/binthere/compare/v0.9.0...v0.10.0) (2026-04-14)
 
 
