@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/patrickisgreat/binthere/compare/v0.7.0...v0.8.0) (2026-04-14)
+
+
+### Features
+
+* add NotificationService for local notifications ([b86860f](https://github.com/patrickisgreat/binthere/commit/b86860f55f668db8fb99275d30310a1f02e92faa))
+* add RequestItemSheet for pinging item holders ([da44cd5](https://github.com/patrickisgreat/binthere/commit/da44cd5c485dc892a66845f95bccdd086bc20a43))
+* checkout permissions, auto-populated user, and request return ([dae4783](https://github.com/patrickisgreat/binthere/commit/dae4783d88bf9869755468f66a9da8415cacf6b6))
+* checkout permissions, auto-populated user, and request return ([44924a7](https://github.com/patrickisgreat/binthere/commit/44924a7c075593d2e3d1fd62bc7069622fa55b8e))
+* notifications — due-back reminders, return requests, daily overdue check ([ca50484](https://github.com/patrickisgreat/binthere/commit/ca5048471404c82a0197d7a07929405f5665b9f9))
+* wire notifications into checkout flow and settings ([3054e24](https://github.com/patrickisgreat/binthere/commit/3054e24da80e52f8c9ba37934492c5265f129889))
+
 ## [0.7.0](https://github.com/patrickisgreat/binthere/compare/v0.6.0...v0.7.0) (2026-04-13)
 
 
