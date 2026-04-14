@@ -244,6 +244,7 @@ struct ItemDetailView: View {
                 activeRecord.checkedInAt = Date()
                 item.isCheckedOut = false
                 item.updatedAt = Date()
+                NotificationService.cancelDueBackReminders(for: item.id)
             }
             .buttonStyle(.borderedProminent)
             .tint(.green)
@@ -364,15 +365,29 @@ private struct CheckoutSheet: View {
     }
 
     private func performCheckout() {
+        let name = checkedOutTo.trimmingCharacters(in: .whitespaces)
         let record = CheckoutRecord(
             item: item,
-            checkedOutTo: checkedOutTo.trimmingCharacters(in: .whitespaces),
+            checkedOutTo: name,
             expectedReturnDate: hasReturnDate ? expectedReturnDate : nil,
             notes: notes
         )
         modelContext.insert(record)
         item.isCheckedOut = true
         item.updatedAt = Date()
+
+        // Schedule due-back notifications
+        if hasReturnDate {
+            NotificationService.scheduleDueBackReminder(
+                itemId: item.id, itemName: item.name,
+                checkedOutTo: name, dueDate: expectedReturnDate
+            )
+            NotificationService.scheduleDueBackWarning(
+                itemId: item.id, itemName: item.name,
+                checkedOutTo: name, dueDate: expectedReturnDate
+            )
+        }
+
         dismiss()
     }
 }

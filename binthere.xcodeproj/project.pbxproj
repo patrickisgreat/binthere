@@ -59,6 +59,7 @@
 		AB0000010000000BAAAAAA01 /* JoinHouseholdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */; };
 		AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */; };
 		AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */; };
+		AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000FBBBBBB01 /* NotificationService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,6 +136,7 @@
 		AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinHouseholdView.swift; sourceTree = "<group>"; };
 		AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdSetupView.swift; sourceTree = "<group>"; };
 		AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestItemSheet.swift; sourceTree = "<group>"; };
+		AB0000010000000FBBBBBB01 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -266,6 +268,7 @@
 				AB00000100000002BBBBBB01 /* AuthService.swift */,
 				AB00000100000007BBBBBB01 /* SyncService.swift */,
 				AB00000100000008BBBBBB01 /* HouseholdService.swift */,
+				AB0000010000000FBBBBBB01 /* NotificationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -543,6 +546,7 @@
 				AB0000010000000BAAAAAA01 /* JoinHouseholdView.swift in Sources */,
 				AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */,
 				AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */,
+				AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

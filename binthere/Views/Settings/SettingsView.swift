@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
     @Environment(AuthService.self) private var authService
@@ -7,6 +8,8 @@ struct SettingsView: View {
     @State private var showingAPIKey = false
     @State private var showingDeleteConfirmation = false
     @State private var deleteError: String?
+    @State private var notificationsEnabled = false
+    @State private var dailyOverdueCheck = false
 
     var body: some View {
         Form {
@@ -63,6 +66,29 @@ struct SettingsView: View {
                 } label: {
                     Label("Reports & Analytics", systemImage: "chart.bar.doc.horizontal")
                 }
+            }
+
+            Section("Notifications") {
+                Toggle("Due-back reminders", isOn: $notificationsEnabled)
+                    .onChange(of: notificationsEnabled) { _, enabled in
+                        if enabled {
+                            Task { _ = await NotificationService.requestPermission() }
+                        }
+                    }
+
+                Toggle("Daily overdue check (9 AM)", isOn: $dailyOverdueCheck)
+                    .onChange(of: dailyOverdueCheck) { _, enabled in
+                        if enabled {
+                            NotificationService.scheduleDailyOverdueCheck()
+                        } else {
+                            UNUserNotificationCenter.current()
+                                .removePendingNotificationRequests(withIdentifiers: ["daily_overdue_check"])
+                        }
+                    }
+
+                Text("Get notified when items are due back or overdue")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("AI Analysis") {
