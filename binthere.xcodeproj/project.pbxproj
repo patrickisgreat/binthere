@@ -58,6 +58,7 @@
 		AB0000010000000AAAAAAA01 /* InviteMemberSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000ABBBBBB01 /* InviteMemberSheet.swift */; };
 		AB0000010000000BAAAAAA01 /* JoinHouseholdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */; };
 		AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */; };
+		AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +134,7 @@
 		AB0000010000000ABBBBBB01 /* InviteMemberSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberSheet.swift; sourceTree = "<group>"; };
 		AB0000010000000BBBBBBB01 /* JoinHouseholdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinHouseholdView.swift; sourceTree = "<group>"; };
 		AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdSetupView.swift; sourceTree = "<group>"; };
+		AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestItemSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -286,6 +288,7 @@
 				AA0000010000000BBBBBBB01 /* AIAnalysisView.swift */,
 				EE00000100000003BBBBBB01 /* SetValueSheet.swift */,
 				EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */,
+				AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */,
 			);
 			path = Items;
 			sourceTree = "<group>";
@@ -539,6 +542,7 @@
 				AB0000010000000AAAAAAA01 /* InviteMemberSheet.swift in Sources */,
 				AB0000010000000BAAAAAA01 /* JoinHouseholdView.swift in Sources */,
 				AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */,
+				AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
