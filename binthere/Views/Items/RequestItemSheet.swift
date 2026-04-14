@@ -84,20 +84,18 @@ struct RequestItemSheet: View {
     private func sendRequest() {
         isSending = true
         Task {
-            // Store the return request in Supabase
-            // In the future, this triggers a push notification via Edge Function
-            let client = SupabaseManager.shared.client
-            let payload: [String: AnyJSON] = [
-                "item_id": .string(item.id.uuidString),
-                "household_id": .string(item.householdId),
-                "requested_by": .string(authService.currentUserId ?? ""),
-                "checked_out_to": .string(activeRecord.checkedOutBy),
-                "message": .string(message),
-            ]
+            // Fire a local notification (on-device for now)
+            // Remote push via APNs + Supabase Edge Functions for cross-device
+            let requesterName = householdService.members
+                .first { $0.userId.uuidString == authService.currentUserId }?
+                .displayName ?? "Someone"
 
-            // For now, we just mark it as sent locally
-            // Push notification integration comes with APNs setup
-            _ = payload
+            NotificationService.scheduleReturnRequest(
+                itemId: item.id,
+                itemName: item.name,
+                requestedBy: requesterName,
+                message: message
+            )
 
             try? await Task.sleep(for: .milliseconds(500))
             isSending = false

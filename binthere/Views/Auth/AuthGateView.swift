@@ -26,6 +26,7 @@ struct AuthGateView: View {
         .task {
             await authService.restoreSession()
             syncService.configure(modelContext: modelContext)
+            _ = await NotificationService.requestPermission()
             hasCheckedSession = true
             if let userId = authService.currentUserId {
                 await householdService.loadHousehold(userId: userId)
