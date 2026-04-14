@@ -4,6 +4,7 @@ import UserNotifications
 struct SettingsView: View {
     @Environment(AuthService.self) private var authService
     @Environment(HouseholdService.self) private var householdService
+    @Environment(SyncService.self) private var syncService
     @State private var apiKey = ImageAnalysisService.apiKey ?? ""
     @State private var showingAPIKey = false
     @State private var showingDeleteConfirmation = false
@@ -57,6 +58,49 @@ struct SettingsView: View {
                 } else {
                     Text("No household")
                         .foregroundStyle(.secondary)
+                }
+            }
+
+            Section("Sync") {
+                HStack {
+                    Label {
+                        Text(syncService.syncStatus.rawValue)
+                    } icon: {
+                        switch syncService.syncStatus {
+                        case .syncing:
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        case .synced:
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                        case .offline:
+                            Image(systemName: "wifi.slash")
+                                .foregroundStyle(.orange)
+                        case .error:
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.red)
+                        case .idle:
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Spacer()
+                    if let lastSync = syncService.lastSyncedAt {
+                        Text(lastSync, style: .relative)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Button(action: syncNow) {
+                    Label("Sync Now", systemImage: "arrow.triangle.2.circlepath")
+                }
+                .disabled(syncService.isSyncing)
+
+                if let error = syncService.error {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -135,6 +179,14 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will permanently delete your account, all your bins, items, and data. This action cannot be undone.")
+        }
+    }
+
+    private func syncNow() {
+        let householdId = householdService.currentHouseholdId
+        guard !householdId.isEmpty else { return }
+        Task {
+            await syncService.syncAll(householdId: householdId)
         }
     }
 }

@@ -60,6 +60,7 @@
 		AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */; };
 		AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */; };
 		AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000FBBBBBB01 /* NotificationService.swift */; };
+		AB00000100000010AAAAAA01 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000010BBBBBB01 /* StorageService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -137,6 +138,7 @@
 		AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdSetupView.swift; sourceTree = "<group>"; };
 		AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestItemSheet.swift; sourceTree = "<group>"; };
 		AB0000010000000FBBBBBB01 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		AB00000100000010BBBBBB01 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,6 +271,7 @@
 				AB00000100000007BBBBBB01 /* SyncService.swift */,
 				AB00000100000008BBBBBB01 /* HouseholdService.swift */,
 				AB0000010000000FBBBBBB01 /* NotificationService.swift */,
+				AB00000100000010BBBBBB01 /* StorageService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -547,6 +550,7 @@
 				AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */,
 				AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */,
 				AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */,
+				AB00000100000010AAAAAA01 /* StorageService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

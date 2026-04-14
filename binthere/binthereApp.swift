@@ -3,6 +3,7 @@ import SwiftData
 
 @main
 struct binthereApp: App { // swiftlint:disable:this type_name
+    @Environment(\.scenePhase) private var scenePhase
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Zone.self,
