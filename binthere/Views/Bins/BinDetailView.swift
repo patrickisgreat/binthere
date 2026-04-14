@@ -18,6 +18,10 @@ struct BinDetailView: View {
     @State private var isEditMode = false
     @State private var showingBulkMove = false
     @State private var showingBulkDeleteConfirmation = false
+    @State private var quickAddName = ""
+    @State private var showingCheckoutItem: Item?
+    @State private var showingMoveItem: Item?
+    @FocusState private var quickAddFocused: Bool
 
     enum ItemFilter: String, CaseIterable {
         case all = "All"
@@ -72,22 +76,23 @@ struct BinDetailView: View {
             }
 
             Section(isEditMode ? "Select Items (\(selectedItems.count) selected)" : "Items (\(filteredItems.count))") {
-                if filteredItems.isEmpty {
+                if filteredItems.isEmpty && quickAddName.isEmpty {
                     ContentUnavailableView(
                         "No Items",
                         systemImage: "cube.box",
-                        description: Text("Tap + or use AI Scan to add items.")
+                        description: Text("Type below to quick-add, or tap + for full details.")
                     )
                 } else {
                     ForEach(filteredItems) { item in
                         if isEditMode {
                             HStack {
                                 Image(systemName: selectedItems.contains(item.id) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(selectedItems.contains(item.id) ? .blue : .secondary)
+                                    .foregroundStyle(selectedItems.contains(item.id) ? Theme.Colors.accent : Theme.Colors.secondaryText)
                                 ItemRowView(item: item)
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
+                                Haptics.selection()
                                 if selectedItems.contains(item.id) {
                                     selectedItems.remove(item.id)
                                 } else {
@@ -98,8 +103,66 @@ struct BinDetailView: View {
                             NavigationLink(value: item) {
                                 ItemRowView(item: item)
                             }
-                            .swipeActions(edge: .trailing) {
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
+                                    Haptics.medium()
+                                    modelContext.delete(item)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .trailing) {
+                                if item.isCheckedOut {
+                                    Button {
+                                        Haptics.success()
+                                        if let record = item.checkoutHistory.first(where: { $0.isActive }) {
+                                            record.checkedInAt = Date()
+                                        }
+                                        item.isCheckedOut = false
+                                        item.updatedAt = Date()
+                                    } label: {
+                                        Label("Check In", systemImage: "arrow.down.to.line")
+                                    }
+                                    .tint(Theme.Colors.success)
+                                }
+                            }
+                            .swipeActions(edge: .leading) {
+                                if !item.isCheckedOut && item.checkoutPermission != "none" {
+                                    Button {
+                                        showingCheckoutItem = item
+                                    } label: {
+                                        Label("Check Out", systemImage: "arrow.up.right")
+                                    }
+                                    .tint(Theme.Colors.checkedOut)
+                                }
+                            }
+                            .contextMenu {
+                                if item.isCheckedOut {
+                                    Button {
+                                        Haptics.success()
+                                        if let record = item.checkoutHistory.first(where: { $0.isActive }) {
+                                            record.checkedInAt = Date()
+                                        }
+                                        item.isCheckedOut = false
+                                        item.updatedAt = Date()
+                                    } label: {
+                                        Label("Check In", systemImage: "arrow.down.to.line")
+                                    }
+                                } else if item.checkoutPermission != "none" {
+                                    Button {
+                                        showingCheckoutItem = item
+                                    } label: {
+                                        Label("Check Out", systemImage: "arrow.up.right")
+                                    }
+                                }
+                                Button {
+                                    showingMoveItem = item
+                                } label: {
+                                    Label("Move to Bin", systemImage: "arrow.right.arrow.left")
+                                }
+                                Divider()
+                                Button(role: .destructive) {
+                                    Haptics.medium()
                                     modelContext.delete(item)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
@@ -107,6 +170,20 @@ struct BinDetailView: View {
                             }
                         }
                     }
+                }
+
+                // Quick add row
+                if !isEditMode {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundStyle(Theme.Colors.accent)
+                        TextField("Add item...", text: $quickAddName)
+                            .font(Theme.Typography.body)
+                            .focused($quickAddFocused)
+                            .onSubmit { quickAddItem() }
+                            .submitLabel(.done)
+                    }
+                    .padding(.vertical, Theme.Spacing.xxs)
                 }
             }
         }
@@ -207,6 +284,14 @@ struct BinDetailView: View {
         } message: {
             Text("This will permanently delete the selected items and their checkout history.")
         }
+        .sheet(item: $showingCheckoutItem) { item in
+            CheckoutSheet(item: item, defaultName: "")
+                .cardPresentation()
+        }
+        .sheet(item: $showingMoveItem) { item in
+            MoveBinSheet(item: item, bins: allBins)
+                .cardPresentation()
+        }
     }
 
     private var selectedItemObjects: [Item] {
@@ -222,11 +307,23 @@ struct BinDetailView: View {
     }
 
     private func bulkDelete() {
+        Haptics.success()
         for item in selectedItemObjects {
             modelContext.delete(item)
         }
         selectedItems.removeAll()
         isEditMode = false
+    }
+
+    private func quickAddItem() {
+        let name = quickAddName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return }
+        let item = Item(name: name, bin: bin)
+        modelContext.insert(item)
+        Haptics.light()
+        withAnimation(Theme.Animation.spring) {
+            quickAddName = ""
+        }
     }
 
     private var binInfoSection: some View {

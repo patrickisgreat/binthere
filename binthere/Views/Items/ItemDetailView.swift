@@ -323,7 +323,7 @@ private struct CheckoutRecordRow: View {
     }
 }
 
-private struct CheckoutSheet: View {
+struct CheckoutSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     let item: Item
@@ -398,7 +398,7 @@ private struct CheckoutSheet: View {
     }
 }
 
-private struct MoveBinSheet: View {
+struct MoveBinSheet: View {
     @Environment(\.dismiss) private var dismiss
     let item: Item
     let bins: [Bin]
