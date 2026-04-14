@@ -26,6 +26,7 @@ final class AuthService {
                     try await Task.sleep(for: .seconds(5))
                     throw CancellationError()
                 }
+                // swiftlint:disable:next force_unwrapping
                 let result = try await group.next()!
                 group.cancelAll()
                 return result
@@ -35,7 +36,6 @@ final class AuthService {
         } catch {
             currentUserId = nil
             currentEmail = nil
-
         }
     }
 
