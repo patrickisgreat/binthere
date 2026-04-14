@@ -255,37 +255,37 @@ private struct BinRowView: View {
     let bin: Bin
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Spacing.sm) {
             ColorDot(colorName: bin.color, size: 16)
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Text(bin.code)
-                        .font(.headline.monospaced())
+                        .font(Theme.Typography.code)
                     if !bin.name.isEmpty {
                         Text(bin.name)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .font(Theme.Typography.subheadline)
+                            .foregroundStyle(Theme.Colors.secondaryText)
                     }
                 }
-                HStack(spacing: 12) {
+                HStack(spacing: Theme.Spacing.sm) {
                     if let zone = bin.zone {
                         Label {
                             Text(zone.name)
                         } icon: {
                             ZoneIcon(iconName: zone.icon, colorName: zone.color, size: 12)
                         }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.secondaryText)
                     }
                     if !bin.location.isEmpty {
                         Label(bin.location, systemImage: "location")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.secondaryText)
                     }
                     Label("\(bin.items.count) items", systemImage: "cube.box")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.secondaryText)
                 }
             }
         }

@@ -61,6 +61,7 @@
 		AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */; };
 		AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000FBBBBBB01 /* NotificationService.swift */; };
 		AB00000100000010AAAAAA01 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000010BBBBBB01 /* StorageService.swift */; };
+		AB00000100000011AAAAAA01 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000011BBBBBB01 /* Theme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +140,7 @@
 		AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestItemSheet.swift; sourceTree = "<group>"; };
 		AB0000010000000FBBBBBB01 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		AB00000100000010BBBBBB01 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		AB00000100000011BBBBBB01 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -324,6 +326,7 @@
 				BB00000100000002BBBBBB01 /* CodeGenerator.swift */,
 				CC00000100000001BBBBBB01 /* IconPalette.swift */,
 				EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */,
+				AB00000100000011BBBBBB01 /* Theme.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -551,6 +554,7 @@
 				AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */,
 				AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */,
 				AB00000100000010AAAAAA01 /* StorageService.swift in Sources */,
+				AB00000100000011AAAAAA01 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
