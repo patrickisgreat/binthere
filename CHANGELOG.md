@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.14.0](https://github.com/patrickisgreat/binthere/compare/v0.13.0...v0.14.0) (2026-04-14)
+
+
+### Features
+
+* add branded empty states with gradient icons and animations ([29dc4ad](https://github.com/patrickisgreat/binthere/commit/29dc4ade26fa3d5633891447fabac32eb4f1ec4f))
+* add Google Sign-In auth flow ([5fea4ce](https://github.com/patrickisgreat/binthere/commit/5fea4ce92db164e09c47fdbef5e7167199ac85b2))
+* add Google Sign-In authentication ([5392c83](https://github.com/patrickisgreat/binthere/commit/5392c8333c300111ee1dfdc23b6ac5d35aa60b6a))
+* apply branded empty states, accessibility IDs, keyboard shortcuts ([7d3f303](https://github.com/patrickisgreat/binthere/commit/7d3f3039ff43fed20e2e06b49237407aa504146f))
+* branded empty states, accessibility, and keyboard shortcuts ([c62eea7](https://github.com/patrickisgreat/binthere/commit/c62eea7c8cdb8b70be9fdc467572fabd9a4f52cb))
+* promote Reports to its own tab ([8c44f24](https://github.com/patrickisgreat/binthere/commit/8c44f24a3071fba61c10f423090a2526e976eb24))
+* Supabase fixes, Reports tab, debug auto-login, screenshots ([b75f383](https://github.com/patrickisgreat/binthere/commit/b75f383c77895905b8eaff65546f1a7bffde2894))
+
+
+### Bug Fixes
+
+* add 5-second timeout to session restore to prevent launch freeze ([d9b8933](https://github.com/patrickisgreat/binthere/commit/d9b893321a9e00efdc699bad84148d7331e0c47e))
+* bridge Secrets.xcconfig values into app via Info.plist ([0072f5e](https://github.com/patrickisgreat/binthere/commit/0072f5eb4726a50e6b1400a1bf9185a82702062e))
+* configure OAuth redirect URL for Google Sign-In ([148986e](https://github.com/patrickisgreat/binthere/commit/148986e861788c7771f42d89733f0b139b83f253))
+* escape double slash in xcconfig URL to prevent comment parsing ([eda8900](https://github.com/patrickisgreat/binthere/commit/eda89006d89949593ca79684e3cc3226b13c75f8))
+* lowercase user IDs to match Postgres auth.uid() format ([2639db4](https://github.com/patrickisgreat/binthere/commit/2639db486055fc7a3b69cf7b6be2b1250bf9c3da))
+* use global SupabaseClient per official Supabase docs ([2f05cfa](https://github.com/patrickisgreat/binthere/commit/2f05cfa4e2396c703f4673f7fc45619820ca7c48))
+
 ## [0.13.0](https://github.com/patrickisgreat/binthere/compare/v0.12.0...v0.13.0) (2026-04-14)
 
 
