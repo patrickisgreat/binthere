@@ -33,12 +33,21 @@ struct MainTabView: View {
             .accessibilityIdentifier("scanTab")
 
             NavigationStack {
+                ReportsView()
+            }
+            .tabItem {
+                Label("Reports", systemImage: "chart.bar")
+            }
+            .tag(3)
+            .accessibilityIdentifier("reportsTab")
+
+            NavigationStack {
                 SettingsView()
             }
             .tabItem {
                 Label("Settings", systemImage: "gear")
             }
-            .tag(3)
+            .tag(4)
             .accessibilityIdentifier("settingsTab")
         }
     }
