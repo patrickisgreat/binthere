@@ -8,6 +8,11 @@ struct ZoneDetailView: View {
 
     @State private var showingDeleteConfirmation = false
     @State private var showingAddBin = false
+    @State private var showingBulkValuation = false
+
+    private var allItemsInZone: [Item] {
+        zone.bins.flatMap(\.items)
+    }
 
     var body: some View {
         List {
@@ -84,12 +89,27 @@ struct ZoneDetailView: View {
             BinDetailView(bin: bin)
         }
         .toolbar {
-            Button(action: { showingAddBin = true }) {
-                Label("Add Bin", systemImage: "plus")
+            Menu {
+                Button(action: { showingAddBin = true }) {
+                    Label("Add Bin", systemImage: "plus")
+                }
+                Button(action: { showingBulkValuation = true }) {
+                    Label("Estimate Values with AI", systemImage: "sparkles")
+                }
+                .disabled(allItemsInZone.isEmpty)
+            } label: {
+                Label("More", systemImage: "ellipsis.circle")
             }
         }
         .sheet(isPresented: $showingAddBin) {
             AddBinToZoneSheet(zone: zone)
+        }
+        .sheet(isPresented: $showingBulkValuation) {
+            BulkValuationSheet(
+                title: "Estimate Values: \(zone.name)",
+                items: allItemsInZone
+            )
+            .cardPresentation()
         }
         .alert("Delete Zone?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {

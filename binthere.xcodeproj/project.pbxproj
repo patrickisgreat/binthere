@@ -63,6 +63,7 @@
 		EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */; };
 		EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000003BBBBBB01 /* SetValueSheet.swift */; };
 		EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */; };
+		EE00000100000005AAAAAA01 /* BulkValuationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */; };
 		FF00000100000001AAAAAA01 /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000001BBBBBB01 /* ReportService.swift */; };
 		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
 		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
@@ -146,6 +147,7 @@
 		EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		EE00000100000003BBBBBB01 /* SetValueSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetValueSheet.swift; sourceTree = "<group>"; };
 		EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAttributeSheet.swift; sourceTree = "<group>"; };
+		EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkValuationSheet.swift; sourceTree = "<group>"; };
 		FF00000100000001BBBBBB01 /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
 		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
@@ -307,6 +309,7 @@
 				AA0000010000000BBBBBBB01 /* AIAnalysisView.swift */,
 				EE00000100000003BBBBBB01 /* SetValueSheet.swift */,
 				EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */,
+				EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */,
 				AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */,
 			);
 			path = Items;
@@ -550,6 +553,7 @@
 				EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */,
 				EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */,
 				EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */,
+				EE00000100000005AAAAAA01 /* BulkValuationSheet.swift in Sources */,
 				FF00000100000001AAAAAA01 /* ReportService.swift in Sources */,
 				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
 				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,
