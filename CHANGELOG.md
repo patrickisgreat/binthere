@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.0](https://github.com/patrickisgreat/binthere/compare/v0.17.0...v0.18.0) (2026-04-15)
+
+
+### Features
+
+* full account deletion + App Store listing copy ([90e03e7](https://github.com/patrickisgreat/binthere/commit/90e03e75e159076e94d41a309166add73d1eee59))
+* full account deletion + App Store listing copy ([fb8848d](https://github.com/patrickisgreat/binthere/commit/fb8848d105b610c20e1927d0e247ff6e0fdd9936))
+
 ## [0.17.0](https://github.com/patrickisgreat/binthere/compare/v0.16.0...v0.17.0) (2026-04-15)
 
 
