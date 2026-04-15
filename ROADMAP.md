@@ -88,6 +88,28 @@ Redesign the app's visual language and interaction patterns to match the polish 
 - **Keyboard shortcuts** — for iPad: Cmd+N (new bin), Cmd+F (search), etc.
 - **Accessibility** — VoiceOver labels, Dynamic Type support, reduce motion preferences
 
+### Phase 12: AI & UX Polish (Post-Beta Feedback)
+Captured from real-device testing 2026-04-15:
+
+**AI value estimation:**
+- **Bulk valuation by bin** — estimate value for every item in a bin in a single AI call
+- **Bulk valuation by home/zone** — estimate total value across an entire zone or the whole household
+- Both should show progress, allow cancellation, and let the user review/accept estimates before committing
+
+**AI analysis improvements:**
+- **Inline bulk editing of suggested items** — currently you can only toggle save/don't-save per item. Add inline editing of name, description, tags, and value before saving the batch
+- Maybe a "select all + edit common field" pattern (e.g. set color or tag for all selected suggestions at once)
+
+**UI fixes:**
+- **Color selector cut off** — the horizontal color row is clipped on left/right edges. Wrap in a ScrollView or pad the container properly
+- **Collapsible icon picker** — IconPickerGrid currently shows all groups at once and takes a lot of vertical space. Make groups collapse/expand individually
+
+**Image management:**
+- **Zoom and crop per-item images** — when an item is identified from a bin photo, let the user zoom and crop to just that item's portion of the image. Saves a focused thumbnail per item instead of reusing the full bin photo
+
+**Security:**
+- **Security audit and hardening** — review RLS policies, validate all client inputs, audit Supabase function security, check for sensitive data leaks in logs, verify keychain usage for tokens, certificate pinning consideration
+
 ## Ideas (Unprioritized)
 - Apple Home / Google Home room live sync
 - Barcode scanning for commercial products
