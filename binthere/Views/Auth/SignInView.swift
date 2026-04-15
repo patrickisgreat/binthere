@@ -12,10 +12,13 @@ struct SignInView: View {
             Spacer()
 
             // Logo
-            VStack(spacing: 8) {
-                Image(systemName: "archivebox.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.blue)
+            VStack(spacing: 12) {
+                Image("AppLogo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
+                    .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
                 Text("binthere")
                     .font(.largeTitle.weight(.bold))
                 Text("Know where your stuff is.")
