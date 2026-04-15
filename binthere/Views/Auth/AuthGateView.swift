@@ -12,6 +12,8 @@ struct AuthGateView: View {
         Group {
             if !hasCheckedSession {
                 ProgressView("Loading...")
+            } else if let pendingEmail = authService.pendingConfirmationEmail {
+                CheckEmailView(email: pendingEmail)
             } else if !authService.isAuthenticated {
                 SignInView()
             } else if householdService.currentHousehold == nil && !householdService.isLoading {

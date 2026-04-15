@@ -9,6 +9,12 @@ final class AuthService {
     var isLoading = false
     var error: String?
 
+    /// Set when sign-up returned a user that needs to confirm their email
+    /// before they can actually sign in. The UI should show a "Check your
+    /// email" screen until the user clicks the link (which fires the auth
+    /// state observer with a real session).
+    var pendingConfirmationEmail: String?
+
     var isAuthenticated: Bool { currentUserId != nil }
 
     private var client: SupabaseClient { SupabaseManager.shared.client }
@@ -27,6 +33,7 @@ final class AuthService {
                         if let session {
                             self.currentUserId = session.user.id.uuidString.lowercased()
                             self.currentEmail = session.user.email
+                            self.pendingConfirmationEmail = nil
                         }
                     case .signedOut:
                         self.currentUserId = nil
@@ -68,15 +75,42 @@ final class AuthService {
     func signUpWithEmail(email: String, password: String) async {
         isLoading = true
         error = nil
+        pendingConfirmationEmail = nil
         defer { isLoading = false }
 
         do {
             let response = try await client.auth.signUp(email: email, password: password)
+
+            // If Supabase requires email confirmation, no session is returned
+            // and the user.emailConfirmedAt is nil. We don't sign them in —
+            // we show the "check your email" screen instead.
+            if response.session == nil || response.user.emailConfirmedAt == nil {
+                pendingConfirmationEmail = email
+                return
+            }
+
             currentUserId = response.user.id.uuidString.lowercased()
             currentEmail = response.user.email
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// Resend the confirmation email for a user who hasn't confirmed yet.
+    func resendConfirmationEmail(_ email: String) async {
+        isLoading = true
+        error = nil
+        defer { isLoading = false }
+
+        do {
+            try await client.auth.resend(email: email, type: .signup)
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func cancelPendingConfirmation() {
+        pendingConfirmationEmail = nil
     }
 
     func signInWithEmail(email: String, password: String) async {

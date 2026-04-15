@@ -88,7 +88,9 @@ struct SignUpView: View {
     private func signUp() {
         Task {
             await authService.signUpWithEmail(email: email, password: password)
-            if authService.isAuthenticated {
+            // Dismiss either way — the gate will show the confirm screen
+            // if a confirmation is now pending, or MainTabView if signed in.
+            if authService.isAuthenticated || authService.pendingConfirmationEmail != nil {
                 dismiss()
             }
         }
