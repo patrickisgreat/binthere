@@ -6,7 +6,19 @@ struct SuggestedItem: Identifiable {
     var name: String
     var description: String
     var tags: [String]
+    var color: String = ""
+    var value: Double?
     var isSelected: Bool = true
+
+    var tagsText: String {
+        get { tags.joined(separator: ", ") }
+        set {
+            tags = newValue
+                .split(separator: ",")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+        }
+    }
 }
 
 enum ImageAnalysisError: LocalizedError {
@@ -310,6 +322,141 @@ final class ImageAnalysisService {
 
         let reasoning = parsed["reasoning"] as? String ?? ""
         return ValueEstimate(value: estimatedValue, reasoning: reasoning)
+    }
+
+    // MARK: - Bulk Value Estimation
+
+    struct BulkValueResult: Identifiable {
+        let id: UUID
+        let value: Double
+        let reasoning: String
+    }
+
+    /// Items to estimate values for. The id matches up with the result.
+    struct BulkValueInput {
+        let id: UUID
+        let name: String
+        let description: String
+    }
+
+    /// Estimate values for a batch of items in a single AI call.
+    /// Returns a dictionary keyed by the input id.
+    func estimateValuesBulk(items: [BulkValueInput]) async -> [UUID: BulkValueResult] {
+        guard !items.isEmpty else { return [:] }
+
+        guard let apiKey = Self.apiKey, !apiKey.isEmpty else {
+            error = .noAPIKey
+            return [:]
+        }
+
+        isAnalyzing = true
+        error = nil
+        defer { isAnalyzing = false }
+
+        let itemsList = items.enumerated().map { index, item in
+            "\(index + 1). \(item.name)" +
+                (item.description.isEmpty ? "" : " — \(item.description)")
+        }.joined(separator: "\n")
+
+        let prompt = """
+        Estimate the current resale value of each of the following items in US dollars.
+        Use typical market prices for similar items in average used condition.
+
+        Items:
+        \(itemsList)
+
+        Respond with ONLY a JSON array of objects, one per item in the same order, \
+        each with: "index" (the item number from the list, 1-based), \
+        "estimated_value" (a number in USD, no currency symbol), \
+        "reasoning" (a brief 1-2 sentence explanation).
+        Example: [{"index": 1, "estimated_value": 25.00, "reasoning": "Used hand tool, \
+        retails for $20-30."}]
+        Return ONLY the JSON array, no other text.
+        """
+
+        guard let request = buildBulkValueRequest(apiKey: apiKey, prompt: prompt) else {
+            error = .decodingError("Failed to create request")
+            return [:]
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            return try parseBulkValueResponse(data, inputs: items)
+        } catch let analysisError as ImageAnalysisError {
+            error = analysisError
+            return [:]
+        } catch {
+            self.error = .networkError(error)
+            return [:]
+        }
+    }
+
+    private func buildBulkValueRequest(apiKey: String, prompt: String) -> URLRequest? {
+        let requestBody: [String: Any] = [
+            "model": "claude-sonnet-4-5",
+            "max_tokens": 4096,
+            "messages": [
+                [
+                    "role": "user",
+                    "content": [
+                        ["type": "text", "text": prompt],
+                    ],
+                ],
+            ],
+        ]
+
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
+              let apiURL = URL(string: "https://api.anthropic.com/v1/messages") else {
+            return nil
+        }
+
+        var request = URLRequest(url: apiURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.httpBody = jsonData
+        return request
+    }
+
+    private func parseBulkValueResponse(
+        _ data: Data,
+        inputs: [BulkValueInput]
+    ) throws -> [UUID: BulkValueResult] {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw ImageAnalysisError.decodingError("Response is not valid JSON")
+        }
+
+        if let errorDict = json["error"] as? [String: Any],
+           let message = errorDict["message"] as? String {
+            throw ImageAnalysisError.decodingError("API error: \(message)")
+        }
+
+        guard let content = json["content"] as? [[String: Any]],
+              let firstBlock = content.first,
+              let text = firstBlock["text"] as? String else {
+            throw ImageAnalysisError.decodingError("Unexpected response format")
+        }
+
+        let cleaned = Self.extractJSONArray(from: text)
+        guard let arrayData = cleaned.data(using: .utf8),
+              let parsed = try? JSONSerialization.jsonObject(with: arrayData) as? [[String: Any]] else {
+            print("[ImageAnalysisService] Could not parse bulk values from text: \(text)")
+            throw ImageAnalysisError.decodingError("Could not parse bulk value estimates")
+        }
+
+        var results: [UUID: BulkValueResult] = [:]
+        for entry in parsed {
+            guard let index = entry["index"] as? Int,
+                  index >= 1, index <= inputs.count,
+                  let value = entry["estimated_value"] as? Double else {
+                continue
+            }
+            let input = inputs[index - 1]
+            let reasoning = entry["reasoning"] as? String ?? ""
+            results[input.id] = BulkValueResult(id: input.id, value: value, reasoning: reasoning)
+        }
+        return results
     }
 
     /// Extracts a JSON object from text that may be wrapped in markdown code fences.

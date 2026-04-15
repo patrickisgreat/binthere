@@ -171,39 +171,103 @@ struct AIAnalysisView: View {
                 bin: bin
             )
             item.tags = suggestion.tags
+            item.color = suggestion.color
+            item.householdId = bin.householdId
+            item.updatedAt = Date()
+            if let value = suggestion.value {
+                item.value = value
+                item.valueSource = "ai"
+                item.valueUpdatedAt = Date()
+            }
             if let path = imagePath {
                 item.imagePaths = [path]
             }
             modelContext.insert(item)
         }
 
+        try? modelContext.save()
         dismiss()
     }
 }
 
 private struct SuggestedItemRow: View {
     @Binding var suggestion: SuggestedItem
+    @State private var expanded = false
+    @State private var valueText = ""
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Toggle("", isOn: $suggestion.isSelected)
-                .labelsHidden()
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 12) {
+                Toggle("", isOn: $suggestion.isSelected)
+                    .labelsHidden()
 
-            VStack(alignment: .leading, spacing: 6) {
-                TextField("Name", text: $suggestion.name)
-                    .font(.headline)
-                TextField("Description", text: $suggestion.description, axis: .vertical)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2...4)
-                if !suggestion.tags.isEmpty {
-                    Text(suggestion.tags.joined(separator: ", "))
-                        .font(.caption)
-                        .foregroundStyle(.blue)
+                VStack(alignment: .leading, spacing: 6) {
+                    TextField("Name", text: $suggestion.name)
+                        .font(.headline)
+                    TextField("Description", text: $suggestion.description, axis: .vertical)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2...4)
                 }
+
+                Spacer(minLength: 0)
+
+                Button(action: { withAnimation { expanded.toggle() } }) {
+                    Image(systemName: expanded ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(8)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if expanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Tags")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 60, alignment: .leading)
+                        TextField("Comma separated", text: Binding(
+                            get: { suggestion.tagsText },
+                            set: { suggestion.tagsText = $0 }
+                        ))
+                        .font(.caption)
+                    }
+
+                    HStack {
+                        Text("Color")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 60, alignment: .leading)
+                        ColorPickerRow(selectedColor: $suggestion.color)
+                    }
+
+                    HStack {
+                        Text("Value")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 60, alignment: .leading)
+                        Text("$")
+                            .foregroundStyle(.secondary)
+                        TextField("0.00", text: $valueText)
+                            .font(.caption)
+                            .keyboardType(.decimalPad)
+                            .onChange(of: valueText) { _, newValue in
+                                suggestion.value = Double(newValue.filter { $0.isNumber || $0 == "." })
+                            }
+                    }
+                }
+                .padding(.leading, 40)
+                .transition(.opacity)
             }
         }
         .opacity(suggestion.isSelected ? 1 : 0.5)
         .padding(.vertical, 4)
+        .onAppear {
+            if let val = suggestion.value {
+                valueText = String(format: "%.2f", val)
+            }
+        }
     }
 }

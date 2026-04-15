@@ -18,6 +18,7 @@ struct BinDetailView: View {
     @State private var isEditMode = false
     @State private var showingBulkMove = false
     @State private var showingBulkDeleteConfirmation = false
+    @State private var showingBulkValuation = false
     @State private var quickAddName = ""
     @State private var showingCheckoutItem: Item?
     @State private var showingMoveItem: Item?
@@ -231,6 +232,10 @@ struct BinDetailView: View {
                         Button(action: { isEditMode = true }) {
                             Label("Select Items", systemImage: "checkmark.circle")
                         }
+                        Button(action: { showingBulkValuation = true }) {
+                            Label("Estimate Values with AI", systemImage: "sparkles")
+                        }
+                        .disabled(bin.items.isEmpty)
                         Button(action: { showingQRCode = true }) {
                             Label("Show QR Label", systemImage: "qrcode")
                         }
@@ -273,6 +278,13 @@ struct BinDetailView: View {
                 isEditMode = false
                 selectedItems.removeAll()
             }
+        }
+        .sheet(isPresented: $showingBulkValuation) {
+            BulkValuationSheet(
+                title: "Estimate Values: \(bin.code)",
+                items: bin.items
+            )
+            .cardPresentation()
         }
         .alert("Delete \(selectedItems.count) Items?", isPresented: $showingBulkDeleteConfirmation) {
             Button("Delete", role: .destructive) { bulkDelete() }
