@@ -91,6 +91,8 @@ private struct ZoneRowView: View {
 struct AddZoneSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(HouseholdService.self) private var householdService
+    @Environment(SyncService.self) private var syncService
 
     @State private var name = ""
     @State private var locationDescription = ""
@@ -132,13 +134,23 @@ struct AddZoneSheet: View {
     }
 
     private func addZone() {
+        let householdId = householdService.currentHouseholdId
         let zone = Zone(
             name: name.trimmingCharacters(in: .whitespaces),
             locationDescription: locationDescription,
             color: selectedColor,
             icon: selectedIcon
         )
+        zone.householdId = householdId
+        zone.updatedAt = Date()
         modelContext.insert(zone)
+
+        // Push to Supabase
+        if !householdId.isEmpty {
+            Task {
+                try? await syncService.pushZone(zone, householdId: householdId)
+            }
+        }
         dismiss()
     }
 }
@@ -146,6 +158,8 @@ struct AddZoneSheet: View {
 struct HomeKitImportSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(HouseholdService.self) private var householdService
+    @Environment(SyncService.self) private var syncService
     @Query(sort: \Zone.name) private var existingZones: [Zone]
 
     @State private var homeKitService = HomeKitService()
@@ -224,9 +238,17 @@ struct HomeKitImportSheet: View {
     }
 
     private func importRooms() {
+        let householdId = householdService.currentHouseholdId
         for roomName in selectedRooms {
             let zone = Zone(name: roomName, icon: "house")
+            zone.householdId = householdId
+            zone.updatedAt = Date()
             modelContext.insert(zone)
+            if !householdId.isEmpty {
+                Task {
+                    try? await syncService.pushZone(zone, householdId: householdId)
+                }
+            }
         }
         dismiss()
     }
