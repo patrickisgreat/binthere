@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.17.0](https://github.com/patrickisgreat/binthere/compare/v0.16.0...v0.17.0) (2026-04-15)
+
+
+### Features
+
+* bulk AI valuation, inline AI editing, color picker fix, collapsible icons ([575711b](https://github.com/patrickisgreat/binthere/commit/575711b4f0880d6f3562d21a8ade399400201636))
+* bulk AI value estimation for bins and zones ([e343b6e](https://github.com/patrickisgreat/binthere/commit/e343b6ecc53b95ce1172c05cf1398f9aa672f6d9))
+* inline editing of color, value, and tags on AI suggestions ([21272e2](https://github.com/patrickisgreat/binthere/commit/21272e20dc201c820c853a20e63118fcb4e9271e))
+
+
+### Bug Fixes
+
+* color picker cutoff and collapsible icon picker ([9cd2e1e](https://github.com/patrickisgreat/binthere/commit/9cd2e1ec1c2694970538e72023e984aba34b3130))
+
 ## [0.16.0](https://github.com/patrickisgreat/binthere/compare/v0.15.0...v0.16.0) (2026-04-15)
 
 
