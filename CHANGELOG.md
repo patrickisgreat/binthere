@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.15.0](https://github.com/patrickisgreat/binthere/compare/v0.14.0...v0.15.0) (2026-04-15)
+
+
+### Features
+
+* use real app icon as sign-in screen logo ([84a9dd5](https://github.com/patrickisgreat/binthere/commit/84a9dd56d41240a26fc7800069d4bc5cabe31e46))
+
+
+### Bug Fixes
+
+* add Jekyll config for GitHub Pages build ([8bb1852](https://github.com/patrickisgreat/binthere/commit/8bb1852e7af81b430bd244e9c3330957acda02a2))
+* pass explicit redirect URL to Google OAuth ([c5a60fb](https://github.com/patrickisgreat/binthere/commit/c5a60fbc00225b073e6aa178715d03e3a952ab7e))
+
 ## [0.14.0](https://github.com/patrickisgreat/binthere/compare/v0.13.0...v0.14.0) (2026-04-14)
 
 
