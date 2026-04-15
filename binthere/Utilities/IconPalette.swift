@@ -35,41 +35,91 @@ enum IconPalette {
 
 struct IconPickerGrid: View {
     @Binding var selectedIcon: String
+    @State private var expandedGroups: Set<String> = []
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 6)
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             ForEach(IconPalette.groups) { group in
-                Text(group.name)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                groupSection(group)
+            }
+        }
+        .onAppear { autoExpandSelectedGroup() }
+    }
 
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(group.icons, id: \.self) { icon in
-                        Image(systemName: icon)
-                            .font(.title3)
-                            .frame(width: 40, height: 40)
-                            .background(
-                                selectedIcon == icon
-                                    ? Color.accentColor.opacity(0.15)
-                                    : Color.clear
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .strokeBorder(
-                                        selectedIcon == icon ? Color.accentColor : Color.clear,
-                                        lineWidth: 2
-                                    )
-                            )
-                            .onTapGesture {
-                                selectedIcon = selectedIcon == icon ? "" : icon
-                            }
-                    }
+    @ViewBuilder
+    private func groupSection(_ group: IconPalette.IconGroup) -> some View {
+        let isExpanded = expandedGroups.contains(group.id)
+
+        Button(action: { toggleGroup(group.id) }) {
+            HStack {
+                Text(group.name)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.primary)
+
+                if let preview = group.icons.first(where: { $0 == selectedIcon }) {
+                    Image(systemName: preview)
+                        .font(.caption)
+                        .foregroundStyle(Color.accentColor)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+
+        if isExpanded {
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(group.icons, id: \.self) { icon in
+                    Image(systemName: icon)
+                        .font(.title3)
+                        .frame(width: 40, height: 40)
+                        .background(
+                            selectedIcon == icon
+                                ? Color.accentColor.opacity(0.15)
+                                : Color.clear
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(
+                                    selectedIcon == icon ? Color.accentColor : Color.clear,
+                                    lineWidth: 2
+                                )
+                        )
+                        .onTapGesture {
+                            selectedIcon = selectedIcon == icon ? "" : icon
+                        }
                 }
             }
+            .padding(.bottom, 8)
+            .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
+        Divider()
+    }
+
+    private func toggleGroup(_ id: String) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if expandedGroups.contains(id) {
+                expandedGroups.remove(id)
+            } else {
+                expandedGroups.insert(id)
+            }
+        }
+    }
+
+    private func autoExpandSelectedGroup() {
+        for group in IconPalette.groups where group.icons.contains(selectedIcon) {
+            expandedGroups.insert(group.id)
         }
     }
 }

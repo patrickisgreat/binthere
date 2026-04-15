@@ -51,23 +51,30 @@ struct ColorPickerRow: View {
     @Binding var selectedColor: String
 
     var body: some View {
-        HStack(spacing: 10) {
-            ForEach(ColorPalette.selectableColors) { palette in
-                Circle()
-                    .fill(palette.color)
-                    .frame(width: 30, height: 30)
-                    .overlay {
-                        if selectedColor == palette.rawValue {
-                            Circle()
-                                .strokeBorder(.white, lineWidth: 2)
-                                .frame(width: 24, height: 24)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(ColorPalette.selectableColors) { palette in
+                    Circle()
+                        .fill(palette.color)
+                        .frame(width: 32, height: 32)
+                        .overlay {
+                            if selectedColor == palette.rawValue {
+                                Circle()
+                                    .strokeBorder(.white, lineWidth: 2)
+                                    .frame(width: 26, height: 26)
+                            }
                         }
-                    }
-                    .shadow(color: selectedColor == palette.rawValue ? palette.color.opacity(0.5) : .clear, radius: 4)
-                    .onTapGesture {
-                        selectedColor = selectedColor == palette.rawValue ? "" : palette.rawValue
-                    }
+                        .shadow(
+                            color: selectedColor == palette.rawValue ? palette.color.opacity(0.5) : .clear,
+                            radius: 4
+                        )
+                        .padding(.vertical, 4)
+                        .onTapGesture {
+                            selectedColor = selectedColor == palette.rawValue ? "" : palette.rawValue
+                        }
+                }
             }
+            .padding(.horizontal, 4)
         }
     }
 }
