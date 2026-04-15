@@ -116,10 +116,10 @@ Welcome to binthere! The first release.
 
 ### Demo Account
 
-Email: [your test account email in Supabase]
-Password: [your test account password]
+Email: appreview@binthere.app
+Password: BinThereReview2026!
 
-NOTE: this account is pre-confirmed — no email verification step needed.
+NOTE: this account is pre-confirmed — no email verification step needed. It is seeded with one zone (Garage), one bin (Holiday Decorations), and three sample items so the reviewer can see real data immediately on first launch. Created by `supabase/migrations/005_seed_app_review_user.sql`.
 
 ### Notes for Reviewer
 
