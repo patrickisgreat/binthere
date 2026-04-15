@@ -101,7 +101,10 @@ final class AuthService {
         defer { isLoading = false }
 
         do {
-            try await client.auth.signInWithOAuth(provider: .google)
+            try await client.auth.signInWithOAuth(
+                provider: .google,
+                redirectTo: URL(string: "beeBetter.binthere://auth-callback")
+            )
         } catch {
             self.error = error.localizedDescription
         }
