@@ -1,7 +1,9 @@
+import SwiftData
 import SwiftUI
 import UserNotifications
 
 struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(AuthService.self) private var authService
     @Environment(HouseholdService.self) private var householdService
     @Environment(SyncService.self) private var syncService
@@ -171,6 +173,7 @@ struct SettingsView: View {
                 Task {
                     do {
                         try await authService.deleteAccount()
+                        wipeLocalData()
                     } catch {
                         deleteError = error.localizedDescription
                     }
@@ -180,6 +183,15 @@ struct SettingsView: View {
         } message: {
             Text("This will permanently delete your account, all your bins, items, and data. This action cannot be undone.")
         }
+    }
+
+    private func wipeLocalData() {
+        try? modelContext.delete(model: CustomAttribute.self)
+        try? modelContext.delete(model: CheckoutRecord.self)
+        try? modelContext.delete(model: Item.self)
+        try? modelContext.delete(model: Bin.self)
+        try? modelContext.delete(model: Zone.self)
+        try? modelContext.save()
     }
 
     private func syncNow() {
