@@ -12,8 +12,32 @@ final class AuthService {
     var isAuthenticated: Bool { currentUserId != nil }
 
     private var client: SupabaseClient { SupabaseManager.shared.client }
+    private var authStateTask: Task<Void, Never>?
 
     // MARK: - Session
+
+    func startObservingAuthState() {
+        authStateTask?.cancel()
+        authStateTask = Task { [weak self] in
+            guard let self else { return }
+            for await (event, session) in self.client.auth.authStateChanges {
+                await MainActor.run {
+                    switch event {
+                    case .signedIn, .tokenRefreshed, .initialSession:
+                        if let session {
+                            self.currentUserId = session.user.id.uuidString.lowercased()
+                            self.currentEmail = session.user.email
+                        }
+                    case .signedOut:
+                        self.currentUserId = nil
+                        self.currentEmail = nil
+                    default:
+                        break
+                    }
+                }
+            }
+        }
+    }
 
     func restoreSession() async {
         // Try to restore with a timeout so the app doesn't freeze on launch

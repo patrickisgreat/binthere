@@ -24,6 +24,7 @@ struct AuthGateView: View {
         .environment(syncService)
         .environment(householdService)
         .task {
+            authService.startObservingAuthState()
             await authService.restoreSession()
             syncService.configure(modelContext: modelContext)
             _ = await NotificationService.requestPermission()
