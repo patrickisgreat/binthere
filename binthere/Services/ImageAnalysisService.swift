@@ -86,7 +86,7 @@ final class ImageAnalysisService {
 
     private func buildRequest(apiKey: String, base64Image: String) -> URLRequest? {
         let requestBody: [String: Any] = [
-            "model": "claude-sonnet-4-20250514",
+            "model": "claude-sonnet-4-5",
             "max_tokens": 1024,
             "messages": [
                 [
@@ -124,17 +124,29 @@ final class ImageAnalysisService {
     }
 
     private func parseResponse(_ data: Data) throws {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let content = json["content"] as? [[String: Any]],
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw ImageAnalysisError.decodingError("Response is not valid JSON")
+        }
+
+        // Surface API errors instead of silently failing
+        if let errorDict = json["error"] as? [String: Any],
+           let message = errorDict["message"] as? String {
+            throw ImageAnalysisError.decodingError("API error: \(message)")
+        }
+
+        guard let content = json["content"] as? [[String: Any]],
               let firstBlock = content.first,
               let text = firstBlock["text"] as? String else {
+            print("[ImageAnalysisService] Unexpected response: \(json)")
             throw ImageAnalysisError.decodingError("Unexpected response format")
         }
 
-        // Extract JSON array from the response text
-        let jsonText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let itemsData = jsonText.data(using: .utf8),
+        // Strip markdown code fences if Claude wrapped the JSON
+        let cleaned = Self.extractJSONArray(from: text)
+
+        guard let itemsData = cleaned.data(using: .utf8),
               let items = try? JSONSerialization.jsonObject(with: itemsData) as? [[String: Any]] else {
+            print("[ImageAnalysisService] Could not parse items from text: \(text)")
             throw ImageAnalysisError.decodingError("Could not parse items from response")
         }
 
@@ -144,6 +156,33 @@ final class ImageAnalysisService {
             let tags = item["tags"] as? [String] ?? []
             return SuggestedItem(name: name, description: description, tags: tags)
         }
+    }
+
+    /// Extracts a JSON array from text that may be wrapped in markdown code fences
+    /// or have surrounding prose.
+    private static func extractJSONArray(from text: String) -> String {
+        var cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Remove ```json ... ``` or ``` ... ``` fences
+        if cleaned.hasPrefix("```") {
+            // Drop first line (```json or ```)
+            if let firstNewline = cleaned.firstIndex(of: "\n") {
+                cleaned = String(cleaned[cleaned.index(after: firstNewline)...])
+            }
+            // Drop trailing ```
+            if cleaned.hasSuffix("```") {
+                cleaned = String(cleaned.dropLast(3))
+            }
+            cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // If there's still surrounding prose, find the first [ and last ]
+        if let start = cleaned.firstIndex(of: "["),
+           let end = cleaned.lastIndex(of: "]") {
+            cleaned = String(cleaned[start...end])
+        }
+
+        return cleaned
     }
 
     // MARK: - Value Estimation
@@ -208,7 +247,7 @@ final class ImageAnalysisService {
 
     private func buildValueRequest(apiKey: String, base64Image: String, prompt: String) -> URLRequest? {
         let requestBody: [String: Any] = [
-            "model": "claude-sonnet-4-20250514",
+            "model": "claude-sonnet-4-5",
             "max_tokens": 512,
             "messages": [
                 [
@@ -246,21 +285,52 @@ final class ImageAnalysisService {
     }
 
     private func parseValueResponse(_ data: Data) throws -> ValueEstimate {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let content = json["content"] as? [[String: Any]],
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw ImageAnalysisError.decodingError("Response is not valid JSON")
+        }
+
+        if let errorDict = json["error"] as? [String: Any],
+           let message = errorDict["message"] as? String {
+            throw ImageAnalysisError.decodingError("API error: \(message)")
+        }
+
+        guard let content = json["content"] as? [[String: Any]],
               let firstBlock = content.first,
               let text = firstBlock["text"] as? String else {
             throw ImageAnalysisError.decodingError("Unexpected response format")
         }
 
-        let jsonText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let valueData = jsonText.data(using: .utf8),
+        let cleaned = Self.extractJSONObject(from: text)
+        guard let valueData = cleaned.data(using: .utf8),
               let parsed = try? JSONSerialization.jsonObject(with: valueData) as? [String: Any],
               let estimatedValue = parsed["estimated_value"] as? Double else {
+            print("[ImageAnalysisService] Could not parse value from text: \(text)")
             throw ImageAnalysisError.decodingError("Could not parse value estimate")
         }
 
         let reasoning = parsed["reasoning"] as? String ?? ""
         return ValueEstimate(value: estimatedValue, reasoning: reasoning)
+    }
+
+    /// Extracts a JSON object from text that may be wrapped in markdown code fences.
+    private static func extractJSONObject(from text: String) -> String {
+        var cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if cleaned.hasPrefix("```") {
+            if let firstNewline = cleaned.firstIndex(of: "\n") {
+                cleaned = String(cleaned[cleaned.index(after: firstNewline)...])
+            }
+            if cleaned.hasSuffix("```") {
+                cleaned = String(cleaned.dropLast(3))
+            }
+            cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        if let start = cleaned.firstIndex(of: "{"),
+           let end = cleaned.lastIndex(of: "}") {
+            cleaned = String(cleaned[start...end])
+        }
+
+        return cleaned
     }
 }
