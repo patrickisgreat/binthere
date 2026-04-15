@@ -4,6 +4,8 @@ import SwiftData
 struct AddBinView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(HouseholdService.self) private var householdService
+    @Environment(SyncService.self) private var syncService
     @Query(sort: \Zone.name) private var zones: [Zone]
     @Query private var allBins: [Bin]
 
@@ -338,6 +340,7 @@ struct AddBinView: View {
     private func createBin() {
         let existingCodes = Set(allBins.map(\.code))
         let code = CodeGenerator.generateCode(existingCodes: existingCodes)
+        let householdId = householdService.currentHouseholdId
 
         let bin = Bin(
             code: code,
@@ -347,6 +350,8 @@ struct AddBinView: View {
         )
         bin.zone = selectedZone
         bin.color = selectedColor
+        bin.householdId = householdId
+        bin.updatedAt = Date()
 
         if let labelImage = QRGeneratorService.generateQRLabel(code: code, binID: bin.id.uuidString),
            let labelPath = ImageStorageService.saveImage(labelImage) {
@@ -354,6 +359,21 @@ struct AddBinView: View {
         }
 
         modelContext.insert(bin)
+
+        // Force save so @Query observers update
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save bin: \(error)")
+        }
+
+        // Push to Supabase
+        if !householdId.isEmpty {
+            Task {
+                try? await syncService.pushBin(bin, householdId: householdId)
+            }
+        }
+
         createdBin = bin
         step = .qrAndPhoto
     }

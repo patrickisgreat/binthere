@@ -145,6 +145,13 @@ struct AddZoneSheet: View {
         zone.updatedAt = Date()
         modelContext.insert(zone)
 
+        // Force save so @Query observers update immediately
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save zone: \(error)")
+        }
+
         // Push to Supabase
         if !householdId.isEmpty {
             Task {
