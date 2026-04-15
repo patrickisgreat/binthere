@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.16.0](https://github.com/patrickisgreat/binthere/compare/v0.15.0...v0.16.0) (2026-04-15)
+
+
+### Features
+
+* small tweaks for configuration. ([0ecfa08](https://github.com/patrickisgreat/binthere/commit/0ecfa08b28e9198f6b744c033c28695e82ed6947))
+
+
+### Bug Fixes
+
+* explicit save and householdId on zone and bin creation ([3699243](https://github.com/patrickisgreat/binthere/commit/36992435fcb6a573547978d92d7ba7b421e3beb1))
+* observe Supabase auth state changes for OAuth callbacks ([813372d](https://github.com/patrickisgreat/binthere/commit/813372d3aff07a385c77403dc4e61da279b31862))
+* robust JSON parsing and updated Claude model ([fcbede4](https://github.com/patrickisgreat/binthere/commit/fcbede41a2b82e3c2a8657be20e0f9d08a6ee7f2))
+* set householdId on zones and push to Supabase ([d60948b](https://github.com/patrickisgreat/binthere/commit/d60948b8b7b5d969538856c30cb435778ff88d2f))
+
 ## [0.15.0](https://github.com/patrickisgreat/binthere/compare/v0.14.0...v0.15.0) (2026-04-15)
 
 
