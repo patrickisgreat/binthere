@@ -59,7 +59,7 @@ final class HouseholdService {
     private var client: SupabaseClient { SupabaseManager.shared.client }
 
     var currentHouseholdId: String {
-        currentHousehold?.id.uuidString ?? ""
+        currentHousehold?.id.uuidString.lowercased() ?? ""
     }
 
     // MARK: - Load Current Household
@@ -86,7 +86,7 @@ final class HouseholdService {
             // Fetch the household
             let households: [Household] = try await client.from("households")
                 .select()
-                .eq("id", value: membership.householdId.uuidString)
+                .eq("id", value: membership.householdId.uuidString.lowercased())
                 .execute()
                 .value
 
@@ -110,18 +110,16 @@ final class HouseholdService {
 
             // Create household — created_by defaults to auth.uid() via DB default
             let householdPayload: [String: AnyJSON] = [
-                "id": .string(householdId.uuidString),
+                "id": .string(householdId.uuidString.lowercased()),
                 "name": .string(name),
                 "created_by": .string(userId),
             ]
 
-            // Use rpc or direct insert. The RLS policy checks auth.uid() = created_by,
-            // so the userId must exactly match what auth.uid() returns (lowercase UUID).
             try await client.from("households").insert(householdPayload).execute()
 
             // Add creator as owner
             let memberPayload: [String: AnyJSON] = [
-                "household_id": .string(householdId.uuidString),
+                "household_id": .string(householdId.uuidString.lowercased()),
                 "user_id": .string(userId),
                 "role": .string("owner"),
                 "display_name": .string(displayName),
