@@ -58,7 +58,7 @@
 		CC00000100000002AAAAAA01 /* ZoneDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000002BBBBBB01 /* ZoneDetailView.swift */; };
 		CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000003BBBBBB01 /* HomeKitService.swift */; };
 		CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000004BBBBBB01 /* ZonesGridView.swift */; };
-		DD00000100000001AAAAAA01 /* NFCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD00000100000001BBBBBB01 /* NFCService.swift */; };
+
 		EE00000100000001AAAAAA01 /* CustomAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000001BBBBBB01 /* CustomAttribute.swift */; };
 		EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */; };
 		EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000003BBBBBB01 /* SetValueSheet.swift */; };
@@ -141,7 +141,7 @@
 		CC00000100000002BBBBBB01 /* ZoneDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneDetailView.swift; sourceTree = "<group>"; };
 		CC00000100000003BBBBBB01 /* HomeKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeKitService.swift; sourceTree = "<group>"; };
 		CC00000100000004BBBBBB01 /* ZonesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesGridView.swift; sourceTree = "<group>"; };
-		DD00000100000001BBBBBB01 /* NFCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCService.swift; sourceTree = "<group>"; };
+
 		DD00000100000002BBBBBB01 /* binthere.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = binthere.entitlements; sourceTree = "<group>"; };
 		EE00000100000001BBBBBB01 /* CustomAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAttribute.swift; sourceTree = "<group>"; };
 		EE00000100000002BBBBBB01 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
@@ -278,7 +278,7 @@
 				AA00000100000010BBBBBB01 /* QRGeneratorService.swift */,
 				AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */,
 				CC00000100000003BBBBBB01 /* HomeKitService.swift */,
-				DD00000100000001BBBBBB01 /* NFCService.swift */,
+
 				FF00000100000001BBBBBB01 /* ReportService.swift */,
 				AB00000100000001BBBBBB01 /* SupabaseClient.swift */,
 				AB00000100000002BBBBBB01 /* AuthService.swift */,
@@ -548,7 +548,7 @@
 				CC00000100000002AAAAAA01 /* ZoneDetailView.swift in Sources */,
 				CC00000100000003AAAAAA01 /* HomeKitService.swift in Sources */,
 				CC00000100000004AAAAAA01 /* ZonesGridView.swift in Sources */,
-				DD00000100000001AAAAAA01 /* NFCService.swift in Sources */,
+
 				EE00000100000001AAAAAA01 /* CustomAttribute.swift in Sources */,
 				EE00000100000002AAAAAA01 /* CurrencyFormatter.swift in Sources */,
 				EE00000100000003AAAAAA01 /* SetValueSheet.swift in Sources */,
@@ -749,7 +749,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = binthere/Info.plist;
-				INFOPLIST_KEY_NFCReaderUsageDescription = "binthere scans NFC tags to identify bins and items.";
+
 				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "binthere can import room names from HomeKit to use as zones.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -785,7 +785,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = binthere/Info.plist;
-				INFOPLIST_KEY_NFCReaderUsageDescription = "binthere scans NFC tags to identify bins and items.";
+
 				INFOPLIST_KEY_NSCameraUsageDescription = "binthere needs camera access to scan QR codes and take photos of items.";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "binthere can import room names from HomeKit to use as zones.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -11,8 +11,6 @@ struct BinDetailView: View {
     @State private var showingAIAnalysis = false
     @State private var showingQRCode = false
     @State private var showingContentCamera = false
-    @State private var nfcService = NFCService()
-    @State private var showingNFCResult = false
     @State private var itemFilter: ItemFilter = .all
     @State private var selectedItems = Set<UUID>()
     @State private var isEditMode = false
@@ -238,9 +236,6 @@ struct BinDetailView: View {
                         .disabled(bin.items.isEmpty)
                         Button(action: { showingQRCode = true }) {
                             Label("Show QR Label", systemImage: "qrcode")
-                        }
-                        Button(action: { nfcService.writeTag(binID: bin.id.uuidString) }) {
-                            Label("Write NFC Tag", systemImage: "wave.3.right")
                         }
                         Button(action: { showingContentCamera = true }) {
                             Label("Add Bin Photo", systemImage: "camera")
