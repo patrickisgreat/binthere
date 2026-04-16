@@ -25,12 +25,15 @@ final class AuthService {
                     switch event {
                     case .signedIn, .tokenRefreshed, .initialSession:
                         if let session {
-                            self.currentUserId = session.user.id.uuidString.lowercased()
+                            let userId = session.user.id.uuidString.lowercased()
+                            self.currentUserId = userId
                             self.currentEmail = session.user.email
+                            ImageAnalysisService.setCurrentUser(userId)
                         }
                     case .signedOut:
                         self.currentUserId = nil
                         self.currentEmail = nil
+                        ImageAnalysisService.setCurrentUser(nil)
                     default:
                         break
                     }
@@ -55,8 +58,10 @@ final class AuthService {
                 group.cancelAll()
                 return result
             }
-            currentUserId = session.user.id.uuidString.lowercased()
+            let userId = session.user.id.uuidString.lowercased()
+            currentUserId = userId
             currentEmail = session.user.email
+            ImageAnalysisService.setCurrentUser(userId)
         } catch {
             currentUserId = nil
             currentEmail = nil

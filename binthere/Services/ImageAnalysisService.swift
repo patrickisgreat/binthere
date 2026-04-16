@@ -58,11 +58,20 @@ final class ImageAnalysisService {
     If you cannot identify items clearly, make your best guess. Return ONLY the JSON array, no other text.
     """
 
-    private static let apiKeyKey = "claude_api_key"
+    private static var currentUserId: String?
+
+    static func setCurrentUser(_ userId: String?) {
+        currentUserId = userId
+    }
+
+    private static var apiKeyKey: String {
+        guard let userId = currentUserId else { return "claude_api_key" }
+        return "claude_api_key_\(userId)"
+    }
 
     static var apiKey: String? {
-        get { UserDefaults.standard.string(forKey: Self.apiKeyKey) }
-        set { UserDefaults.standard.set(newValue, forKey: Self.apiKeyKey) }
+        get { UserDefaults.standard.string(forKey: apiKeyKey) }
+        set { UserDefaults.standard.set(newValue, forKey: apiKeyKey) }
     }
 
     func analyzeImage(_ image: UIImage) async {

@@ -188,7 +188,7 @@ final class SyncService {
 
     func pushZone(_ zone: Zone, householdId: String) async throws {
         let payload: [String: AnyJSON] = [
-            "id": .string(zone.id.uuidString),
+            "id": .string(zone.id.uuidString.lowercased()),
             "household_id": .string(householdId),
             "name": .string(zone.name),
             "location_description": .string(zone.locationDescription),
@@ -201,7 +201,7 @@ final class SyncService {
 
     func pushBin(_ bin: Bin, householdId: String) async throws {
         var payload: [String: AnyJSON] = [
-            "id": .string(bin.id.uuidString),
+            "id": .string(bin.id.uuidString.lowercased()),
             "household_id": .string(householdId),
             "code": .string(bin.code),
             "name": .string(bin.name),
@@ -210,7 +210,7 @@ final class SyncService {
             "color": .string(bin.color),
         ]
         if let zoneId = bin.zone?.id {
-            payload["zone_id"] = .string(zoneId.uuidString)
+            payload["zone_id"] = .string(zoneId.uuidString.lowercased())
         }
         try await client.from("bins").upsert(payload).execute()
         bin.updatedAt = Date()
@@ -218,7 +218,7 @@ final class SyncService {
 
     func pushItem(_ item: Item, householdId: String) async throws {
         var payload: [String: AnyJSON] = [
-            "id": .string(item.id.uuidString),
+            "id": .string(item.id.uuidString.lowercased()),
             "household_id": .string(householdId),
             "name": .string(item.name),
             "item_description": .string(item.itemDescription),
@@ -233,7 +233,7 @@ final class SyncService {
             "allowed_checkout_users": .array(item.allowedCheckoutUsers.map { .string($0) }),
         ]
         if let binId = item.bin?.id {
-            payload["bin_id"] = .string(binId.uuidString)
+            payload["bin_id"] = .string(binId.uuidString.lowercased())
         }
         if let value = item.value {
             payload["value"] = .double(value)
@@ -247,14 +247,14 @@ final class SyncService {
 
     func pushCheckoutRecord(_ record: CheckoutRecord, householdId: String) async throws {
         var payload: [String: AnyJSON] = [
-            "id": .string(record.id.uuidString),
+            "id": .string(record.id.uuidString.lowercased()),
             "household_id": .string(householdId),
             "checked_out_to": .string(record.checkedOutTo),
             "checked_out_by": .string(record.checkedOutBy),
             "notes": .string(record.notes),
         ]
         if let itemId = record.item?.id {
-            payload["item_id"] = .string(itemId.uuidString)
+            payload["item_id"] = .string(itemId.uuidString.lowercased())
         }
         if let checkedInAt = record.checkedInAt {
             payload["checked_in_at"] = .string(ISO8601DateFormatter().string(from: checkedInAt))
@@ -464,15 +464,15 @@ final class SyncService {
     // MARK: - Delete
 
     func deleteRemoteZone(_ id: UUID) async throws {
-        try await client.from("zones").delete().eq("id", value: id.uuidString).execute()
+        try await client.from("zones").delete().eq("id", value: id.uuidString.lowercased()).execute()
     }
 
     func deleteRemoteBin(_ id: UUID) async throws {
-        try await client.from("bins").delete().eq("id", value: id.uuidString).execute()
+        try await client.from("bins").delete().eq("id", value: id.uuidString.lowercased()).execute()
     }
 
     func deleteRemoteItem(_ id: UUID) async throws {
-        try await client.from("items").delete().eq("id", value: id.uuidString).execute()
+        try await client.from("items").delete().eq("id", value: id.uuidString.lowercased()).execute()
     }
 }
 
