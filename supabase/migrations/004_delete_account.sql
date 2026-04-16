@@ -49,10 +49,25 @@ BEGIN
         END IF;
     END LOOP;
 
+    -- Reassign created_by on surviving households to another member.
+    UPDATE households SET created_by = (
+        SELECT hm.user_id FROM household_members hm
+        WHERE hm.household_id = households.id
+        LIMIT 1
+    )
+    WHERE created_by = uid
+      AND id IN (SELECT id FROM households WHERE created_by = uid);
+
     -- Null out audit pointers on records that survive (other members'
     -- households where this user created bins/items/checkouts).
     UPDATE items SET created_by = NULL WHERE created_by = uid;
     UPDATE checkout_records SET checked_out_by = NULL WHERE checked_out_by = uid;
+    UPDATE invitations SET invited_by = (
+        SELECT hm.user_id FROM household_members hm
+        WHERE hm.household_id = invitations.household_id
+        LIMIT 1
+    )
+    WHERE invited_by = uid;
 
     -- Finally, delete the auth user. This invalidates all their sessions.
     DELETE FROM auth.users WHERE id = uid;
