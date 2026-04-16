@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.2](https://github.com/patrickisgreat/binthere/compare/v0.18.1...v0.18.2) (2026-04-16)
+
+
+### Bug Fixes
+
+* per-user API key storage + lowercase UUIDs for sync RLS ([533d39f](https://github.com/patrickisgreat/binthere/commit/533d39f030c426e179ec026208a4a8d9676e3345))
+* per-user API key storage + lowercase UUIDs for sync RLS ([ff5c83c](https://github.com/patrickisgreat/binthere/commit/ff5c83c92fda7c287e99c7e7d9fb945864f93b51))
+
 ## [0.18.1](https://github.com/patrickisgreat/binthere/compare/v0.18.0...v0.18.1) (2026-04-16)
 
 
