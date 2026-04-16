@@ -16,8 +16,10 @@ struct AuthGateView: View {
                 SignInView()
             } else if householdService.currentHousehold == nil && !householdService.isLoading {
                 HouseholdSetupView()
-            } else {
+            } else if householdService.currentHousehold != nil {
                 MainTabView()
+            } else {
+                ProgressView("Loading...")
             }
         }
         .environment(authService)

@@ -20,7 +20,6 @@ struct AddBinView: View {
     @State private var showingCamera = false
     @State private var showingImagePicker = false
     @State private var showingAddItem = false
-    @State private var nfcService = NFCService()
     @State private var analysisService = ImageAnalysisService()
     @State private var hasAnalyzed = false
 
@@ -162,13 +161,7 @@ struct AddBinView: View {
                 }
             }
 
-            Button(action: { nfcService.writeTag(binID: bin.id.uuidString) }) {
-                Label("Write NFC Tag", systemImage: "wave.3.right")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-
-            Text("Print a label, share it, or write an NFC tag")
+            Text("Print a label or share it")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
