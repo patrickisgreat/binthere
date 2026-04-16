@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.1](https://github.com/patrickisgreat/binthere/compare/v0.18.0...v0.18.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* resolve App Store rejection — household bug, NFC removal, icon alpha ([cb3c0b6](https://github.com/patrickisgreat/binthere/commit/cb3c0b634755ceffc408f53daa835c0e45df0dd4))
+* resolve App Store rejection — household bug, NFC removal, icon alpha ([d256fc8](https://github.com/patrickisgreat/binthere/commit/d256fc8c4394a713ee65ecbb1a638d5915d0433b))
+
 ## [0.18.0](https://github.com/patrickisgreat/binthere/compare/v0.17.0...v0.18.0) (2026-04-15)
 
 
