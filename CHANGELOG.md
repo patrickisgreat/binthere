@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.19.0](https://github.com/patrickisgreat/binthere/compare/v0.18.2...v0.19.0) (2026-04-17)
+
+
+### Features
+
+* add "Checked Out" tab + improve checkout flow ([43c8b06](https://github.com/patrickisgreat/binthere/commit/43c8b065105e691effa52c5e888ad7377bdb76b6))
+* add Checked Out tab + improve checkout flow ([8bdd2b4](https://github.com/patrickisgreat/binthere/commit/8bdd2b4770f8d928c0b86624bb52a8e38fd6b3cc))
+
 ## [0.18.2](https://github.com/patrickisgreat/binthere/compare/v0.18.1...v0.18.2) (2026-04-16)
 
 
