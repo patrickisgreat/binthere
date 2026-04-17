@@ -42,7 +42,7 @@ struct SettingsView: View {
                 Text("This permanently deletes your account and all associated data. This cannot be undone.")
             }
 
-            Section("Household") {
+            Section("Space") {
                 if let household = householdService.currentHousehold {
                     NavigationLink {
                         HouseholdView()
@@ -50,19 +50,23 @@ struct SettingsView: View {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(household.name)
-                                Text("\(householdService.members.count) members")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                HStack(spacing: 6) {
+                                    Text(household.spaceTypeInfo.displayName)
+                                    Text("·")
+                                    Text("\(householdService.members.count) members")
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             }
                         } icon: {
-                            Image(systemName: "house")
+                            Image(systemName: household.spaceTypeInfo.icon)
                         }
                     }
                     Button(action: { showingInvite = true }) {
                         Label("Invite Someone", systemImage: "person.badge.plus")
                     }
                 } else {
-                    Text("No household")
+                    Text("No space")
                         .foregroundStyle(.secondary)
                 }
             }
