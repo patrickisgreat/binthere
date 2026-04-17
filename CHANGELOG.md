@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/patrickisgreat/binthere/compare/v1.3.0...v1.4.0) (2026-04-17)
+
+
+### Features
+
+* OpenAI provider option + notification action buttons ([c197806](https://github.com/patrickisgreat/binthere/commit/c197806f65dc3377cdc7dd921cccaa07e93ff56e))
+* OpenAI provider option + notification action buttons ([d40365e](https://github.com/patrickisgreat/binthere/commit/d40365e14de699c71d826a5d171b5d48dbc6d069))
+
 ## [1.3.0](https://github.com/patrickisgreat/binthere/compare/v1.2.0...v1.3.0) (2026-04-17)
 
 
