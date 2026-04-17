@@ -17,6 +17,7 @@ struct ItemDetailView: View {
     @State private var showingRequestReturn = false
     @State private var editingAttribute: CustomAttribute?
     @State private var showingNewAttribute = false
+    @State private var transferTarget = ""
 
     var body: some View {
         List {
@@ -138,14 +139,41 @@ struct ItemDetailView: View {
                 }
             }
 
+            Section("Ownership") {
+                LabeledContent("Owner") {
+                    Text(ownerDisplayName)
+                }
+
+                if isOwnedByCurrentUser {
+                    Picker("Transfer to", selection: $transferTarget) {
+                        Text("Keep (me)").tag("")
+                        ForEach(otherMembers, id: \.id) { member in
+                            Text(member.displayName).tag(member.userId.uuidString.lowercased())
+                        }
+                    }
+                    .onChange(of: transferTarget) { _, newValue in
+                        if !newValue.isEmpty {
+                            item.createdBy = newValue
+                            item.updatedAt = Date()
+                            transferTarget = ""
+                        }
+                    }
+                }
+            }
+
             Section("Checkout Permissions") {
                 Picker("Who can check out", selection: $item.checkoutPermission) {
                     Text("Anyone").tag("anyone")
                     Text("Nobody").tag("none")
                 }
 
-                if let maxDays = item.maxCheckoutDays {
-                    LabeledContent("Max checkout", value: "\(maxDays) days")
+                HStack {
+                    Text("Max checkout days")
+                    Spacer()
+                    TextField("None", value: $item.maxCheckoutDays, format: .number)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 60)
                 }
             }
 
@@ -276,6 +304,23 @@ struct ItemDetailView: View {
                 showingCheckout = true
             }
             .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private var ownerDisplayName: String {
+        if item.createdBy.isEmpty { return "Unknown" }
+        return householdService.members
+            .first { $0.userId.uuidString.lowercased() == item.createdBy }?
+            .displayName ?? "Unknown"
+    }
+
+    private var isOwnedByCurrentUser: Bool {
+        item.createdBy == authService.currentUserId
+    }
+
+    private var otherMembers: [HouseholdMember] {
+        householdService.members.filter {
+            $0.userId.uuidString.lowercased() != authService.currentUserId
         }
     }
 
