@@ -620,6 +620,85 @@ final class CodeGeneratorTests: XCTestCase {
     }
 }
 
+// MARK: - Zone Sub-Location Tests
+
+@MainActor
+final class ZoneSubLocationTests: XCTestCase {
+
+    private var container: ModelContainer!
+    private var context: ModelContext!
+
+    override func setUpWithError() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
+            configurations: config
+        )
+        context = container.mainContext
+    }
+
+    override func tearDownWithError() throws {
+        container = nil
+        context = nil
+    }
+
+    func test_zoneLocations_defaultsEmpty() {
+        let zone = Zone(name: "Garage")
+        XCTAssertTrue(zone.locations.isEmpty)
+    }
+
+    func test_zoneLocations_canAddLocations() throws {
+        let zone = Zone(name: "Garage")
+        zone.locations = ["Top Shelf", "Workbench", "Floor"]
+        context.insert(zone)
+        try context.save()
+
+        XCTAssertEqual(zone.locations.count, 3)
+        XCTAssertTrue(zone.locations.contains("Workbench"))
+    }
+
+    func test_zoneLocations_canRemoveLocation() throws {
+        let zone = Zone(name: "Kitchen")
+        zone.locations = ["Pantry", "Under Sink", "Top Cabinet"]
+        context.insert(zone)
+        try context.save()
+
+        zone.locations.removeAll { $0 == "Under Sink" }
+        try context.save()
+
+        XCTAssertEqual(zone.locations.count, 2)
+        XCTAssertFalse(zone.locations.contains("Under Sink"))
+    }
+
+    func test_binLocation_canMatchZoneLocation() throws {
+        let zone = Zone(name: "Garage")
+        zone.locations = ["Top Shelf", "Bottom Shelf"]
+        context.insert(zone)
+
+        let bin = Bin(code: "G001", location: "Top Shelf")
+        bin.zone = zone
+        context.insert(bin)
+        try context.save()
+
+        XCTAssertEqual(bin.location, "Top Shelf")
+        XCTAssertTrue(zone.locations.contains(bin.location))
+    }
+
+    func test_binLocation_canBeCustom() throws {
+        let zone = Zone(name: "Garage")
+        zone.locations = ["Top Shelf"]
+        context.insert(zone)
+
+        let bin = Bin(code: "G002", location: "Behind the door")
+        bin.zone = zone
+        context.insert(bin)
+        try context.save()
+
+        XCTAssertEqual(bin.location, "Behind the door")
+        XCTAssertFalse(zone.locations.contains(bin.location))
+    }
+}
+
 // MARK: - Ownership Tests
 
 @MainActor
