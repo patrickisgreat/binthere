@@ -65,6 +65,7 @@
 		EE00000100000005AAAAAA01 /* BulkValuationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */; };
 		GG00000100000001AAAAAA01 /* CheckedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GG00000100000001BBBBBB01 /* CheckedOutView.swift */; };
 		HH00000100000001AAAAAA01 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HH00000100000001BBBBBB01 /* SearchView.swift */; };
+		II00000100000001AAAAAA01 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = II00000100000001BBBBBB01 /* OnboardingView.swift */; };
 		FF00000100000001AAAAAA01 /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000001BBBBBB01 /* ReportService.swift */; };
 		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
 		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
@@ -150,6 +151,7 @@
 		EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkValuationSheet.swift; sourceTree = "<group>"; };
 		GG00000100000001BBBBBB01 /* CheckedOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedOutView.swift; sourceTree = "<group>"; };
 		HH00000100000001BBBBBB01 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		II00000100000001BBBBBB01 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		FF00000100000001BBBBBB01 /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
 		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
@@ -268,6 +270,7 @@
 				CC00000100000005CCCCCC01 /* Zones */,
 				FF00000100000004CCCCCC01 /* Reports */,
 				HH00000100000001CCCCCC01 /* Search */,
+				II00000100000001CCCCCC01 /* Onboarding */,
 				AA00000100000025CCCCCC01 /* Scanner */,
 				AA00000100000026CCCCCC01 /* Settings */,
 			);
@@ -324,6 +327,14 @@
 				HH00000100000001BBBBBB01 /* SearchView.swift */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		II00000100000001CCCCCC01 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				II00000100000001BBBBBB01 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		AA00000100000025CCCCCC01 /* Scanner */ = {
@@ -566,6 +577,7 @@
 				EE00000100000005AAAAAA01 /* BulkValuationSheet.swift in Sources */,
 				GG00000100000001AAAAAA01 /* CheckedOutView.swift in Sources */,
 				HH00000100000001AAAAAA01 /* SearchView.swift in Sources */,
+				II00000100000001AAAAAA01 /* OnboardingView.swift in Sources */,
 				FF00000100000001AAAAAA01 /* ReportService.swift in Sources */,
 				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
 				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,

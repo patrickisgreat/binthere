@@ -7,6 +7,19 @@ struct AuthGateView: View {
     @State private var syncService = SyncService()
     @State private var householdService = HouseholdService()
     @State private var hasCheckedSession = false
+    @State private var showingOnboarding = false
+
+    private var hasCompletedOnboarding: Bool {
+        guard let userId = authService.currentUserId else { return true }
+        return UserDefaults.standard.bool(forKey: "onboarding_complete_\(userId)")
+    }
+
+    private func completeOnboarding() {
+        if let userId = authService.currentUserId {
+            UserDefaults.standard.set(true, forKey: "onboarding_complete_\(userId)")
+        }
+        showingOnboarding = false
+    }
 
     var body: some View {
         Group {
@@ -16,6 +29,8 @@ struct AuthGateView: View {
                 SignInView()
             } else if householdService.currentHousehold == nil && !householdService.isLoading {
                 HouseholdSetupView()
+            } else if householdService.currentHousehold != nil && showingOnboarding {
+                OnboardingView(onComplete: completeOnboarding)
             } else if householdService.currentHousehold != nil {
                 MainTabView()
             } else {
@@ -49,6 +64,9 @@ struct AuthGateView: View {
         }
         .onChange(of: householdService.currentHouseholdId) { _, newId in
             if !newId.isEmpty {
+                if !hasCompletedOnboarding {
+                    showingOnboarding = true
+                }
                 Task {
                     await syncService.syncAll(householdId: newId)
                     await syncService.subscribeToChanges(householdId: newId)
