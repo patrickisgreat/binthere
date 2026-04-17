@@ -41,6 +41,35 @@ enum ImageAnalysisError: LocalizedError {
     }
 }
 
+enum AIProvider: String, CaseIterable, Identifiable {
+    case anthropic
+    case openai
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .anthropic: return "Claude (Anthropic)"
+        case .openai: return "GPT-4o (OpenAI)"
+        }
+    }
+
+    private static var providerKey: String {
+        guard let userId = ImageAnalysisService.currentUserId else { return "ai_provider" }
+        return "ai_provider_\(userId)"
+    }
+
+    static var current: Self {
+        get {
+            let raw = UserDefaults.standard.string(forKey: providerKey) ?? "anthropic"
+            return Self(rawValue: raw) ?? .anthropic
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: providerKey)
+        }
+    }
+}
+
 @Observable
 final class ImageAnalysisService {
     var isAnalyzing = false
@@ -58,7 +87,7 @@ final class ImageAnalysisService {
     If you cannot identify items clearly, make your best guess. Return ONLY the JSON array, no other text.
     """
 
-    private static var currentUserId: String?
+    static var currentUserId: String?
 
     static func setCurrentUser(_ userId: String?) {
         currentUserId = userId
@@ -90,14 +119,18 @@ final class ImageAnalysisService {
         suggestedItems = []
         defer { isAnalyzing = false }
 
-        guard let request = buildRequest(apiKey: apiKey, base64Image: imageData.base64EncodedString()) else {
+        let provider = AIProvider.current
+        guard let request = buildRequest(
+            apiKey: apiKey, base64Image: imageData.base64EncodedString(),
+            provider: provider, prompt: Self.analysisPrompt
+        ) else {
             error = .decodingError("Failed to create request")
             return
         }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            try parseResponse(data)
+            try parseResponse(data, provider: provider)
         } catch let analysisError as ImageAnalysisError {
             error = analysisError
         } catch {
@@ -105,69 +138,12 @@ final class ImageAnalysisService {
         }
     }
 
-    private func buildRequest(apiKey: String, base64Image: String) -> URLRequest? {
-        let requestBody: [String: Any] = [
-            "model": "claude-sonnet-4-5",
-            "max_tokens": 1024,
-            "messages": [
-                [
-                    "role": "user",
-                    "content": [
-                        [
-                            "type": "image",
-                            "source": [
-                                "type": "base64",
-                                "media_type": "image/jpeg",
-                                "data": base64Image,
-                            ],
-                        ],
-                        [
-                            "type": "text",
-                            "text": Self.analysisPrompt,
-                        ],
-                    ],
-                ]
-            ],
-        ]
-
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
-              let apiURL = URL(string: "https://api.anthropic.com/v1/messages") else {
-            return nil
-        }
-
-        var request = URLRequest(url: apiURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.httpBody = jsonData
-        return request
-    }
-
-    private func parseResponse(_ data: Data) throws {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw ImageAnalysisError.decodingError("Response is not valid JSON")
-        }
-
-        // Surface API errors instead of silently failing
-        if let errorDict = json["error"] as? [String: Any],
-           let message = errorDict["message"] as? String {
-            throw ImageAnalysisError.decodingError("API error: \(message)")
-        }
-
-        guard let content = json["content"] as? [[String: Any]],
-              let firstBlock = content.first,
-              let text = firstBlock["text"] as? String else {
-            print("[ImageAnalysisService] Unexpected response: \(json)")
-            throw ImageAnalysisError.decodingError("Unexpected response format")
-        }
-
-        // Strip markdown code fences if Claude wrapped the JSON
+    private func parseResponse(_ data: Data, provider: AIProvider) throws {
+        let text = try extractText(from: data, provider: provider)
         let cleaned = Self.extractJSONArray(from: text)
 
         guard let itemsData = cleaned.data(using: .utf8),
               let items = try? JSONSerialization.jsonObject(with: itemsData) as? [[String: Any]] else {
-            print("[ImageAnalysisService] Could not parse items from text: \(text)")
             throw ImageAnalysisError.decodingError("Could not parse items from response")
         }
 
@@ -267,70 +243,95 @@ final class ImageAnalysisService {
     }
 
     private func buildValueRequest(apiKey: String, base64Image: String, prompt: String) -> URLRequest? {
-        let requestBody: [String: Any] = [
-            "model": "claude-sonnet-4-5",
-            "max_tokens": 512,
-            "messages": [
-                [
-                    "role": "user",
-                    "content": [
-                        [
-                            "type": "image",
-                            "source": [
-                                "type": "base64",
-                                "media_type": "image/jpeg",
-                                "data": base64Image,
-                            ],
-                        ],
-                        [
-                            "type": "text",
-                            "text": prompt,
-                        ],
-                    ],
-                ]
-            ],
-        ]
-
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
-              let apiURL = URL(string: "https://api.anthropic.com/v1/messages") else {
-            return nil
-        }
-
-        var request = URLRequest(url: apiURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.httpBody = jsonData
-        return request
+        buildRequest(apiKey: apiKey, base64Image: base64Image, provider: AIProvider.current, prompt: prompt, maxTokens: 512)
     }
 
     private func parseValueResponse(_ data: Data) throws -> ValueEstimate {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw ImageAnalysisError.decodingError("Response is not valid JSON")
-        }
-
-        if let errorDict = json["error"] as? [String: Any],
-           let message = errorDict["message"] as? String {
-            throw ImageAnalysisError.decodingError("API error: \(message)")
-        }
-
-        guard let content = json["content"] as? [[String: Any]],
-              let firstBlock = content.first,
-              let text = firstBlock["text"] as? String else {
-            throw ImageAnalysisError.decodingError("Unexpected response format")
-        }
-
+        let text = try extractText(from: data, provider: AIProvider.current)
         let cleaned = Self.extractJSONObject(from: text)
         guard let valueData = cleaned.data(using: .utf8),
               let parsed = try? JSONSerialization.jsonObject(with: valueData) as? [String: Any],
               let estimatedValue = parsed["estimated_value"] as? Double else {
-            print("[ImageAnalysisService] Could not parse value from text: \(text)")
             throw ImageAnalysisError.decodingError("Could not parse value estimate")
         }
-
         let reasoning = parsed["reasoning"] as? String ?? ""
         return ValueEstimate(value: estimatedValue, reasoning: reasoning)
+    }
+
+    private func extractText(from data: Data, provider: AIProvider) throws -> String {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw ImageAnalysisError.decodingError("Response is not valid JSON")
+        }
+        if let errorDict = json["error"] as? [String: Any],
+           let message = errorDict["message"] as? String {
+            throw ImageAnalysisError.decodingError("API error: \(message)")
+        }
+        switch provider {
+        case .anthropic:
+            guard let content = json["content"] as? [[String: Any]],
+                  let firstBlock = content.first,
+                  let text = firstBlock["text"] as? String else {
+                throw ImageAnalysisError.decodingError("Unexpected response format")
+            }
+            return text
+        case .openai:
+            guard let choices = json["choices"] as? [[String: Any]],
+                  let first = choices.first,
+                  let message = first["message"] as? [String: Any],
+                  let content = message["content"] as? String else {
+                throw ImageAnalysisError.decodingError("Unexpected response format")
+            }
+            return content
+        }
+    }
+
+    private func buildRequest(apiKey: String, base64Image: String,
+                              provider: AIProvider, prompt: String,
+                              maxTokens: Int = 1024) -> URLRequest? {
+        let requestBody: [String: Any]
+        let urlString: String
+        switch provider {
+        case .anthropic:
+            requestBody = [
+                "model": "claude-sonnet-4-5", "max_tokens": maxTokens,
+                "messages": [[
+                    "role": "user",
+                    "content": [
+                        ["type": "image", "source": [
+                            "type": "base64", "media_type": "image/jpeg", "data": base64Image]],
+                        ["type": "text", "text": prompt],
+                    ],
+                ]],
+            ]
+            urlString = "https://api.anthropic.com/v1/messages"
+        case .openai:
+            requestBody = [
+                "model": "gpt-4o", "max_tokens": maxTokens,
+                "messages": [[
+                    "role": "user",
+                    "content": [
+                        ["type": "image_url",
+                         "image_url": ["url": "data:image/jpeg;base64,\(base64Image)"]],
+                        ["type": "text", "text": prompt],
+                    ],
+                ]],
+            ]
+            urlString = "https://api.openai.com/v1/chat/completions"
+        }
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
+              let apiURL = URL(string: urlString) else { return nil }
+        var request = URLRequest(url: apiURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        switch provider {
+        case .anthropic:
+            request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+            request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        case .openai:
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "authorization")
+        }
+        request.httpBody = jsonData
+        return request
     }
 
     // MARK: - Bulk Value Estimation
@@ -383,14 +384,17 @@ final class ImageAnalysisService {
         Return ONLY the JSON array, no other text.
         """
 
-        guard let request = buildBulkValueRequest(apiKey: apiKey, prompt: prompt) else {
+        let provider = AIProvider.current
+        guard let request = buildBulkValueRequest(
+            apiKey: apiKey, prompt: prompt, provider: provider
+        ) else {
             error = .decodingError("Failed to create request")
             return [:]
         }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            return try parseBulkValueResponse(data, inputs: items)
+            return try parseBulkValueResponse(data, inputs: items, provider: provider)
         } catch let analysisError as ImageAnalysisError {
             error = analysisError
             return [:]
@@ -400,53 +404,47 @@ final class ImageAnalysisService {
         }
     }
 
-    private func buildBulkValueRequest(apiKey: String, prompt: String) -> URLRequest? {
-        let requestBody: [String: Any] = [
-            "model": "claude-sonnet-4-5",
-            "max_tokens": 4096,
-            "messages": [
-                [
-                    "role": "user",
-                    "content": [
-                        ["type": "text", "text": prompt],
-                    ],
-                ],
-            ],
-        ]
-
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
-              let apiURL = URL(string: "https://api.anthropic.com/v1/messages") else {
-            return nil
+    private func buildBulkValueRequest(
+        apiKey: String, prompt: String, provider: AIProvider
+    ) -> URLRequest? {
+        let requestBody: [String: Any]
+        let urlString: String
+        switch provider {
+        case .anthropic:
+            requestBody = [
+                "model": "claude-sonnet-4-5", "max_tokens": 4096,
+                "messages": [["role": "user", "content": [["type": "text", "text": prompt]]]],
+            ]
+            urlString = "https://api.anthropic.com/v1/messages"
+        case .openai:
+            requestBody = [
+                "model": "gpt-4o", "max_tokens": 4096,
+                "messages": [["role": "user", "content": prompt]],
+            ]
+            urlString = "https://api.openai.com/v1/chat/completions"
         }
-
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody),
+              let apiURL = URL(string: urlString) else { return nil }
         var request = URLRequest(url: apiURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        switch provider {
+        case .anthropic:
+            request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+            request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        case .openai:
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "authorization")
+        }
         request.httpBody = jsonData
         return request
     }
 
     private func parseBulkValueResponse(
         _ data: Data,
-        inputs: [BulkValueInput]
+        inputs: [BulkValueInput],
+        provider: AIProvider
     ) throws -> [UUID: BulkValueResult] {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw ImageAnalysisError.decodingError("Response is not valid JSON")
-        }
-
-        if let errorDict = json["error"] as? [String: Any],
-           let message = errorDict["message"] as? String {
-            throw ImageAnalysisError.decodingError("API error: \(message)")
-        }
-
-        guard let content = json["content"] as? [[String: Any]],
-              let firstBlock = content.first,
-              let text = firstBlock["text"] as? String else {
-            throw ImageAnalysisError.decodingError("Unexpected response format")
-        }
-
+        let text = try extractText(from: data, provider: provider)
         let cleaned = Self.extractJSONArray(from: text)
         guard let arrayData = cleaned.data(using: .utf8),
               let parsed = try? JSONSerialization.jsonObject(with: arrayData) as? [[String: Any]] else {
