@@ -24,12 +24,24 @@ struct MainTabView: View {
             .accessibilityIdentifier("zonesTab")
 
             NavigationStack {
+                CheckedOutView()
+                    .navigationDestination(for: Item.self) { item in
+                        ItemDetailView(item: item)
+                    }
+            }
+            .tabItem {
+                Label("Out", systemImage: "arrow.up.forward.circle")
+            }
+            .tag(2)
+            .accessibilityIdentifier("checkedOutTab")
+
+            NavigationStack {
                 ScannerTab()
             }
             .tabItem {
                 Label("Scan", systemImage: "qrcode.viewfinder")
             }
-            .tag(2)
+            .tag(3)
             .accessibilityIdentifier("scanTab")
 
             NavigationStack {
@@ -38,7 +50,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Reports", systemImage: "chart.bar")
             }
-            .tag(3)
+            .tag(4)
             .accessibilityIdentifier("reportsTab")
 
             NavigationStack {
@@ -47,7 +59,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Settings", systemImage: "gear")
             }
-            .tag(4)
+            .tag(5)
             .accessibilityIdentifier("settingsTab")
         }
     }

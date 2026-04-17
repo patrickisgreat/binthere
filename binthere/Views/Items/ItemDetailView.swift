@@ -281,7 +281,7 @@ struct ItemDetailView: View {
 
     private var currentUserDisplayName: String {
         householdService.members
-            .first { $0.userId.uuidString == authService.currentUserId }?
+            .first { $0.userId.uuidString.lowercased() == authService.currentUserId }?
             .displayName ?? authService.currentEmail ?? ""
     }
 }
@@ -326,19 +326,40 @@ private struct CheckoutRecordRow: View {
 struct CheckoutSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(HouseholdService.self) private var householdService
+    @Environment(AuthService.self) private var authService
     let item: Item
     var defaultName: String = ""
 
     @State private var checkedOutTo = ""
+    @State private var customName = ""
     @State private var notes = ""
     @State private var hasReturnDate = false
     @State private var expectedReturnDate = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+
+    private var resolvedName: String {
+        let name = checkedOutTo == "__custom__" ? customName : checkedOutTo
+        return name.trimmingCharacters(in: .whitespaces)
+    }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Who's taking it?") {
-                    TextField("Name", text: $checkedOutTo)
+                    if householdService.members.count > 1 {
+                        Picker("Person", selection: $checkedOutTo) {
+                            ForEach(householdService.members, id: \.id) { member in
+                                Text(member.displayName).tag(member.displayName)
+                            }
+                            Divider()
+                            Text("Someone else…").tag("__custom__")
+                        }
+                        if checkedOutTo == "__custom__" {
+                            TextField("Name", text: $customName)
+                        }
+                    } else {
+                        TextField("Name", text: $checkedOutTo)
+                    }
                 }
                 Section("Return Date") {
                     Toggle("Set return date", isOn: $hasReturnDate)
@@ -359,30 +380,33 @@ struct CheckoutSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Check Out") { performCheckout() }
-                        .disabled(checkedOutTo.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .disabled(resolvedName.isEmpty)
                 }
             }
             .onAppear {
-                if checkedOutTo.isEmpty && !defaultName.isEmpty {
+                if !defaultName.isEmpty {
                     checkedOutTo = defaultName
+                } else if let first = householdService.members.first?.displayName {
+                    checkedOutTo = first
                 }
             }
         }
     }
 
     private func performCheckout() {
-        let name = checkedOutTo.trimmingCharacters(in: .whitespaces)
+        let name = resolvedName
         let record = CheckoutRecord(
             item: item,
             checkedOutTo: name,
             expectedReturnDate: hasReturnDate ? expectedReturnDate : nil,
             notes: notes
         )
+        record.checkedOutBy = authService.currentUserId ?? ""
+        record.householdId = item.householdId
         modelContext.insert(record)
         item.isCheckedOut = true
         item.updatedAt = Date()
 
-        // Schedule due-back notifications
         if hasReturnDate {
             NotificationService.scheduleDueBackReminder(
                 itemId: item.id, itemName: item.name,
