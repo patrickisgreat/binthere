@@ -4,13 +4,52 @@ import Supabase
 struct Household: Codable, Identifiable {
     let id: UUID
     let name: String
+    let spaceType: String
     let createdBy: UUID
     let createdAt: Date
 
     enum CodingKeys: String, CodingKey {
         case id, name
+        case spaceType = "space_type"
         case createdBy = "created_by"
         case createdAt = "created_at"
+    }
+
+    var spaceTypeInfo: SpaceType {
+        SpaceType(rawValue: spaceType) ?? .home
+    }
+}
+
+enum SpaceType: String, CaseIterable, Identifiable {
+    case home
+    case warehouse
+    case office
+    case studio
+    case storageUnit = "storage_unit"
+    case custom
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .home: return "Home"
+        case .warehouse: return "Warehouse"
+        case .office: return "Office"
+        case .studio: return "Studio"
+        case .storageUnit: return "Storage Unit"
+        case .custom: return "Other"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .home: return "house.fill"
+        case .warehouse: return "building.2.fill"
+        case .office: return "building.fill"
+        case .studio: return "paintpalette.fill"
+        case .storageUnit: return "shippingbox.fill"
+        case .custom: return "square.grid.2x2.fill"
+        }
     }
 }
 
@@ -100,7 +139,8 @@ final class HouseholdService {
 
     // MARK: - Create Household
 
-    func createHousehold(name: String, userId: String, displayName: String) async {
+    func createHousehold(name: String, spaceType: SpaceType = .home,
+                         userId: String, displayName: String) async {
         isLoading = true
         error = nil
         defer { isLoading = false }
@@ -108,10 +148,10 @@ final class HouseholdService {
         do {
             let householdId = UUID()
 
-            // Create household — created_by defaults to auth.uid() via DB default
             let householdPayload: [String: AnyJSON] = [
                 "id": .string(householdId.uuidString.lowercased()),
                 "name": .string(name),
+                "space_type": .string(spaceType.rawValue),
                 "created_by": .string(userId),
             ]
 

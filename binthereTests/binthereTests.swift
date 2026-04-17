@@ -699,6 +699,45 @@ final class ZoneSubLocationTests: XCTestCase {
     }
 }
 
+// MARK: - Space Type Tests
+
+final class SpaceTypeTests: XCTestCase {
+
+    func test_allSpaceTypes_haveDisplayNames() {
+        for type in SpaceType.allCases {
+            XCTAssertFalse(type.displayName.isEmpty)
+        }
+    }
+
+    func test_allSpaceTypes_haveIcons() {
+        for type in SpaceType.allCases {
+            XCTAssertFalse(type.icon.isEmpty)
+        }
+    }
+
+    func test_allSpaceTypes_haveUniqueRawValues() {
+        let raw = SpaceType.allCases.map(\.rawValue)
+        XCTAssertEqual(raw.count, Set(raw).count)
+    }
+
+    func test_spaceType_defaultIsHome() {
+        XCTAssertEqual(SpaceType(rawValue: "home"), .home)
+    }
+
+    func test_spaceType_storageUnit() {
+        XCTAssertEqual(SpaceType(rawValue: "storage_unit"), .storageUnit)
+        XCTAssertEqual(SpaceType.storageUnit.displayName, "Storage Unit")
+    }
+
+    func test_spaceType_unknownFallsToNil() {
+        XCTAssertNil(SpaceType(rawValue: "spaceship"))
+    }
+
+    func test_spaceTypeCount() {
+        XCTAssertEqual(SpaceType.allCases.count, 6)
+    }
+}
+
 // MARK: - Ownership Tests
 
 @MainActor
