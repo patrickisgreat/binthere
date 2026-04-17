@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/patrickisgreat/binthere/compare/v1.1.0...v1.2.0) (2026-04-17)
+
+
+### Features
+
+* zone sub-locations (shelves, areas, spots) ([37bbcff](https://github.com/patrickisgreat/binthere/commit/37bbcff1c792332cff2066e4c1b896affe52cb3a))
+* zone sub-locations (shelves, areas, spots) ([2561511](https://github.com/patrickisgreat/binthere/commit/2561511ba848439b8a685d575aeb5e2e6dfd4a94))
+
 ## [1.1.0](https://github.com/patrickisgreat/binthere/compare/v1.0.0...v1.1.0) (2026-04-17)
 
 
