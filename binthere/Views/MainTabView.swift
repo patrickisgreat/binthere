@@ -6,12 +6,21 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
+                SearchView()
+            }
+            .tabItem {
+                Label("Search", systemImage: "magnifyingglass")
+            }
+            .tag(0)
+            .accessibilityIdentifier("searchTab")
+
+            NavigationStack {
                 BinListView()
             }
             .tabItem {
                 Label("Bins", systemImage: "archivebox")
             }
-            .tag(0)
+            .tag(1)
             .accessibilityIdentifier("binsTab")
 
             NavigationStack {
@@ -20,20 +29,8 @@ struct MainTabView: View {
             .tabItem {
                 Label("Zones", systemImage: "square.grid.2x2")
             }
-            .tag(1)
-            .accessibilityIdentifier("zonesTab")
-
-            NavigationStack {
-                CheckedOutView()
-                    .navigationDestination(for: Item.self) { item in
-                        ItemDetailView(item: item)
-                    }
-            }
-            .tabItem {
-                Label("Out", systemImage: "arrow.up.forward.circle")
-            }
             .tag(2)
-            .accessibilityIdentifier("checkedOutTab")
+            .accessibilityIdentifier("zonesTab")
 
             NavigationStack {
                 ScannerTab()
@@ -45,21 +42,12 @@ struct MainTabView: View {
             .accessibilityIdentifier("scanTab")
 
             NavigationStack {
-                ReportsView()
-            }
-            .tabItem {
-                Label("Reports", systemImage: "chart.bar")
-            }
-            .tag(4)
-            .accessibilityIdentifier("reportsTab")
-
-            NavigationStack {
                 SettingsView()
             }
             .tabItem {
                 Label("Settings", systemImage: "gear")
             }
-            .tag(5)
+            .tag(4)
             .accessibilityIdentifier("settingsTab")
         }
     }
