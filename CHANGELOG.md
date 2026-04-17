@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/patrickisgreat/binthere/compare/v1.0.0...v1.1.0) (2026-04-17)
+
+
+### Features
+
+* item ownership, transfer, invite discoverability ([4006963](https://github.com/patrickisgreat/binthere/commit/4006963ad99fa00280c3b1dd393da5036564ef13))
+* item ownership, transfer, invite discoverability, checkout settings ([65ec62e](https://github.com/patrickisgreat/binthere/commit/65ec62efb0bda66f2bd3ad9baa74ccbd0911ed8f))
+
 ## [0.19.0](https://github.com/patrickisgreat/binthere/compare/v0.18.2...v0.19.0) (2026-04-17)
 
 
