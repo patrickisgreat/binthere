@@ -116,6 +116,13 @@ final class SyncService {
             try await pushItem(item, householdId: householdId)
             await CloudStorageService.syncItemImages(item: item, householdId: householdId)
         }
+
+        // Push checkout records created since last sync
+        let checkoutPredicate = #Predicate<CheckoutRecord> { $0.checkedOutAt > cutoff }
+        let dirtyCheckouts = try context.fetch(FetchDescriptor(predicate: checkoutPredicate))
+        for record in dirtyCheckouts {
+            try await pushCheckoutRecord(record, householdId: householdId)
+        }
     }
 
     // MARK: - Realtime Subscriptions
