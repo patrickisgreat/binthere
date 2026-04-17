@@ -3,6 +3,7 @@ import SwiftData
 
 struct BinDetailView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(AuthService.self) private var authService
     @Bindable var bin: Bin
     @Query(sort: \Zone.name) private var allZones: [Zone]
     @Query(sort: \Bin.code) private var allBins: [Bin]
@@ -322,6 +323,8 @@ struct BinDetailView: View {
         let name = quickAddName.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
         let item = Item(name: name, bin: bin)
+        item.createdBy = authService.currentUserId ?? ""
+        item.householdId = bin.householdId
         modelContext.insert(item)
         Haptics.light()
         withAnimation(Theme.Animation.spring) {

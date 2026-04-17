@@ -4,6 +4,7 @@ import SwiftData
 struct AddBinView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(AuthService.self) private var authService
     @Environment(HouseholdService.self) private var householdService
     @Environment(SyncService.self) private var syncService
     @Query(sort: \Zone.name) private var zones: [Zone]
@@ -403,6 +404,7 @@ struct AddBinView: View {
             item.tags = suggestion.tags
             item.color = suggestion.color
             item.householdId = bin.householdId
+            item.createdBy = authService.currentUserId ?? ""
             item.updatedAt = Date()
             if let value = suggestion.value {
                 item.value = value

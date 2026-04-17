@@ -3,6 +3,7 @@ import SwiftUI
 struct AIAnalysisView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(AuthService.self) private var authService
 
     let bin: Bin
 
@@ -173,6 +174,7 @@ struct AIAnalysisView: View {
             item.tags = suggestion.tags
             item.color = suggestion.color
             item.householdId = bin.householdId
+            item.createdBy = authService.currentUserId ?? ""
             item.updatedAt = Date()
             if let value = suggestion.value {
                 item.value = value

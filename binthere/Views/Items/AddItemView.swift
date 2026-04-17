@@ -3,6 +3,7 @@ import SwiftUI
 struct AddItemView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(AuthService.self) private var authService
 
     let bin: Bin
 
@@ -82,6 +83,7 @@ struct AddItemView: View {
         )
 
         item.color = selectedColor
+        item.createdBy = authService.currentUserId ?? ""
 
         if !tagsText.isEmpty {
             item.tags = tagsText

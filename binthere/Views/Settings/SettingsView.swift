@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var showingDeleteConfirmation = false
     @State private var deleteError: String?
     @State private var notificationsEnabled = false
+    @State private var showingInvite = false
     @State private var dailyOverdueCheck = false
 
     var body: some View {
@@ -56,6 +57,9 @@ struct SettingsView: View {
                         } icon: {
                             Image(systemName: "house")
                         }
+                    }
+                    Button(action: { showingInvite = true }) {
+                        Label("Invite Someone", systemImage: "person.badge.plus")
                     }
                 } else {
                     Text("No household")
@@ -168,6 +172,9 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .sheet(isPresented: $showingInvite) {
+            InviteMemberSheet()
+        }
         .alert("Delete Account?", isPresented: $showingDeleteConfirmation) {
             Button("Delete Everything", role: .destructive) {
                 Task {

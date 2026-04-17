@@ -620,6 +620,79 @@ final class CodeGeneratorTests: XCTestCase {
     }
 }
 
+// MARK: - Ownership Tests
+
+@MainActor
+final class OwnershipTests: XCTestCase {
+
+    private var container: ModelContainer!
+    private var context: ModelContext!
+
+    override func setUpWithError() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
+            configurations: config
+        )
+        context = container.mainContext
+    }
+
+    override func tearDownWithError() throws {
+        container = nil
+        context = nil
+    }
+
+    func test_itemCreatedBy_defaultsEmpty() {
+        let item = Item(name: "Hammer")
+        XCTAssertEqual(item.createdBy, "")
+    }
+
+    func test_itemCreatedBy_canBeSet() {
+        let item = Item(name: "Drill")
+        item.createdBy = "user-abc-123"
+        context.insert(item)
+        XCTAssertEqual(item.createdBy, "user-abc-123")
+    }
+
+    func test_ownershipTransfer_changesCreatedBy() throws {
+        let item = Item(name: "Saw")
+        item.createdBy = "user-alice"
+        context.insert(item)
+        try context.save()
+
+        item.createdBy = "user-bob"
+        try context.save()
+
+        XCTAssertEqual(item.createdBy, "user-bob")
+    }
+
+    func test_maxCheckoutDays_defaultsNil() {
+        let item = Item(name: "Book")
+        XCTAssertNil(item.maxCheckoutDays)
+    }
+
+    func test_maxCheckoutDays_canBeSet() throws {
+        let item = Item(name: "Book")
+        item.maxCheckoutDays = 14
+        context.insert(item)
+        try context.save()
+        XCTAssertEqual(item.maxCheckoutDays, 14)
+    }
+
+    func test_allowedCheckoutUsers_defaultsEmpty() {
+        let item = Item(name: "Projector")
+        XCTAssertTrue(item.allowedCheckoutUsers.isEmpty)
+    }
+
+    func test_checkoutPermission_options() {
+        let item = Item(name: "Camera")
+        XCTAssertEqual(item.checkoutPermission, "anyone")
+
+        item.checkoutPermission = "none"
+        XCTAssertEqual(item.checkoutPermission, "none")
+    }
+}
+
 // MARK: - Onboarding Tests
 
 final class OnboardingTests: XCTestCase {
