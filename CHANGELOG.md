@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/patrickisgreat/binthere/compare/v1.2.0...v1.3.0) (2026-04-17)
+
+
+### Features
+
+* flexible space types (Home, Warehouse, Office, etc.) ([2e63b6d](https://github.com/patrickisgreat/binthere/commit/2e63b6d060554bd9dc694c433f8e23ee597e8348))
+* flexible space types (Home, Warehouse, Office, Studio, etc.) ([fa99054](https://github.com/patrickisgreat/binthere/commit/fa990543826552c65f8f6f4f017dc62f86715f2b))
+
 ## [1.2.0](https://github.com/patrickisgreat/binthere/compare/v1.1.0...v1.2.0) (2026-04-17)
 
 
