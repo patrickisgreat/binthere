@@ -9,6 +9,7 @@ struct ZoneDetailView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingAddBin = false
     @State private var showingBulkValuation = false
+    @State private var newLocationName = ""
 
     private var allItemsInZone: [Item] {
         zone.bins.flatMap(\.items)
@@ -73,6 +74,46 @@ struct ZoneDetailView: View {
                         Text("Icon")
                             .font(.subheadline)
                         IconPickerGrid(selectedIcon: $zone.icon)
+                    }
+                    .padding(.vertical, 4)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Locations")
+                            .font(.subheadline)
+                        Text("Shelves, areas, or spots within this zone")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        ForEach(zone.locations, id: \.self) { loc in
+                            HStack {
+                                Image(systemName: "mappin")
+                                    .foregroundStyle(.secondary)
+                                Text(loc)
+                                Spacer()
+                                Button {
+                                    zone.locations.removeAll { $0 == loc }
+                                    zone.updatedAt = Date()
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+
+                        HStack {
+                            TextField("Add location…", text: $newLocationName)
+                            Button {
+                                let name = newLocationName.trimmingCharacters(in: .whitespaces)
+                                guard !name.isEmpty else { return }
+                                zone.locations.append(name)
+                                zone.updatedAt = Date()
+                                newLocationName = ""
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                            }
+                            .disabled(newLocationName.trimmingCharacters(in: .whitespaces).isEmpty)
+                        }
                     }
                     .padding(.vertical, 4)
                 }
@@ -158,6 +199,7 @@ private struct AddBinToZoneSheet: View {
     @State private var label = ""
     @State private var binDescription = ""
     @State private var location = ""
+    @State private var customLocation = ""
     @State private var selectedColor = ""
 
     var body: some View {
@@ -167,7 +209,21 @@ private struct AddBinToZoneSheet: View {
                     TextField("e.g. Garage Shelf, Junk Drawer", text: $label)
                 }
                 Section("Location") {
-                    TextField("Location (optional)", text: $location)
+                    if !zone.locations.isEmpty {
+                        Picker("Location", selection: $location) {
+                            Text("None").tag("")
+                            ForEach(zone.locations, id: \.self) { loc in
+                                Text(loc).tag(loc)
+                            }
+                            Divider()
+                            Text("Custom…").tag("__custom__")
+                        }
+                        if location == "__custom__" {
+                            TextField("Custom location", text: $customLocation)
+                        }
+                    } else {
+                        TextField("Location (optional)", text: $location)
+                    }
                 }
                 Section("Color") {
                     ColorPickerRow(selectedColor: $selectedColor)
@@ -193,12 +249,15 @@ private struct AddBinToZoneSheet: View {
     private func createBin() {
         let existingCodes = Set(allBins.map(\.code))
         let code = CodeGenerator.generateCode(existingCodes: existingCodes)
+        let resolvedLocation = location == "__custom__"
+            ? customLocation.trimmingCharacters(in: .whitespaces)
+            : location
 
         let bin = Bin(
             code: code,
             name: label.trimmingCharacters(in: .whitespaces),
             binDescription: binDescription,
-            location: location
+            location: resolvedLocation
         )
         bin.zone = zone
         bin.color = selectedColor

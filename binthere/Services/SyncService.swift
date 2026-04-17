@@ -201,6 +201,7 @@ final class SyncService {
             "location_description": .string(zone.locationDescription),
             "color": .string(zone.color),
             "icon": .string(zone.icon),
+            "locations": .array(zone.locations.map { .string($0) }),
         ]
         try await client.from("zones").upsert(payload).execute()
         zone.updatedAt = Date()
@@ -292,6 +293,7 @@ final class SyncService {
                     existing.locationDescription = remote.locationDescription
                     existing.color = remote.color
                     existing.icon = remote.icon
+                    existing.locations = remote.locations
                     existing.updatedAt = remote.updatedAt
                 }
             } else {
@@ -299,6 +301,7 @@ final class SyncService {
                                 color: remote.color, icon: remote.icon)
                 zone.id = remote.id
                 zone.householdId = householdId
+                zone.locations = remote.locations
                 zone.updatedAt = remote.updatedAt
                 context.insert(zone)
             }
@@ -491,10 +494,11 @@ private struct RemoteZone: Decodable {
     let locationDescription: String
     let color: String
     let icon: String
+    let locations: [String]
     let updatedAt: Date
 
     enum CodingKeys: String, CodingKey {
-        case id, name, color, icon
+        case id, name, color, icon, locations
         case locationDescription = "location_description"
         case updatedAt = "updated_at"
     }

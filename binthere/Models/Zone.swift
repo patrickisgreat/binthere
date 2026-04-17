@@ -9,6 +9,7 @@ final class Zone {
     var locationDescription: String = ""
     var color: String = ""
     var icon: String = ""
+    var locations: [String] = []
     var updatedAt: Date = Date()
 
     @Relationship(deleteRule: .nullify, inverse: \Bin.zone)
