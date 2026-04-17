@@ -699,6 +699,33 @@ final class ZoneSubLocationTests: XCTestCase {
     }
 }
 
+// MARK: - AI Provider Tests
+
+final class AIProviderTests: XCTestCase {
+
+    func test_allProviders_haveDisplayNames() {
+        for provider in AIProvider.allCases {
+            XCTAssertFalse(provider.displayName.isEmpty)
+        }
+    }
+
+    func test_providerCount() {
+        XCTAssertEqual(AIProvider.allCases.count, 2)
+    }
+
+    func test_anthropic_isDefault() {
+        XCTAssertEqual(AIProvider(rawValue: "anthropic"), .anthropic)
+    }
+
+    func test_openai_rawValue() {
+        XCTAssertEqual(AIProvider.openai.rawValue, "openai")
+    }
+
+    func test_unknownProvider_returnsNil() {
+        XCTAssertNil(AIProvider(rawValue: "gemini"))
+    }
+}
+
 // MARK: - Space Type Tests
 
 final class SpaceTypeTests: XCTestCase {

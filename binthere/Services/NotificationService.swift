@@ -32,6 +32,7 @@ enum NotificationService {
         content.title = "Item Due Back"
         content.body = "\(itemName) was due back from \(checkedOutTo)"
         content.sound = .default
+        content.categoryIdentifier = "DUE_BACK"
         content.userInfo = ["itemId": itemId.uuidString, "type": "due_back"]
 
         let triggerDate = Calendar.current.dateComponents(
@@ -63,6 +64,7 @@ enum NotificationService {
         content.title = "Item Due Tomorrow"
         content.body = "\(itemName) is due back from \(checkedOutTo) tomorrow"
         content.sound = .default
+        content.categoryIdentifier = "DUE_BACK"
         content.userInfo = ["itemId": itemId.uuidString, "type": "due_warning"]
 
         let triggerDate = Calendar.current.dateComponents(
@@ -146,5 +148,58 @@ enum NotificationService {
 
     static func cancelAll() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+
+    // MARK: - Notification Categories
+
+    static func registerCategories() {
+        let checkInAction = UNNotificationAction(
+            identifier: "CHECK_IN",
+            title: "Check In",
+            options: [.foreground]
+        )
+
+        let remindLaterAction = UNNotificationAction(
+            identifier: "REMIND_LATER",
+            title: "Remind in 1 Hour",
+            options: []
+        )
+
+        let dueBackCategory = UNNotificationCategory(
+            identifier: "DUE_BACK",
+            actions: [checkInAction, remindLaterAction],
+            intentIdentifiers: []
+        )
+
+        let returnRequestCategory = UNNotificationCategory(
+            identifier: "RETURN_REQUEST",
+            actions: [checkInAction],
+            intentIdentifiers: []
+        )
+
+        UNUserNotificationCenter.current().setNotificationCategories([
+            dueBackCategory,
+            returnRequestCategory,
+        ])
+    }
+
+    /// Re-schedule a due-back reminder for 1 hour from now
+    static func scheduleRemindLater(itemId: UUID, itemName: String, checkedOutTo: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Reminder: Item Still Out"
+        content.body = "\(itemName) is still checked out to \(checkedOutTo)"
+        content.sound = .default
+        content.categoryIdentifier = "DUE_BACK"
+        content.userInfo = ["itemId": itemId.uuidString, "type": "remind_later"]
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3600, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: "remind_later_\(itemId.uuidString)",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request)
     }
 }

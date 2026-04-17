@@ -9,6 +9,7 @@ struct SettingsView: View {
     @Environment(SyncService.self) private var syncService
     @State private var apiKey = ImageAnalysisService.apiKey ?? ""
     @State private var showingAPIKey = false
+    @State private var selectedProvider = AIProvider.current
     @State private var showingDeleteConfirmation = false
     @State private var deleteError: String?
     @State private var notificationsEnabled = false
@@ -146,14 +147,23 @@ struct SettingsView: View {
             }
 
             Section("AI Analysis") {
+                Picker("AI Provider", selection: $selectedProvider) {
+                    ForEach(AIProvider.allCases) { provider in
+                        Text(provider.displayName).tag(provider)
+                    }
+                }
+                .onChange(of: selectedProvider) { _, newValue in
+                    AIProvider.current = newValue
+                }
+
                 HStack {
                     if showingAPIKey {
-                        TextField("Claude API Key", text: $apiKey)
+                        TextField(apiKeyPlaceholder, text: $apiKey)
                             .textContentType(.password)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     } else {
-                        SecureField("Claude API Key", text: $apiKey)
+                        SecureField(apiKeyPlaceholder, text: $apiKey)
                     }
                     Button(action: { showingAPIKey.toggle() }) {
                         Image(systemName: showingAPIKey ? "eye.slash" : "eye")
@@ -165,7 +175,7 @@ struct SettingsView: View {
                     ImageAnalysisService.apiKey = newValue.isEmpty ? nil : newValue
                 }
 
-                Text("Required for AI-powered item detection. Get a key at console.anthropic.com")
+                Text(apiKeyHelpText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -193,6 +203,19 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will permanently delete your account, all your bins, items, and data. This action cannot be undone.")
+        }
+    }
+
+    private var apiKeyPlaceholder: String {
+        selectedProvider == .openai ? "OpenAI API Key" : "Claude API Key"
+    }
+
+    private var apiKeyHelpText: String {
+        switch selectedProvider {
+        case .anthropic:
+            return "Get a key at console.anthropic.com"
+        case .openai:
+            return "Get a key at platform.openai.com/api-keys"
         }
     }
 
