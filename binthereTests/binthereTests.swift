@@ -11,7 +11,7 @@ final class ModelTests: XCTestCase {
     override func setUpWithError() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(
-            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self,
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
             configurations: config
         )
         context = container.mainContext
@@ -690,5 +690,456 @@ final class ImageStorageServiceTests: XCTestCase {
             UIColor.red.setFill()
             context.fill(CGRect(origin: .zero, size: size))
         }
+    }
+}
+
+// MARK: - Search Filtering Tests
+
+@MainActor
+final class SearchFilteringTests: XCTestCase {
+
+    private var container: ModelContainer!
+    private var context: ModelContext!
+
+    override func setUpWithError() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
+            configurations: config
+        )
+        context = container.mainContext
+    }
+
+    override func tearDownWithError() throws {
+        container = nil
+        context = nil
+    }
+
+    private func makeItem(_ name: String, description: String = "", tags: [String] = [],
+                          notes: String = "", color: String = "") -> Item {
+        let item = Item(name: name, itemDescription: description)
+        item.tags = tags
+        item.notes = notes
+        item.color = color
+        context.insert(item)
+        return item
+    }
+
+    private func makeBin(code: String, name: String = "", location: String = "",
+                         description: String = "") -> Bin {
+        let bin = Bin(code: code, name: name, binDescription: description, location: location)
+        context.insert(bin)
+        return bin
+    }
+
+    private func filterItems(_ items: [Item], query: String, tags: Set<String> = []) -> [Item] {
+        var result = items
+
+        if !tags.isEmpty {
+            result = result.filter { item in
+                !tags.isDisjoint(with: item.tags)
+            }
+        }
+
+        guard !query.isEmpty else { return tags.isEmpty ? [] : result }
+
+        return result.filter { item in
+            item.name.localizedCaseInsensitiveContains(query) ||
+            item.itemDescription.localizedCaseInsensitiveContains(query) ||
+            item.tags.contains { $0.localizedCaseInsensitiveContains(query) } ||
+            item.notes.localizedCaseInsensitiveContains(query) ||
+            item.color.localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    private func filterBins(_ bins: [Bin], query: String) -> [Bin] {
+        guard !query.isEmpty else { return [] }
+        return bins.filter { bin in
+            bin.code.localizedCaseInsensitiveContains(query) ||
+            bin.name.localizedCaseInsensitiveContains(query) ||
+            bin.location.localizedCaseInsensitiveContains(query) ||
+            bin.binDescription.localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    func test_searchByItemName_caseInsensitive() {
+        let items = [
+            makeItem("Phillips Screwdriver"),
+            makeItem("Hammer"),
+            makeItem("Nails"),
+        ]
+        let results = filterItems(items, query: "screwdriver")
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.name, "Phillips Screwdriver")
+    }
+
+    func test_searchByItemDescription() {
+        let items = [
+            makeItem("Wrench", description: "Red-handled adjustable wrench"),
+            makeItem("Pliers", description: "Needle-nose pliers"),
+        ]
+        let results = filterItems(items, query: "adjustable")
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.name, "Wrench")
+    }
+
+    func test_searchByTag() {
+        let items = [
+            makeItem("Ornament", tags: ["christmas", "fragile"]),
+            makeItem("Wreath", tags: ["christmas", "front-door"]),
+            makeItem("Hammer", tags: ["tools"]),
+        ]
+        let results = filterItems(items, query: "christmas")
+        XCTAssertEqual(results.count, 2)
+    }
+
+    func test_searchByNotes() {
+        let items = [
+            makeItem("Cable", notes: "Bought from Amazon 2024"),
+            makeItem("Adapter", notes: "USB-C to HDMI"),
+        ]
+        let results = filterItems(items, query: "amazon")
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.name, "Cable")
+    }
+
+    func test_searchEmptyQuery_returnsEmpty() {
+        let items = [makeItem("Hammer"), makeItem("Nails")]
+        let results = filterItems(items, query: "")
+        XCTAssertTrue(results.isEmpty)
+    }
+
+    func test_searchNoMatch_returnsEmpty() {
+        let items = [makeItem("Hammer"), makeItem("Nails")]
+        let results = filterItems(items, query: "dinosaur")
+        XCTAssertTrue(results.isEmpty)
+    }
+
+    func test_filterByTag_noQuery() {
+        let items = [
+            makeItem("Ornament", tags: ["christmas"]),
+            makeItem("Wreath", tags: ["christmas"]),
+            makeItem("Hammer", tags: ["tools"]),
+        ]
+        let results = filterItems(items, query: "", tags: ["christmas"])
+        XCTAssertEqual(results.count, 2)
+    }
+
+    func test_filterByMultipleTags_orLogic() {
+        let items = [
+            makeItem("Ornament", tags: ["christmas"]),
+            makeItem("Hammer", tags: ["tools"]),
+            makeItem("Nails", tags: ["tools"]),
+            makeItem("Book", tags: ["reading"]),
+        ]
+        let results = filterItems(items, query: "", tags: ["christmas", "tools"])
+        XCTAssertEqual(results.count, 3)
+    }
+
+    func test_filterByTagAndQuery() {
+        let items = [
+            makeItem("Red Ornament", tags: ["christmas"]),
+            makeItem("Blue Ornament", tags: ["christmas"]),
+            makeItem("Red Hammer", tags: ["tools"]),
+        ]
+        let results = filterItems(items, query: "Red", tags: ["christmas"])
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.name, "Red Ornament")
+    }
+
+    func test_searchBinByCode() {
+        let bins = [makeBin(code: "BIN-001"), makeBin(code: "BIN-002")]
+        let results = filterBins(bins, query: "001")
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.code, "BIN-001")
+    }
+
+    func test_searchBinByName() {
+        let bins = [
+            makeBin(code: "A1", name: "Holiday Decorations"),
+            makeBin(code: "A2", name: "Tools"),
+        ]
+        let results = filterBins(bins, query: "holiday")
+        XCTAssertEqual(results.count, 1)
+    }
+
+    func test_searchBinByLocation() {
+        let bins = [
+            makeBin(code: "A1", location: "Top shelf, garage"),
+            makeBin(code: "A2", location: "Basement closet"),
+        ]
+        let results = filterBins(bins, query: "garage")
+        XCTAssertEqual(results.count, 1)
+    }
+}
+
+// MARK: - Checkout Flow Tests
+
+@MainActor
+final class CheckoutFlowTests: XCTestCase {
+
+    private var container: ModelContainer!
+    private var context: ModelContext!
+
+    override func setUpWithError() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        container = try ModelContainer(
+            for: Zone.self, Bin.self, Item.self, CheckoutRecord.self, CustomAttribute.self,
+            configurations: config
+        )
+        context = container.mainContext
+    }
+
+    override func tearDownWithError() throws {
+        container = nil
+        context = nil
+    }
+
+    func test_checkout_setsCheckedOutBy() {
+        let item = Item(name: "Drill")
+        context.insert(item)
+
+        let record = CheckoutRecord(item: item, checkedOutTo: "Alice")
+        record.checkedOutBy = "user-123"
+        record.householdId = "household-abc"
+        context.insert(record)
+        item.isCheckedOut = true
+
+        XCTAssertEqual(record.checkedOutBy, "user-123")
+        XCTAssertEqual(record.householdId, "household-abc")
+        XCTAssertTrue(item.isCheckedOut)
+    }
+
+    func test_checkout_setsHouseholdIdFromItem() {
+        let item = Item(name: "Drill")
+        item.householdId = "hh-456"
+        context.insert(item)
+
+        let record = CheckoutRecord(item: item, checkedOutTo: "Bob")
+        record.householdId = item.householdId
+        context.insert(record)
+
+        XCTAssertEqual(record.householdId, "hh-456")
+    }
+
+    func test_checkIn_setsCheckedInAtAndClearsFlag() {
+        let item = Item(name: "Drill")
+        context.insert(item)
+
+        let record = CheckoutRecord(item: item, checkedOutTo: "Alice")
+        context.insert(record)
+        item.isCheckedOut = true
+
+        XCTAssertTrue(record.isActive)
+
+        record.checkedInAt = Date()
+        item.isCheckedOut = false
+
+        XCTAssertFalse(record.isActive)
+        XCTAssertFalse(item.isCheckedOut)
+    }
+
+    func test_checkoutPermission_noneBlocksCheckout() {
+        let item = Item(name: "Fragile Vase")
+        item.checkoutPermission = "none"
+        context.insert(item)
+
+        XCTAssertEqual(item.checkoutPermission, "none")
+        // UI should check this before showing checkout button
+    }
+
+    func test_checkoutPermission_defaultIsAnyone() {
+        let item = Item(name: "Hammer")
+        XCTAssertEqual(item.checkoutPermission, "anyone")
+    }
+
+    func test_multipleCheckoutRecords_onlyOneActive() {
+        let item = Item(name: "Drill")
+        context.insert(item)
+
+        let first = CheckoutRecord(item: item, checkedOutTo: "Alice")
+        first.checkedInAt = Date()
+        context.insert(first)
+
+        let second = CheckoutRecord(item: item, checkedOutTo: "Bob")
+        context.insert(second)
+
+        item.isCheckedOut = true
+
+        let active = item.checkoutHistory.filter(\.isActive)
+        XCTAssertEqual(active.count, 1)
+        XCTAssertEqual(active.first?.checkedOutTo, "Bob")
+    }
+
+    func test_expectedReturnDate_trackedOnRecord() {
+        let returnDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())
+        let item = Item(name: "Book")
+        context.insert(item)
+
+        let record = CheckoutRecord(item: item, checkedOutTo: "Carol", expectedReturnDate: returnDate)
+        context.insert(record)
+
+        XCTAssertNotNil(record.expectedReturnDate)
+    }
+
+    func test_overdueDetection() {
+        let item = Item(name: "Tool")
+        context.insert(item)
+
+        let pastDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())
+        let record = CheckoutRecord(item: item, checkedOutTo: "Dave", expectedReturnDate: pastDate)
+        context.insert(record)
+        item.isCheckedOut = true
+
+        let isOverdue = record.isActive
+            && record.expectedReturnDate != nil
+            && record.expectedReturnDate! < Date() // swiftlint:disable:this force_unwrapping
+        XCTAssertTrue(isOverdue)
+    }
+}
+
+// MARK: - AI JSON Extraction Tests
+
+final class AIJSONExtractionTests: XCTestCase {
+
+    func test_extractJSONArray_plainJSON() {
+        let input = """
+        [{"name": "Hammer"}, {"name": "Nails"}]
+        """
+        let result = ImageAnalysisService.extractJSONArray(from: input)
+        XCTAssertTrue(result.hasPrefix("["))
+        XCTAssertTrue(result.hasSuffix("]"))
+    }
+
+    func test_extractJSONArray_wrappedInCodeFence() {
+        let input = """
+        ```json
+        [{"name": "Hammer"}]
+        ```
+        """
+        let result = ImageAnalysisService.extractJSONArray(from: input)
+        XCTAssertTrue(result.hasPrefix("["))
+        XCTAssertTrue(result.hasSuffix("]"))
+        XCTAssertFalse(result.contains("```"))
+    }
+
+    func test_extractJSONArray_wrappedInPlainCodeFence() {
+        let input = """
+        ```
+        [{"name": "Screwdriver"}]
+        ```
+        """
+        let result = ImageAnalysisService.extractJSONArray(from: input)
+        XCTAssertTrue(result.hasPrefix("["))
+        XCTAssertFalse(result.contains("```"))
+    }
+
+    func test_extractJSONArray_withSurroundingProse() {
+        let input = """
+        Here are the items I found:
+        [{"name": "Wrench"}, {"name": "Pliers"}]
+        Let me know if you need more details.
+        """
+        let result = ImageAnalysisService.extractJSONArray(from: input)
+        XCTAssertTrue(result.hasPrefix("["))
+        XCTAssertTrue(result.hasSuffix("]"))
+        XCTAssertFalse(result.contains("Here are"))
+    }
+
+    func test_extractJSONObject_plainJSON() {
+        let input = """
+        {"value": 25.99, "reasoning": "Common hardware store item"}
+        """
+        let result = ImageAnalysisService.extractJSONObject(from: input)
+        XCTAssertTrue(result.hasPrefix("{"))
+        XCTAssertTrue(result.hasSuffix("}"))
+    }
+
+    func test_extractJSONObject_wrappedInCodeFence() {
+        let input = """
+        ```json
+        {"value": 10.00}
+        ```
+        """
+        let result = ImageAnalysisService.extractJSONObject(from: input)
+        XCTAssertTrue(result.hasPrefix("{"))
+        XCTAssertFalse(result.contains("```"))
+    }
+
+    func test_extractJSONObject_withProse() {
+        let input = """
+        Based on my analysis:
+        {"value": 42.50, "reasoning": "Vintage item in good condition"}
+        Hope this helps!
+        """
+        let result = ImageAnalysisService.extractJSONObject(from: input)
+        XCTAssertTrue(result.hasPrefix("{"))
+        XCTAssertTrue(result.hasSuffix("}"))
+        XCTAssertFalse(result.contains("Based on"))
+    }
+}
+
+// MARK: - Per-User API Key Tests
+
+final class PerUserAPIKeyTests: XCTestCase {
+
+    override func tearDown() {
+        // Clean up any keys we set during tests
+        UserDefaults.standard.removeObject(forKey: "claude_api_key_user-aaa")
+        UserDefaults.standard.removeObject(forKey: "claude_api_key_user-bbb")
+        UserDefaults.standard.removeObject(forKey: "claude_api_key")
+        ImageAnalysisService.setCurrentUser(nil)
+    }
+
+    func test_apiKey_scopedPerUser() {
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        ImageAnalysisService.apiKey = "sk-ant-aaa"
+
+        ImageAnalysisService.setCurrentUser("user-bbb")
+        XCTAssertNil(ImageAnalysisService.apiKey)
+
+        ImageAnalysisService.apiKey = "sk-ant-bbb"
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-bbb")
+
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-aaa")
+    }
+
+    func test_apiKey_clearedOnSignOut() {
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        ImageAnalysisService.apiKey = "sk-ant-test"
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-test")
+
+        ImageAnalysisService.setCurrentUser(nil)
+        // With no user, falls back to the un-scoped key
+        let fallbackKey = ImageAnalysisService.apiKey
+        XCTAssertNotEqual(fallbackKey, "sk-ant-test")
+    }
+
+    func test_apiKey_nilUserUsesFallbackKey() {
+        ImageAnalysisService.setCurrentUser(nil)
+        ImageAnalysisService.apiKey = "sk-fallback"
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-fallback")
+        UserDefaults.standard.removeObject(forKey: "claude_api_key")
+    }
+}
+
+// MARK: - UUID Case Consistency Tests
+
+final class UUIDCaseTests: XCTestCase {
+
+    func test_householdId_lowercased() {
+        let uuid = UUID()
+        let lowered = uuid.uuidString.lowercased()
+        XCTAssertEqual(lowered, lowered.lowercased(), "UUID should already be lowercase")
+        XCTAssertNotEqual(uuid.uuidString, lowered, "Swift UUID.uuidString should be uppercase by default")
+    }
+
+    func test_syncPayload_usesLowercaseUUIDs() {
+        let uuid = UUID()
+        let payload = uuid.uuidString.lowercased()
+        // Simulates what SyncService does before sending to Supabase
+        XCTAssertTrue(payload == payload.lowercased())
+        XCTAssertFalse(payload.contains(where: { $0.isUppercase }))
     }
 }

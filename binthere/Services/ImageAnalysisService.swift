@@ -181,7 +181,7 @@ final class ImageAnalysisService {
 
     /// Extracts a JSON array from text that may be wrapped in markdown code fences
     /// or have surrounding prose.
-    private static func extractJSONArray(from text: String) -> String {
+    static func extractJSONArray(from text: String) -> String {
         var cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Remove ```json ... ``` or ``` ... ``` fences
@@ -469,7 +469,7 @@ final class ImageAnalysisService {
     }
 
     /// Extracts a JSON object from text that may be wrapped in markdown code fences.
-    private static func extractJSONObject(from text: String) -> String {
+    static func extractJSONObject(from text: String) -> String {
         var cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if cleaned.hasPrefix("```") {
