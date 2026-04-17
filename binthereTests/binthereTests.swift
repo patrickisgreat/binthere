@@ -620,6 +620,59 @@ final class CodeGeneratorTests: XCTestCase {
     }
 }
 
+// MARK: - Onboarding Tests
+
+final class OnboardingTests: XCTestCase {
+
+    private let testUserId = "onboarding-test-user-\(UUID().uuidString)"
+
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: "onboarding_complete_\(testUserId)")
+    }
+
+    func test_onboardingNotComplete_byDefault() {
+        let key = "onboarding_complete_\(testUserId)"
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: key))
+    }
+
+    func test_onboardingComplete_persistsPerUser() {
+        let key = "onboarding_complete_\(testUserId)"
+        UserDefaults.standard.set(true, forKey: key)
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: key))
+    }
+
+    func test_onboardingComplete_isolatedPerUser() {
+        let userA = "onboarding-test-A"
+        let userB = "onboarding-test-B"
+        defer {
+            UserDefaults.standard.removeObject(forKey: "onboarding_complete_\(userA)")
+            UserDefaults.standard.removeObject(forKey: "onboarding_complete_\(userB)")
+        }
+
+        UserDefaults.standard.set(true, forKey: "onboarding_complete_\(userA)")
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: "onboarding_complete_\(userA)"))
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: "onboarding_complete_\(userB)"))
+    }
+
+    func test_zonePresets_notEmpty() {
+        XCTAssertFalse(ZonePreset.allPresets.isEmpty)
+        XCTAssertGreaterThanOrEqual(ZonePreset.allPresets.count, 10)
+    }
+
+    func test_zonePresets_allHaveRequiredFields() {
+        for preset in ZonePreset.allPresets {
+            XCTAssertFalse(preset.name.isEmpty, "Preset name should not be empty")
+            XCTAssertFalse(preset.icon.isEmpty, "Preset \(preset.name) missing icon")
+            XCTAssertFalse(preset.color.isEmpty, "Preset \(preset.name) missing color")
+        }
+    }
+
+    func test_zonePresets_uniqueNames() {
+        let names = ZonePreset.allPresets.map(\.name)
+        XCTAssertEqual(names.count, Set(names).count, "Zone preset names should be unique")
+    }
+}
+
 // MARK: - QR Generator Tests
 
 final class QRGeneratorServiceTests: XCTestCase {
