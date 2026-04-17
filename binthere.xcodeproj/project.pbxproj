@@ -64,6 +64,7 @@
 		EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */; };
 		EE00000100000005AAAAAA01 /* BulkValuationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */; };
 		GG00000100000001AAAAAA01 /* CheckedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GG00000100000001BBBBBB01 /* CheckedOutView.swift */; };
+		HH00000100000001AAAAAA01 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HH00000100000001BBBBBB01 /* SearchView.swift */; };
 		FF00000100000001AAAAAA01 /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000001BBBBBB01 /* ReportService.swift */; };
 		FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */; };
 		FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF00000100000003BBBBBB01 /* ReportsView.swift */; };
@@ -148,6 +149,7 @@
 		EE00000100000004BBBBBB01 /* EditAttributeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAttributeSheet.swift; sourceTree = "<group>"; };
 		EE00000100000005BBBBBB01 /* BulkValuationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkValuationSheet.swift; sourceTree = "<group>"; };
 		GG00000100000001BBBBBB01 /* CheckedOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedOutView.swift; sourceTree = "<group>"; };
+		HH00000100000001BBBBBB01 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		FF00000100000001BBBBBB01 /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
 		FF00000100000002BBBBBB01 /* AnalyticsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDashboardView.swift; sourceTree = "<group>"; };
 		FF00000100000003BBBBBB01 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				AA00000100000024CCCCCC01 /* Items */,
 				CC00000100000005CCCCCC01 /* Zones */,
 				FF00000100000004CCCCCC01 /* Reports */,
+				HH00000100000001CCCCCC01 /* Search */,
 				AA00000100000025CCCCCC01 /* Scanner */,
 				AA00000100000026CCCCCC01 /* Settings */,
 			);
@@ -313,6 +316,14 @@
 				AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */,
 			);
 			path = Items;
+			sourceTree = "<group>";
+		};
+		HH00000100000001CCCCCC01 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				HH00000100000001BBBBBB01 /* SearchView.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		AA00000100000025CCCCCC01 /* Scanner */ = {
@@ -554,6 +565,7 @@
 				EE00000100000004AAAAAA01 /* EditAttributeSheet.swift in Sources */,
 				EE00000100000005AAAAAA01 /* BulkValuationSheet.swift in Sources */,
 				GG00000100000001AAAAAA01 /* CheckedOutView.swift in Sources */,
+				HH00000100000001AAAAAA01 /* SearchView.swift in Sources */,
 				FF00000100000001AAAAAA01 /* ReportService.swift in Sources */,
 				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
 				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,
