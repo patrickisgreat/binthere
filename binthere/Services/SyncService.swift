@@ -26,6 +26,94 @@ final class SyncService {
     private let monitorQueue = DispatchQueue(label: "network-monitor")
     private var pendingHouseholdId: String?
 
+    // MARK: - Tombstones
+    //
+    // When a user deletes something locally, we record the ID in a tombstone
+    // set so the next pull from Supabase doesn't re-insert it. The fire-and-
+    // forget remote delete handles the eventual server-side cleanup; the
+    // tombstone guards against re-appearance if the remote delete fails or
+    // the user is offline.
+
+    private static let tombstoneKey = "sync_tombstones"
+
+    private var tombstones: Set<String> {
+        get {
+            let stored = UserDefaults.standard.stringArray(forKey: Self.tombstoneKey) ?? []
+            return Set(stored)
+        }
+        set {
+            UserDefaults.standard.set(Array(newValue), forKey: Self.tombstoneKey)
+        }
+    }
+
+    private func addTombstone(_ id: UUID) {
+        var current = tombstones
+        current.insert(id.uuidString.lowercased())
+        tombstones = current
+    }
+
+    private func removeTombstone(_ id: UUID) {
+        var current = tombstones
+        current.remove(id.uuidString.lowercased())
+        tombstones = current
+    }
+
+    func isTombstoned(_ id: UUID) -> Bool {
+        tombstones.contains(id.uuidString.lowercased())
+    }
+
+    // MARK: - Delete Helpers (sync-aware)
+
+    /// Deletes a bin locally and remotely. Safe to call offline — the
+    /// tombstone prevents the bin from reappearing on next pull.
+    @MainActor
+    func deleteBin(_ bin: Bin) async {
+        let binId = bin.id
+        let itemIDs = bin.items.map(\.id)
+        addTombstone(binId)
+        itemIDs.forEach { addTombstone($0) }
+        modelContext?.delete(bin)
+        try? modelContext?.save()
+
+        do {
+            try await deleteRemoteBin(binId)
+            removeTombstone(binId)
+            itemIDs.forEach { removeTombstone($0) }
+        } catch {
+            print("[Sync] Remote bin delete failed, keeping tombstone: \(error)")
+        }
+    }
+
+    @MainActor
+    func deleteItem(_ item: Item) async {
+        let itemId = item.id
+        addTombstone(itemId)
+        modelContext?.delete(item)
+        try? modelContext?.save()
+
+        do {
+            try await deleteRemoteItem(itemId)
+            removeTombstone(itemId)
+        } catch {
+            print("[Sync] Remote item delete failed, keeping tombstone: \(error)")
+        }
+    }
+
+    @MainActor
+    func deleteZone(_ zone: Zone) async {
+        let zoneId = zone.id
+        addTombstone(zoneId)
+        modelContext?.delete(zone)
+        try? modelContext?.save()
+
+        do {
+            try await deleteRemoteZone(zoneId)
+            removeTombstone(zoneId)
+        } catch {
+            print("[Sync] Remote zone delete failed, keeping tombstone: \(error)")
+        }
+    }
+
     func configure(modelContext: ModelContext) {
         self.modelContext = modelContext
         startNetworkMonitoring()
@@ -94,34 +182,49 @@ final class SyncService {
         guard let context = modelContext, !householdId.isEmpty else { return }
         let cutoff = lastSyncedAt ?? Date.distantPast
 
-        // Push dirty zones
+        // Push dirty zones — skip any that have been tombstoned
         let zonePredicate = #Predicate<Zone> { $0.updatedAt > cutoff }
         let dirtyZones = try context.fetch(FetchDescriptor(predicate: zonePredicate))
-        for zone in dirtyZones {
-            try await pushZone(zone, householdId: householdId)
+        for zone in dirtyZones where !isTombstoned(zone.id) {
+            do {
+                try await pushZone(zone, householdId: householdId)
+            } catch {
+                print("[Sync] pushZone failed for \(zone.id): \(error)")
+            }
         }
 
-        // Push dirty bins
         let binPredicate = #Predicate<Bin> { $0.updatedAt > cutoff }
         let dirtyBins = try context.fetch(FetchDescriptor(predicate: binPredicate))
-        for bin in dirtyBins {
-            try await pushBin(bin, householdId: householdId)
-            await CloudStorageService.syncBinImages(bin: bin, householdId: householdId)
+        for bin in dirtyBins where !isTombstoned(bin.id) {
+            do {
+                try await pushBin(bin, householdId: householdId)
+                await CloudStorageService.syncBinImages(bin: bin, householdId: householdId)
+            } catch {
+                print("[Sync] pushBin failed for \(bin.id): \(error)")
+            }
         }
 
-        // Push dirty items
         let itemPredicate = #Predicate<Item> { $0.updatedAt > cutoff }
         let dirtyItems = try context.fetch(FetchDescriptor(predicate: itemPredicate))
-        for item in dirtyItems {
-            try await pushItem(item, householdId: householdId)
-            await CloudStorageService.syncItemImages(item: item, householdId: householdId)
+        for item in dirtyItems where !isTombstoned(item.id) {
+            do {
+                try await pushItem(item, householdId: householdId)
+                await CloudStorageService.syncItemImages(item: item, householdId: householdId)
+            } catch {
+                print("[Sync] pushItem failed for \(item.id): \(error)")
+            }
         }
 
-        // Push checkout records created since last sync
         let checkoutPredicate = #Predicate<CheckoutRecord> { $0.checkedOutAt > cutoff }
         let dirtyCheckouts = try context.fetch(FetchDescriptor(predicate: checkoutPredicate))
         for record in dirtyCheckouts {
-            try await pushCheckoutRecord(record, householdId: householdId)
+            // Skip orphaned checkout records (their item was deleted)
+            guard let item = record.item, !isTombstoned(item.id) else { continue }
+            do {
+                try await pushCheckoutRecord(record, householdId: householdId)
+            } catch {
+                print("[Sync] pushCheckoutRecord failed: \(error)")
+            }
         }
     }
 
@@ -285,6 +388,7 @@ final class SyncService {
             .value
 
         for remote in response {
+            if isTombstoned(remote.id) { continue }
             let remoteId = remote.id
             let descriptor = FetchDescriptor<Zone>(predicate: #Predicate { $0.id == remoteId })
             if let existing = try context.fetch(descriptor).first {
@@ -319,6 +423,7 @@ final class SyncService {
             .value
 
         for remote in response {
+            if isTombstoned(remote.id) { continue }
             let remoteId = remote.id
             let descriptor = FetchDescriptor<Bin>(predicate: #Predicate { $0.id == remoteId })
             if let existing = try context.fetch(descriptor).first {
@@ -338,7 +443,6 @@ final class SyncService {
                 bin.color = remote.color
                 bin.updatedAt = remote.updatedAt
 
-                // Link to zone
                 if let zoneId = remote.zoneId {
                     let zoneDescriptor = FetchDescriptor<Zone>(predicate: #Predicate { $0.id == zoneId })
                     bin.zone = try context.fetch(zoneDescriptor).first
@@ -360,6 +464,7 @@ final class SyncService {
             .value
 
         for remote in response {
+            if isTombstoned(remote.id) { continue }
             let remoteId = remote.id
             let descriptor = FetchDescriptor<Item>(predicate: #Predicate { $0.id == remoteId })
             if let existing = try context.fetch(descriptor).first {

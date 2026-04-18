@@ -6,6 +6,7 @@ struct ItemDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthService.self) private var authService
     @Environment(HouseholdService.self) private var householdService
+    @Environment(SyncService.self) private var syncService
     @Bindable var item: Item
 
     @Query(sort: \Bin.name) private var allBins: [Bin]
@@ -228,8 +229,9 @@ struct ItemDetailView: View {
         }
         .alert("Remove Item?", isPresented: $showingDeleteConfirmation) {
             Button("Remove", role: .destructive) {
-                modelContext.delete(item)
+                let itemToDelete = item
                 dismiss()
+                Task { await syncService.deleteItem(itemToDelete) }
             }
             Button("Cancel", role: .cancel) { }
         } message: {

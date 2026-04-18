@@ -4,6 +4,7 @@ import SwiftData
 struct ZoneDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(SyncService.self) private var syncService
     @Bindable var zone: Zone
 
     @State private var showingDeleteConfirmation = false
@@ -154,8 +155,9 @@ struct ZoneDetailView: View {
         }
         .alert("Delete Zone?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {
-                modelContext.delete(zone)
+                let zoneToDelete = zone
                 dismiss()
+                Task { await syncService.deleteZone(zoneToDelete) }
             }
             Button("Cancel", role: .cancel) { }
         } message: {

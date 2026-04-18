@@ -4,6 +4,7 @@ import SwiftData
 struct BinDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AuthService.self) private var authService
+    @Environment(SyncService.self) private var syncService
     @Bindable var bin: Bin
     @Query(sort: \Zone.name) private var allZones: [Zone]
     @Query(sort: \Bin.code) private var allBins: [Bin]
@@ -102,7 +103,7 @@ struct BinDetailView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     Haptics.medium()
-                                    modelContext.delete(item)
+                                    Task { await syncService.deleteItem(item) }
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -159,7 +160,7 @@ struct BinDetailView: View {
                                 Divider()
                                 Button(role: .destructive) {
                                     Haptics.medium()
-                                    modelContext.delete(item)
+                                    Task { await syncService.deleteItem(item) }
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -312,11 +313,14 @@ struct BinDetailView: View {
 
     private func bulkDelete() {
         Haptics.success()
-        for item in selectedItemObjects {
-            modelContext.delete(item)
-        }
+        let itemsToDelete = selectedItemObjects
         selectedItems.removeAll()
         isEditMode = false
+        Task {
+            for item in itemsToDelete {
+                await syncService.deleteItem(item)
+            }
+        }
     }
 
     private func quickAddItem() {
