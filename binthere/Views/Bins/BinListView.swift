@@ -3,6 +3,7 @@ import SwiftData
 
 struct BinListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(SyncService.self) private var syncService
     @Query(sort: \Bin.code) private var bins: [Bin]
     @Query(sort: \Zone.name) private var allZones: [Zone]
     @State private var searchText = ""
@@ -109,7 +110,7 @@ struct BinListView: View {
                             Divider()
                             Button(role: .destructive) {
                                 Haptics.medium()
-                                modelContext.delete(bin)
+                                Task { await syncService.deleteBin(bin) }
                             } label: {
                                 Label("Delete Bin", systemImage: "trash")
                             }
@@ -209,17 +210,23 @@ struct BinListView: View {
     }
 
     private func deleteBins(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(filteredBins[index])
+        let binsToDelete = offsets.map { filteredBins[$0] }
+        Task {
+            for bin in binsToDelete {
+                await syncService.deleteBin(bin)
+            }
         }
     }
 
     private func bulkDeleteBins() {
-        for bin in selectedBinObjects {
-            modelContext.delete(bin)
-        }
+        let binsToDelete = selectedBinObjects
         selectedBins.removeAll()
         isEditMode = false
+        Task {
+            for bin in binsToDelete {
+                await syncService.deleteBin(bin)
+            }
+        }
     }
 }
 

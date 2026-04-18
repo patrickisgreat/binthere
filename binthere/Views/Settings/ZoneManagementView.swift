@@ -3,6 +3,7 @@ import SwiftData
 
 struct ZoneManagementView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(SyncService.self) private var syncService
     @Query(sort: \Zone.name) private var zones: [Zone]
     @State private var showingAddZone = false
     @State private var showingHomeKitImport = false
@@ -51,8 +52,11 @@ struct ZoneManagementView: View {
     }
 
     private func deleteZones(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(zones[index])
+        let zonesToDelete = offsets.map { zones[$0] }
+        Task {
+            for zone in zonesToDelete {
+                await syncService.deleteZone(zone)
+            }
         }
     }
 }

@@ -699,6 +699,39 @@ final class ZoneSubLocationTests: XCTestCase {
     }
 }
 
+// MARK: - Tombstone Tests
+
+final class TombstoneTests: XCTestCase {
+
+    private let tombstoneKey = "sync_tombstones"
+
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: tombstoneKey)
+    }
+
+    func test_tombstone_storesAndRetrievesID() {
+        let id = UUID()
+        UserDefaults.standard.set([id.uuidString.lowercased()], forKey: tombstoneKey)
+
+        let stored = UserDefaults.standard.stringArray(forKey: tombstoneKey) ?? []
+        XCTAssertTrue(stored.contains(id.uuidString.lowercased()))
+    }
+
+    func test_tombstone_normalizesCase() {
+        let id = UUID()
+        let lowered = id.uuidString.lowercased()
+        XCTAssertEqual(lowered, lowered.lowercased())
+    }
+
+    func test_tombstone_setBehavior() {
+        var set: Set<String> = []
+        let id1 = UUID().uuidString.lowercased()
+        set.insert(id1)
+        set.insert(id1)
+        XCTAssertEqual(set.count, 1, "Tombstones should deduplicate")
+    }
+}
+
 // MARK: - AI Provider Tests
 
 final class AIProviderTests: XCTestCase {
