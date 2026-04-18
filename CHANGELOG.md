@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/patrickisgreat/binthere/compare/v1.4.0...v1.4.1) (2026-04-18)
+
+
+### Bug Fixes
+
+* bin/item/zone deletes now propagate to Supabase + guard sync crash ([4ffdab8](https://github.com/patrickisgreat/binthere/commit/4ffdab80b84cb7eba71cca73cab46bdadfa51e25))
+* bin/item/zone deletes propagate to Supabase + guard sync crash ([e2ad463](https://github.com/patrickisgreat/binthere/commit/e2ad46314ebb0cc078e315055dfc4853f92cdfcf))
+
 ## [1.4.0](https://github.com/patrickisgreat/binthere/compare/v1.3.0...v1.4.0) (2026-04-17)
 
 
