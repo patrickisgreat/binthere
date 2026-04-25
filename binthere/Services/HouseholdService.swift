@@ -7,12 +7,16 @@ struct Household: Codable, Identifiable {
     let spaceType: String
     let createdBy: UUID
     let createdAt: Date
+    let aiProvider: String?
+    let apiKey: String?
 
     enum CodingKeys: String, CodingKey {
         case id, name
         case spaceType = "space_type"
         case createdBy = "created_by"
         case createdAt = "created_at"
+        case aiProvider = "ai_provider"
+        case apiKey = "api_key"
     }
 
     var spaceTypeInfo: SpaceType {
@@ -89,7 +93,11 @@ struct Invitation: Codable, Identifiable {
 
 @Observable
 final class HouseholdService {
-    var currentHousehold: Household?
+    var currentHousehold: Household? {
+        didSet {
+            ImageAnalysisService.setCurrentHousehold(currentHousehold)
+        }
+    }
     var members: [HouseholdMember] = []
     var pendingInvitations: [Invitation] = []
     var isLoading = false
@@ -99,6 +107,16 @@ final class HouseholdService {
 
     var currentHouseholdId: String {
         currentHousehold?.id.uuidString.lowercased() ?? ""
+    }
+
+    /// True when `userId` is an owner of the current household. Household
+    /// settings like the AI provider/key can only be written by owners per
+    /// the households RLS UPDATE policy.
+    func isOwner(userId: String) -> Bool {
+        members.contains { member in
+            member.role == "owner"
+                && member.userId.uuidString.lowercased() == userId.lowercased()
+        }
     }
 
     // MARK: - Load Current Household
@@ -132,8 +150,26 @@ final class HouseholdService {
             currentHousehold = households.first
             await loadMembers()
             await loadInvitations()
+            await migrateLegacyAPIKeyIfNeeded(userId: userId)
         } catch {
             self.error = error.localizedDescription
+        }
+    }
+
+    /// Moves a pre-8.x per-user API key from UserDefaults onto the
+    /// household record the first time an owner signs in after upgrade.
+    /// Silently does nothing for non-owners or when no legacy key exists.
+    private func migrateLegacyAPIKeyIfNeeded(userId: String) async {
+        guard let household = currentHousehold,
+              household.apiKey == nil,
+              isOwner(userId: userId),
+              let legacy = ImageAnalysisService.legacyLocalAPIKey() else { return }
+
+        let provider = AIProvider(rawValue: legacy.provider) ?? .anthropic
+        await updateAIConfig(apiKey: legacy.apiKey, provider: provider)
+
+        if currentHousehold?.apiKey == legacy.apiKey {
+            ImageAnalysisService.clearLegacyLocalAPIKey()
         }
     }
 
@@ -168,6 +204,51 @@ final class HouseholdService {
 
             // Reload
             await loadHousehold(userId: userId)
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    // MARK: - AI Config
+
+    /// Updates the household-wide AI provider and/or API key.
+    /// Only the household owner can succeed here — non-owners will be
+    /// rejected by the households RLS UPDATE policy.
+    func updateAIConfig(apiKey: String?, provider: AIProvider) async {
+        guard let householdId = currentHousehold?.id.uuidString.lowercased() else {
+            error = "No household loaded."
+            return
+        }
+
+        let payload: [String: AnyJSON] = [
+            "api_key": apiKey.map { .string($0) } ?? .null,
+            "ai_provider": .string(provider.rawValue),
+        ]
+
+        do {
+            try await client.from("households")
+                .update(payload)
+                .eq("id", value: householdId)
+                .execute()
+            await refreshCurrentHousehold()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    /// Re-fetches just the current household row (not members/invitations).
+    func refreshCurrentHousehold() async {
+        guard let householdId = currentHousehold?.id.uuidString.lowercased() else { return }
+
+        do {
+            let households: [Household] = try await client.from("households")
+                .select()
+                .eq("id", value: householdId)
+                .execute()
+                .value
+            if let refreshed = households.first {
+                currentHousehold = refreshed
+            }
         } catch {
             self.error = error.localizedDescription
         }

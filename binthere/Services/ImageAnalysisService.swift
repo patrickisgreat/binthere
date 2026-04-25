@@ -54,19 +54,11 @@ enum AIProvider: String, CaseIterable, Identifiable {
         }
     }
 
-    private static var providerKey: String {
-        guard let userId = ImageAnalysisService.currentUserId else { return "ai_provider" }
-        return "ai_provider_\(userId)"
-    }
-
+    /// The provider currently in use for this household. Falls back to
+    /// `.anthropic` when no household is loaded or the column is unset.
     static var current: Self {
-        get {
-            let raw = UserDefaults.standard.string(forKey: providerKey) ?? "anthropic"
-            return Self(rawValue: raw) ?? .anthropic
-        }
-        set {
-            UserDefaults.standard.set(newValue.rawValue, forKey: providerKey)
-        }
+        let raw = ImageAnalysisService.currentHousehold?.aiProvider ?? "anthropic"
+        return Self(rawValue: raw) ?? .anthropic
     }
 }
 
@@ -88,19 +80,61 @@ final class ImageAnalysisService {
     """
 
     static var currentUserId: String?
+    static var currentHousehold: Household?
+
+    /// Legacy per-user UserDefaults keys (read-only, used only for the
+    /// one-time migration to household-scoped storage).
+    private static let legacyGlobalApiKey = "claude_api_key"
+    private static let legacyGlobalProviderKey = "ai_provider"
+    private static func legacyUserApiKey(_ userId: String) -> String { "claude_api_key_\(userId)" }
+    private static func legacyUserProviderKey(_ userId: String) -> String { "ai_provider_\(userId)" }
 
     static func setCurrentUser(_ userId: String?) {
         currentUserId = userId
     }
 
-    private static var apiKeyKey: String {
-        guard let userId = currentUserId else { return "claude_api_key" }
-        return "claude_api_key_\(userId)"
+    static func setCurrentHousehold(_ household: Household?) {
+        currentHousehold = household
     }
 
+    /// Reads the shared household API key. Returns nil when no household
+    /// is loaded or the owner has not yet set one.
     static var apiKey: String? {
-        get { UserDefaults.standard.string(forKey: apiKeyKey) }
-        set { UserDefaults.standard.set(newValue, forKey: apiKeyKey) }
+        currentHousehold?.apiKey
+    }
+
+    /// Returns a legacy API key from UserDefaults if one exists, for the
+    /// one-time migration when a household is loaded for the first time.
+    /// Checks the current-user-scoped key first, then the global fallback.
+    static func legacyLocalAPIKey() -> (apiKey: String, provider: String)? {
+        let defaults = UserDefaults.standard
+        let apiKey: String?
+        let provider: String?
+
+        if let userId = currentUserId {
+            apiKey = defaults.string(forKey: legacyUserApiKey(userId))
+                ?? defaults.string(forKey: legacyGlobalApiKey)
+            provider = defaults.string(forKey: legacyUserProviderKey(userId))
+                ?? defaults.string(forKey: legacyGlobalProviderKey)
+        } else {
+            apiKey = defaults.string(forKey: legacyGlobalApiKey)
+            provider = defaults.string(forKey: legacyGlobalProviderKey)
+        }
+
+        guard let apiKey, !apiKey.isEmpty else { return nil }
+        return (apiKey, provider ?? "anthropic")
+    }
+
+    /// Clears any legacy per-user / global API key entries from UserDefaults
+    /// after a successful migration to household-scoped storage.
+    static func clearLegacyLocalAPIKey() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: legacyGlobalApiKey)
+        defaults.removeObject(forKey: legacyGlobalProviderKey)
+        if let userId = currentUserId {
+            defaults.removeObject(forKey: legacyUserApiKey(userId))
+            defaults.removeObject(forKey: legacyUserProviderKey(userId))
+        }
     }
 
     func analyzeImage(_ image: UIImage) async {

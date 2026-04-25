@@ -7,14 +7,36 @@ struct SettingsView: View {
     @Environment(AuthService.self) private var authService
     @Environment(HouseholdService.self) private var householdService
     @Environment(SyncService.self) private var syncService
-    @State private var apiKey = ImageAnalysisService.apiKey ?? ""
+    @State private var apiKey = ""
     @State private var showingAPIKey = false
-    @State private var selectedProvider = AIProvider.current
+    @State private var selectedProvider: AIProvider = .anthropic
+    @State private var isSavingAIConfig = false
     @State private var showingDeleteConfirmation = false
     @State private var deleteError: String?
     @State private var notificationsEnabled = false
     @State private var showingInvite = false
     @State private var dailyOverdueCheck = false
+
+    private var canEditAIConfig: Bool {
+        guard let userId = authService.currentUserId else { return false }
+        return householdService.isOwner(userId: userId)
+    }
+
+    private var storedAPIKey: String {
+        householdService.currentHousehold?.apiKey ?? ""
+    }
+
+    private var storedProvider: AIProvider {
+        guard let raw = householdService.currentHousehold?.aiProvider,
+              let provider = AIProvider(rawValue: raw) else {
+            return .anthropic
+        }
+        return provider
+    }
+
+    private var hasUnsavedAIChanges: Bool {
+        apiKey != storedAPIKey || selectedProvider != storedProvider
+    }
 
     var body: some View {
         Form {
@@ -146,15 +168,13 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("AI Analysis") {
+            Section {
                 Picker("AI Provider", selection: $selectedProvider) {
                     ForEach(AIProvider.allCases) { provider in
                         Text(provider.displayName).tag(provider)
                     }
                 }
-                .onChange(of: selectedProvider) { _, newValue in
-                    AIProvider.current = newValue
-                }
+                .disabled(!canEditAIConfig || isSavingAIConfig)
 
                 HStack {
                     if showingAPIKey {
@@ -162,8 +182,10 @@ struct SettingsView: View {
                             .textContentType(.password)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            .disabled(!canEditAIConfig || isSavingAIConfig)
                     } else {
                         SecureField(apiKeyPlaceholder, text: $apiKey)
+                            .disabled(!canEditAIConfig || isSavingAIConfig)
                     }
                     Button(action: { showingAPIKey.toggle() }) {
                         Image(systemName: showingAPIKey ? "eye.slash" : "eye")
@@ -171,21 +193,41 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .onChange(of: apiKey) { _, newValue in
-                    ImageAnalysisService.apiKey = newValue.isEmpty ? nil : newValue
-                }
 
-                Text(apiKeyHelpText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if canEditAIConfig {
+                    Button(action: saveAIConfig) {
+                        if isSavingAIConfig {
+                            ProgressView()
+                        } else {
+                            Label("Save", systemImage: "checkmark.circle")
+                        }
+                    }
+                    .disabled(!hasUnsavedAIChanges || isSavingAIConfig)
+                }
+            } header: {
+                Text("AI Analysis")
+            } footer: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(apiKeyHelpText)
+                    Text(aiConfigScopeText)
+                }
             }
 
             Section("About") {
-                LabeledContent("Version", value: "1.0.0")
+                LabeledContent("Version", value: appVersion)
                 LabeledContent("Built with", value: "SwiftUI + SwiftData")
             }
         }
         .navigationTitle("Settings")
+        .task {
+            syncAIConfigFromHousehold()
+        }
+        .onChange(of: householdService.currentHousehold?.apiKey) { _, _ in
+            syncAIConfigFromHousehold()
+        }
+        .onChange(of: householdService.currentHousehold?.aiProvider) { _, _ in
+            syncAIConfigFromHousehold()
+        }
         .sheet(isPresented: $showingInvite) {
             InviteMemberSheet()
         }
@@ -217,6 +259,35 @@ struct SettingsView: View {
         case .openai:
             return "Get a key at platform.openai.com/api-keys"
         }
+    }
+
+    private var aiConfigScopeText: String {
+        if canEditAIConfig {
+            return "Shared by everyone in your space. Only owners can change it."
+        }
+        return "Set by the space owner and shared with all members."
+    }
+
+    private func syncAIConfigFromHousehold() {
+        apiKey = storedAPIKey
+        selectedProvider = storedProvider
+    }
+
+    private func saveAIConfig() {
+        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let keyToSave = trimmed.isEmpty ? nil : trimmed
+        isSavingAIConfig = true
+        Task {
+            await householdService.updateAIConfig(apiKey: keyToSave, provider: selectedProvider)
+            syncAIConfigFromHousehold()
+            isSavingAIConfig = false
+        }
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
+        return "\(version) (\(build))"
     }
 
     private func wipeLocalData() {
