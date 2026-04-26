@@ -1383,48 +1383,99 @@ final class AIJSONExtractionTests: XCTestCase {
     }
 }
 
-// MARK: - Per-User API Key Tests
+// MARK: - Household-Scoped API Key Tests
 
-final class PerUserAPIKeyTests: XCTestCase {
+final class HouseholdAPIKeyTests: XCTestCase {
+    private static let globalKey = "claude_api_key"
+    private static let globalProv = "ai_provider"
+    private static let userKey = "claude_api_key_user-aaa"
+    private static let userProv = "ai_provider_user-aaa"
 
     override func tearDown() {
-        // Clean up any keys we set during tests
-        UserDefaults.standard.removeObject(forKey: "claude_api_key_user-aaa")
-        UserDefaults.standard.removeObject(forKey: "claude_api_key_user-bbb")
-        UserDefaults.standard.removeObject(forKey: "claude_api_key")
+        [Self.globalKey, Self.globalProv, Self.userKey, Self.userProv]
+            .forEach { UserDefaults.standard.removeObject(forKey: $0) }
         ImageAnalysisService.setCurrentUser(nil)
+        ImageAnalysisService.setCurrentHousehold(nil)
     }
 
-    func test_apiKey_scopedPerUser() {
-        ImageAnalysisService.setCurrentUser("user-aaa")
-        ImageAnalysisService.apiKey = "sk-ant-aaa"
-
-        ImageAnalysisService.setCurrentUser("user-bbb")
+    func test_apiKey_nil_whenHouseholdMissingOrHasNoKey() {
+        ImageAnalysisService.setCurrentHousehold(nil)
         XCTAssertNil(ImageAnalysisService.apiKey)
-
-        ImageAnalysisService.apiKey = "sk-ant-bbb"
-        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-bbb")
-
-        ImageAnalysisService.setCurrentUser("user-aaa")
-        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-aaa")
+        ImageAnalysisService.setCurrentHousehold(Self.makeHousehold(apiKey: nil))
+        XCTAssertNil(ImageAnalysisService.apiKey)
     }
 
-    func test_apiKey_clearedOnSignOut() {
-        ImageAnalysisService.setCurrentUser("user-aaa")
-        ImageAnalysisService.apiKey = "sk-ant-test"
-        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-test")
-
-        ImageAnalysisService.setCurrentUser(nil)
-        // With no user, falls back to the un-scoped key
-        let fallbackKey = ImageAnalysisService.apiKey
-        XCTAssertNotEqual(fallbackKey, "sk-ant-test")
+    func test_apiKey_readsFromCurrentHousehold() {
+        ImageAnalysisService.setCurrentHousehold(Self.makeHousehold(apiKey: "sk-ant-household"))
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-ant-household")
     }
 
-    func test_apiKey_nilUserUsesFallbackKey() {
-        ImageAnalysisService.setCurrentUser(nil)
-        ImageAnalysisService.apiKey = "sk-fallback"
-        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-fallback")
-        UserDefaults.standard.removeObject(forKey: "claude_api_key")
+    func test_apiKey_isSharedAcrossUsers() {
+        ImageAnalysisService.setCurrentHousehold(Self.makeHousehold(apiKey: "sk-shared"))
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-shared")
+        ImageAnalysisService.setCurrentUser("user-bbb")
+        XCTAssertEqual(ImageAnalysisService.apiKey, "sk-shared")
+    }
+
+    func test_provider_defaultsToAnthropic_whenNoHousehold() {
+        ImageAnalysisService.setCurrentHousehold(nil)
+        XCTAssertEqual(AIProvider.current, .anthropic)
+    }
+
+    func test_provider_readsFromHousehold() {
+        ImageAnalysisService.setCurrentHousehold(Self.makeHousehold(apiKey: "sk", provider: "openai"))
+        XCTAssertEqual(AIProvider.current, .openai)
+    }
+
+    func test_legacyLocalAPIKey_prefersUserScopedOverGlobal() {
+        Self.seedDefaults([
+            Self.globalKey: "sk-global", Self.globalProv: "openai",
+            Self.userKey: "sk-user-a", Self.userProv: "anthropic",
+        ])
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        let legacy = ImageAnalysisService.legacyLocalAPIKey()
+        XCTAssertEqual(legacy?.apiKey, "sk-user-a")
+        XCTAssertEqual(legacy?.provider, "anthropic")
+    }
+
+    func test_legacyLocalAPIKey_fallsBackToGlobalWhenNoUserScopedKey() {
+        Self.seedDefaults([Self.globalKey: "sk-global", Self.globalProv: "openai"])
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        let legacy = ImageAnalysisService.legacyLocalAPIKey()
+        XCTAssertEqual(legacy?.apiKey, "sk-global")
+        XCTAssertEqual(legacy?.provider, "openai")
+    }
+
+    func test_legacyLocalAPIKey_nilWhenEmpty_andDefaultsProviderToAnthropic() {
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        XCTAssertNil(ImageAnalysisService.legacyLocalAPIKey())
+        UserDefaults.standard.set("sk-only-key", forKey: Self.userKey)
+        XCTAssertEqual(ImageAnalysisService.legacyLocalAPIKey()?.provider, "anthropic")
+    }
+
+    func test_clearLegacyLocalAPIKey_removesBothScopedAndGlobalEntries() {
+        Self.seedDefaults([
+            Self.userKey: "sk-user-a", Self.userProv: "anthropic",
+            Self.globalKey: "sk-global", Self.globalProv: "openai",
+        ])
+        ImageAnalysisService.setCurrentUser("user-aaa")
+        ImageAnalysisService.clearLegacyLocalAPIKey()
+        let defaults = UserDefaults.standard
+        XCTAssertNil(defaults.string(forKey: Self.userKey))
+        XCTAssertNil(defaults.string(forKey: Self.userProv))
+        XCTAssertNil(defaults.string(forKey: Self.globalKey))
+        XCTAssertNil(defaults.string(forKey: Self.globalProv))
+        XCTAssertNil(ImageAnalysisService.legacyLocalAPIKey())
+    }
+
+    private static func seedDefaults(_ entries: [String: String]) {
+        entries.forEach { UserDefaults.standard.set($0.value, forKey: $0.key) }
+    }
+
+    private static func makeHousehold(apiKey: String?, provider: String = "anthropic") -> Household {
+        Household(id: UUID(), name: "Test", spaceType: "home", createdBy: UUID(),
+                  createdAt: Date(), aiProvider: provider, apiKey: apiKey)
     }
 }
 
