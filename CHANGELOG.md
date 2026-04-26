@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/patrickisgreat/binthere/compare/v1.4.1...v1.5.0) (2026-04-26)
+
+
+### Features
+
+* share AI provider + API key across household ([80b87c9](https://github.com/patrickisgreat/binthere/commit/80b87c9f6e5dbb31254f0dfdf3003b2b6a790afd))
+* share AI provider + API key across household ([82d6c70](https://github.com/patrickisgreat/binthere/commit/82d6c70547ef57126898536d56a4e8f984424467))
+
 ## [1.4.1](https://github.com/patrickisgreat/binthere/compare/v1.4.0...v1.4.1) (2026-04-18)
 
 
