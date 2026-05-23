@@ -22,19 +22,22 @@ Household              (root — NO foreign keys; this is the shared record)
          └─ CustomAttribute   (FK → itemID)
 ```
 
-## Resolved product decisions (my picks — override if you disagree)
+## Resolved product decisions (confirmed against current code)
 
-1. **Every Bin lives in a Zone.** Today `Bin.zone` is optional. The tree needs one parent per bin,
-   so on household creation we auto-create a default **"Unsorted"** zone, and bins with no
-   explicit zone go there. UX is unchanged (users can ignore zones); under the hood every bin has a
-   zone parent. "Remove bin from zone" becomes "move to Unsorted."
-2. **Every Item lives in a Bin.** Same reasoning. Auto-create a default **"Loose Items"** bin in the
-   Unsorted zone for items not explicitly placed in a bin. (If we confirm the app never creates
-   bin-less items, we can instead make `binID` non-optional and skip the default bin.)
+1. **Every Bin lives in a Zone.** Today `Bin.zone` is optional and the app *does* create zone-less
+   bins (`AddBinView`: `selectedZone: Zone?`, `bin.zone = selectedZone`). The tree needs exactly one
+   parent per bin, so on household creation we auto-create a default **"Unsorted"** zone and route
+   zone-less bins there. UX is unchanged (users can still ignore zones); under the hood every bin
+   has a zone parent. "Remove bin from zone" becomes "move to Unsorted."
+2. **Every Item lives in a Bin — `binID` is required, no default bin needed.** Confirmed: the app
+   never creates bin-less items. `AddItemView` declares `let bin: Bin` (non-optional) and both
+   presentation sites (`AddBinView`, `BinDetailView`) pass a concrete bin; the AI-scan flow in
+   `AddBinView` also always sets `bin:`. So `Item.binID` is simply non-optional — no "Loose Items"
+   default required.
 
-Rationale: this keeps the rich `Zone` model (color/icon/locations) and the existing 4-level mental
-model intact, costs only two invisible default rows per household, and avoids giving any table two
-parent FKs.
+Rationale: keeps the rich `Zone` model (color/icon/locations) and the existing 4-level mental model
+intact, costs only one invisible default row (the Unsorted zone) per household, and never gives a
+table two parent FKs.
 
 ## `@Table` types
 
@@ -251,6 +254,4 @@ lands. No user data to migrate (no users yet).
   iCloud; if the owner deletes, members lose access). Design when we wire sharing.
 - **Identity**: `createdBy` / `checkedOutBy` currently hold Supabase user IDs; remap to CloudKit
   participant IDs once sharing is in.
-- Confirm whether bin-less items are a real flow; if not, drop the default "Loose Items" bin and
-  make `binID` strictly required at creation.
 ```
