@@ -361,7 +361,7 @@ struct AddBinView: View {
             print("Failed to save bin: \(error)")
         }
 
-        // Push to Supabase
+        // Sync push (no-op until the SQLiteData SyncEngine lands; saved locally above)
         if !householdId.isEmpty {
             Task {
                 try? await syncService.pushBin(bin, householdId: householdId)

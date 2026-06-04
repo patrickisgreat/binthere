@@ -1,5 +1,4 @@
 import Foundation
-import Supabase
 
 struct Household: Codable, Identifiable {
     let id: UUID
@@ -21,6 +20,14 @@ struct Household: Codable, Identifiable {
 
     var spaceTypeInfo: SpaceType {
         SpaceType(rawValue: spaceType) ?? .home
+    }
+
+    /// Returns a copy with updated AI config, preserving every other field.
+    func withAIConfig(apiKey: String?, provider: String) -> Self {
+        Self(
+            id: id, name: name, spaceType: spaceType, createdBy: createdBy,
+            createdAt: createdAt, aiProvider: provider, apiKey: apiKey
+        )
     }
 }
 
@@ -91,6 +98,13 @@ struct Invitation: Codable, Identifiable {
     }
 }
 
+/// Local-only household management for the post-Supabase transition
+/// (PR 1 of the CloudKit/SQLiteData migration). A "household" is a single
+/// on-device space persisted in UserDefaults; there is no remote membership
+/// yet. The household-wide AI key/provider (from the shared-key feature)
+/// still works — it's now stored locally on the household. Cross-person
+/// sharing returns via CKShare in a later PR, so `generateInviteCode`/
+/// `joinHousehold` are intentionally inert until then.
 @Observable
 final class HouseholdService {
     var currentHousehold: Household? {
@@ -103,15 +117,14 @@ final class HouseholdService {
     var isLoading = false
     var error: String?
 
-    private var client: SupabaseClient { SupabaseManager.shared.client }
+    private static let storedHouseholdKey = "local_household"
+    private static let storedDisplayNameKey = "local_household_display_name"
 
     var currentHouseholdId: String {
         currentHousehold?.id.uuidString.lowercased() ?? ""
     }
 
-    /// True when `userId` is an owner of the current household. Household
-    /// settings like the AI provider/key can only be written by owners per
-    /// the households RLS UPDATE policy.
+    /// True when `userId` is the owner of the current local household.
     func isOwner(userId: String) -> Bool {
         members.contains { member in
             member.role == "owner"
@@ -119,46 +132,40 @@ final class HouseholdService {
         }
     }
 
-    // MARK: - Load Current Household
+    // MARK: - Load
 
     func loadHousehold(userId: String) async {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
-
-        do {
-            // Find household membership for this user
-            let memberships: [HouseholdMember] = try await client.from("household_members")
-                .select()
-                .eq("user_id", value: userId)
-                .execute()
-                .value
-
-            guard let membership = memberships.first else {
-                // No household yet — user needs to create or join one
-                currentHousehold = nil
-                return
-            }
-
-            // Fetch the household
-            let households: [Household] = try await client.from("households")
-                .select()
-                .eq("id", value: membership.householdId.uuidString.lowercased())
-                .execute()
-                .value
-
-            currentHousehold = households.first
-            await loadMembers()
-            await loadInvitations()
-            await migrateLegacyAPIKeyIfNeeded(userId: userId)
-        } catch {
-            self.error = error.localizedDescription
+        guard let household = Self.loadStoredHousehold() else {
+            // No space yet — the user is prompted to create one.
+            currentHousehold = nil
+            members = []
+            return
         }
+        currentHousehold = household
+        rebuildLocalMembership(userId: userId, household: household)
     }
 
-    /// Moves a pre-8.x per-user API key from UserDefaults onto the
-    /// household record the first time an owner signs in after upgrade.
-    /// Silently does nothing for non-owners or when no legacy key exists.
+    // MARK: - Create
+
+    func createHousehold(name: String, spaceType: SpaceType = .home,
+                         userId: String, displayName: String) async {
+        let household = Household(
+            id: UUID(),
+            name: name,
+            spaceType: spaceType.rawValue,
+            createdBy: UUID(uuidString: userId) ?? UUID(),
+            createdAt: Date(),
+            aiProvider: nil,
+            apiKey: nil
+        )
+        Self.store(household: household, displayName: displayName)
+        currentHousehold = household
+        rebuildLocalMembership(userId: userId, household: household)
+        await migrateLegacyAPIKeyIfNeeded(userId: userId)
+    }
+
+    /// Moves a pre-existing per-user API key from UserDefaults onto the
+    /// local household the first time it's created after upgrade.
     private func migrateLegacyAPIKeyIfNeeded(userId: String) async {
         guard let household = currentHousehold,
               household.apiKey == nil,
@@ -173,207 +180,83 @@ final class HouseholdService {
         }
     }
 
-    // MARK: - Create Household
-
-    func createHousehold(name: String, spaceType: SpaceType = .home,
-                         userId: String, displayName: String) async {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
-
-        do {
-            let householdId = UUID()
-
-            let householdPayload: [String: AnyJSON] = [
-                "id": .string(householdId.uuidString.lowercased()),
-                "name": .string(name),
-                "space_type": .string(spaceType.rawValue),
-                "created_by": .string(userId),
-            ]
-
-            try await client.from("households").insert(householdPayload).execute()
-
-            // Add creator as owner
-            let memberPayload: [String: AnyJSON] = [
-                "household_id": .string(householdId.uuidString.lowercased()),
-                "user_id": .string(userId),
-                "role": .string("owner"),
-                "display_name": .string(displayName),
-            ]
-            try await client.from("household_members").insert(memberPayload).execute()
-
-            // Reload
-            await loadHousehold(userId: userId)
-        } catch {
-            self.error = error.localizedDescription
-        }
-    }
-
     // MARK: - AI Config
 
-    /// Updates the household-wide AI provider and/or API key.
-    /// Only the household owner can succeed here — non-owners will be
-    /// rejected by the households RLS UPDATE policy.
+    /// Updates the household-wide AI provider/key, persisted locally.
     func updateAIConfig(apiKey: String?, provider: AIProvider) async {
-        guard let householdId = currentHousehold?.id.uuidString.lowercased() else {
+        guard let household = currentHousehold else {
             error = "No household loaded."
             return
         }
-
-        let payload: [String: AnyJSON] = [
-            "api_key": apiKey.map { .string($0) } ?? .null,
-            "ai_provider": .string(provider.rawValue),
-        ]
-
-        do {
-            try await client.from("households")
-                .update(payload)
-                .eq("id", value: householdId)
-                .execute()
-            await refreshCurrentHousehold()
-        } catch {
-            self.error = error.localizedDescription
-        }
+        let updated = household.withAIConfig(apiKey: apiKey, provider: provider.rawValue)
+        Self.store(household: updated,
+                   displayName: UserDefaults.standard.string(forKey: Self.storedDisplayNameKey) ?? "You")
+        currentHousehold = updated
     }
 
-    /// Re-fetches just the current household row (not members/invitations).
     func refreshCurrentHousehold() async {
-        guard let householdId = currentHousehold?.id.uuidString.lowercased() else { return }
-
-        do {
-            let households: [Household] = try await client.from("households")
-                .select()
-                .eq("id", value: householdId)
-                .execute()
-                .value
-            if let refreshed = households.first {
-                currentHousehold = refreshed
-            }
-        } catch {
-            self.error = error.localizedDescription
+        if let household = Self.loadStoredHousehold() {
+            currentHousehold = household
         }
     }
 
     // MARK: - Members
 
     func loadMembers() async {
-        guard let householdId = currentHousehold?.id.uuidString else { return }
-
-        do {
-            members = try await client.from("household_members")
-                .select()
-                .eq("household_id", value: householdId)
-                .execute()
-                .value
-        } catch {
-            self.error = error.localizedDescription
-        }
+        guard let household = currentHousehold else { return }
+        rebuildLocalMembership(userId: household.createdBy.uuidString, household: household)
     }
 
     func updateMemberRole(memberId: UUID, role: String) async {
-        do {
-            try await client.from("household_members")
-                .update(["role": role])
-                .eq("id", value: memberId.uuidString)
-                .execute()
-            await loadMembers()
-        } catch {
-            self.error = error.localizedDescription
-        }
+        // No-op: single local member until CKShare sharing lands.
     }
 
     func removeMember(memberId: UUID) async {
-        do {
-            try await client.from("household_members")
-                .delete()
-                .eq("id", value: memberId.uuidString)
-                .execute()
-            await loadMembers()
-        } catch {
-            self.error = error.localizedDescription
-        }
+        // No-op: single local member until CKShare sharing lands.
     }
 
-    // MARK: - Invitations
+    // MARK: - Invitations (inert until CKShare sharing)
 
     func loadInvitations() async {
-        guard let householdId = currentHousehold?.id.uuidString else { return }
-
-        do {
-            pendingInvitations = try await client.from("invitations")
-                .select()
-                .eq("household_id", value: householdId)
-                .eq("status", value: "pending")
-                .execute()
-                .value
-        } catch {
-            self.error = error.localizedDescription
-        }
+        pendingInvitations = []
     }
 
     func generateInviteCode() async -> String? {
-        guard let householdId = currentHousehold?.id.uuidString,
-              let userId = try? await client.auth.session.user.id.uuidString else {
-            return nil
-        }
-
-        let code = CodeGenerator.generateCode(existingCodes: Set(pendingInvitations.map(\.inviteCode)))
-
-        do {
-            let payload: [String: AnyJSON] = [
-                "household_id": .string(householdId),
-                "invited_by": .string(userId),
-                "invite_code": .string(code),
-            ]
-            try await client.from("invitations").insert(payload).execute()
-            await loadInvitations()
-            return code
-        } catch {
-            self.error = error.localizedDescription
-            return nil
-        }
+        error = "Sharing isn't available yet."
+        return nil
     }
 
     func joinHousehold(inviteCode: String, userId: String, displayName: String) async -> Bool {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
+        error = "Sharing isn't available yet."
+        return false
+    }
 
-        do {
-            // Look up the invitation
-            let invitations: [Invitation] = try await client.from("invitations")
-                .select()
-                .eq("invite_code", value: inviteCode.uppercased())
-                .eq("status", value: "pending")
-                .execute()
-                .value
+    // MARK: - Local persistence helpers
 
-            guard let invitation = invitations.first else {
-                error = "Invalid or expired invite code."
-                return false
-            }
+    private func rebuildLocalMembership(userId: String, household: Household) {
+        let displayName = UserDefaults.standard.string(forKey: Self.storedDisplayNameKey) ?? "You"
+        members = [
+            HouseholdMember(
+                id: UUID(),
+                householdId: household.id,
+                userId: UUID(uuidString: userId) ?? household.createdBy,
+                role: "owner",
+                displayName: displayName,
+                joinedAt: household.createdAt
+            ),
+        ]
+        pendingInvitations = []
+    }
 
-            // Add user as member
-            let memberPayload: [String: AnyJSON] = [
-                "household_id": .string(invitation.householdId.uuidString),
-                "user_id": .string(userId),
-                "role": .string("member"),
-                "display_name": .string(displayName),
-            ]
-            try await client.from("household_members").insert(memberPayload).execute()
+    private static func loadStoredHousehold() -> Household? {
+        guard let data = UserDefaults.standard.data(forKey: storedHouseholdKey) else { return nil }
+        return try? JSONDecoder().decode(Household.self, from: data)
+    }
 
-            // Mark invitation as accepted
-            try await client.from("invitations")
-                .update(["status": "accepted"])
-                .eq("id", value: invitation.id.uuidString)
-                .execute()
-
-            // Reload
-            await loadHousehold(userId: userId)
-            return true
-        } catch {
-            self.error = error.localizedDescription
-            return false
+    private static func store(household: Household, displayName: String) {
+        if let data = try? JSONEncoder().encode(household) {
+            UserDefaults.standard.set(data, forKey: storedHouseholdKey)
         }
+        UserDefaults.standard.set(displayName, forKey: storedDisplayNameKey)
     }
 }

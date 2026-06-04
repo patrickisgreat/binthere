@@ -1,5 +1,4 @@
 import SwiftUI
-import Supabase
 
 struct RequestItemSheet: View {
     @Environment(AuthService.self) private var authService
@@ -84,8 +83,8 @@ struct RequestItemSheet: View {
     private func sendRequest() {
         isSending = true
         Task {
-            // Fire a local notification (on-device for now)
-            // Remote push via APNs + Supabase Edge Functions for cross-device
+            // Fire a local notification (on-device for now).
+            // Cross-device push returns with the CloudKit migration.
             let requesterName = householdService.members
                 .first { $0.userId.uuidString == authService.currentUserId }?
                 .displayName ?? "Someone"
