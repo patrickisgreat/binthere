@@ -156,7 +156,7 @@ struct AddZoneSheet: View {
             print("Failed to save zone: \(error)")
         }
 
-        // Push to Supabase
+        // Sync push (no-op until the SQLiteData SyncEngine lands; saved locally above)
         if !householdId.isEmpty {
             Task {
                 try? await syncService.pushZone(zone, householdId: householdId)

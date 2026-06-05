@@ -1,7 +1,13 @@
 import AuthenticationServices
 import Foundation
-import Supabase
 
+/// Local-only identity for the post-Supabase transition (PR 1 of the
+/// CloudKit/SQLiteData migration). There is no remote auth anymore: the
+/// app runs against the on-device store and treats the device as a single
+/// signed-in local user. Sign-in screens are bypassed because
+/// `isAuthenticated` is always true. The remote-auth surface is preserved
+/// as no-ops only so existing call sites keep compiling until the CloudKit
+/// (Sign in with Apple) identity lands in a later PR.
 @Observable
 final class AuthService {
     var currentUserId: String?
@@ -11,159 +17,67 @@ final class AuthService {
 
     var isAuthenticated: Bool { currentUserId != nil }
 
-    private var client: SupabaseClient { SupabaseManager.shared.client }
-    private var authStateTask: Task<Void, Never>?
+    private static let localUserIdKey = "local_user_id"
 
-    // MARK: - Session
+    init() {
+        currentUserId = Self.localUserId()
+    }
+
+    /// A stable per-device user id, persisted so records created across
+    /// launches keep a consistent owner reference.
+    private static func localUserId() -> String {
+        if let existing = UserDefaults.standard.string(forKey: localUserIdKey) {
+            return existing
+        }
+        let new = UUID().uuidString.lowercased()
+        UserDefaults.standard.set(new, forKey: localUserIdKey)
+        return new
+    }
+
+    // MARK: - Session (no-ops in local mode)
 
     func startObservingAuthState() {
-        authStateTask?.cancel()
-        authStateTask = Task { [weak self] in
-            guard let self else { return }
-            for await (event, session) in self.client.auth.authStateChanges {
-                await MainActor.run {
-                    switch event {
-                    case .signedIn, .tokenRefreshed, .initialSession:
-                        if let session {
-                            let userId = session.user.id.uuidString.lowercased()
-                            self.currentUserId = userId
-                            self.currentEmail = session.user.email
-                            ImageAnalysisService.setCurrentUser(userId)
-                        }
-                    case .signedOut:
-                        self.currentUserId = nil
-                        self.currentEmail = nil
-                        ImageAnalysisService.setCurrentUser(nil)
-                    default:
-                        break
-                    }
-                }
-            }
-        }
+        currentUserId = Self.localUserId()
     }
 
     func restoreSession() async {
-        // Try to restore with a timeout so the app doesn't freeze on launch
-        do {
-            let session = try await withThrowingTaskGroup(of: Session.self) { group in
-                group.addTask {
-                    try await self.client.auth.session
-                }
-                group.addTask {
-                    try await Task.sleep(for: .seconds(5))
-                    throw CancellationError()
-                }
-                // swiftlint:disable:next force_unwrapping
-                let result = try await group.next()!
-                group.cancelAll()
-                return result
-            }
-            let userId = session.user.id.uuidString.lowercased()
-            currentUserId = userId
-            currentEmail = session.user.email
-            ImageAnalysisService.setCurrentUser(userId)
-        } catch {
-            currentUserId = nil
-            currentEmail = nil
-        }
+        currentUserId = Self.localUserId()
     }
 
-    // MARK: - Email Auth
+    // MARK: - Sign-in surface (retained for compile compatibility)
 
     func signUpWithEmail(email: String, password: String) async {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
-
-        do {
-            let response = try await client.auth.signUp(email: email, password: password)
-            currentUserId = response.user.id.uuidString.lowercased()
-            currentEmail = response.user.email
-        } catch {
-            self.error = error.localizedDescription
-        }
+        currentUserId = Self.localUserId()
+        currentEmail = email
     }
 
     func signInWithEmail(email: String, password: String) async {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
-
-        do {
-            let session = try await client.auth.signIn(email: email, password: password)
-            currentUserId = session.user.id.uuidString.lowercased()
-            currentEmail = session.user.email
-        } catch {
-            self.error = error.localizedDescription
-        }
+        currentUserId = Self.localUserId()
+        currentEmail = email
     }
-
-    // MARK: - Sign in with Apple
 
     func signInWithApple(credential: ASAuthorizationAppleIDCredential) async {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
-
-        guard let identityToken = credential.identityToken,
-              let tokenString = String(data: identityToken, encoding: .utf8) else {
-            error = "Failed to get Apple ID token."
-            return
-        }
-
-        do {
-            let session = try await client.auth.signInWithIdToken(
-                credentials: .init(provider: .apple, idToken: tokenString)
-            )
-            currentUserId = session.user.id.uuidString.lowercased()
-            currentEmail = session.user.email
-        } catch {
-            self.error = error.localizedDescription
-        }
+        currentUserId = Self.localUserId()
+        currentEmail = credential.email ?? currentEmail
     }
 
-    // MARK: - Sign in with Google
-
     func signInWithGoogle() async {
-        isLoading = true
-        error = nil
-        defer { isLoading = false }
-
-        do {
-            try await client.auth.signInWithOAuth(
-                provider: .google,
-                redirectTo: URL(string: "beeBetter.binthere://auth-callback")
-            )
-        } catch {
-            self.error = error.localizedDescription
-        }
+        currentUserId = Self.localUserId()
     }
 
     // MARK: - Sign Out
 
     func signOut() async {
-        do {
-            try await client.auth.signOut()
-        } catch {
-            // Ignore sign-out errors
-        }
-        currentUserId = nil
         currentEmail = nil
+        // Local user id persists; the device remains its own local account.
     }
 
     // MARK: - Delete Account
 
+    /// Clears the local identity. The actual on-device data wipe is handled
+    /// by the caller (SettingsView) after this returns.
     func deleteAccount() async throws {
-        guard currentUserId != nil else { return }
-
-        // Calls the SECURITY DEFINER RPC defined in
-        // supabase/migrations/004_delete_account.sql, which removes the
-        // user from any shared households, drops households where they
-        // were the only member (cascading zones/bins/items), and finally
-        // deletes the auth.users row.
-        try await client.rpc("delete_user_account").execute()
-
-        try? await client.auth.signOut()
+        UserDefaults.standard.removeObject(forKey: Self.localUserIdKey)
         currentUserId = nil
         currentEmail = nil
     }

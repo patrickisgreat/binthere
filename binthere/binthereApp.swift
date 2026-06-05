@@ -27,12 +27,6 @@ struct binthereApp: App { // swiftlint:disable:this type_name
     var body: some Scene {
         WindowGroup {
             AuthGateView()
-                .onOpenURL { url in
-                    // Handle OAuth callback (Google Sign-In redirect)
-                    Task {
-                        await supabase.auth.handle(url)
-                    }
-                }
         }
         .modelContainer(sharedModelContainer)
     }

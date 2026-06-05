@@ -14,7 +14,6 @@
 		2FBD3E372BEAC2D300B0C02C /* binthereTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E362BEAC2D300B0C02C /* binthereTests.swift */; };
 		2FBD3E412BEAC2D300B0C02C /* binthereUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E402BEAC2D300B0C02C /* binthereUITests.swift */; };
 		2FBD3E432BEAC2D300B0C02C /* binthereUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E422BEAC2D300B0C02C /* binthereUITestsLaunchTests.swift */; };
-		2FD8306D2F8DE96200726C2F /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AABB000100000001DDDDDD01 /* Supabase */; };
 		2FE5B7EF2BEAC6B800A9001C /* ImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FE5B7EE2BEAC6B800A9001C /* ImagePickerView.swift */; };
 		AA00000100000001AAAAAA01 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000001BBBBBB01 /* QRScannerView.swift */; };
 		AA00000100000002AAAAAA01 /* Zone.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000002BBBBBB01 /* Zone.swift */; };
@@ -34,7 +33,6 @@
 		AA00000100000010AAAAAA01 /* QRGeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000010BBBBBB01 /* QRGeneratorService.swift */; };
 		AA00000100000011AAAAAA01 /* ImageAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */; };
 		AA00000100000012AAAAAA01 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBD3E252BEAC2D100B0C02C /* ContentView.swift */; };
-		AB00000100000001AAAAAA01 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000001BBBBBB01 /* SupabaseClient.swift */; };
 		AB00000100000002AAAAAA01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000002BBBBBB01 /* AuthService.swift */; };
 		AB00000100000003AAAAAA01 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000003BBBBBB01 /* SignInView.swift */; };
 		AB00000100000004AAAAAA01 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000004BBBBBB01 /* SignUpView.swift */; };
@@ -47,11 +45,9 @@
 		AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */; };
 		AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */; };
 		AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000010000000FBBBBBB01 /* NotificationService.swift */; };
-		AB00000100000010AAAAAA01 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000010BBBBBB01 /* StorageService.swift */; };
 		AB00000100000011AAAAAA01 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000011BBBBBB01 /* Theme.swift */; };
 		AB00000100000012AAAAAA01 /* CardPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000012BBBBBB01 /* CardPresentation.swift */; };
 		AB00000100000013AAAAAA01 /* BrandedEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */; };
-		AB00000100000014AAAAAA01 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB00000100000014BBBBBB01 /* SupabaseConfig.swift */; };
 		BB00000100000001AAAAAA01 /* ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000001BBBBBB01 /* ColorPalette.swift */; };
 		BB00000100000002AAAAAA01 /* CodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002BBBBBB01 /* CodeGenerator.swift */; };
 		CC00000100000001AAAAAA01 /* IconPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000100000001BBBBBB01 /* IconPalette.swift */; };
@@ -119,7 +115,6 @@
 		AA0000010000000FBBBBBB01 /* ImageStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStorageService.swift; sourceTree = "<group>"; };
 		AA00000100000010BBBBBB01 /* QRGeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRGeneratorService.swift; sourceTree = "<group>"; };
 		AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAnalysisService.swift; sourceTree = "<group>"; };
-		AB00000100000001BBBBBB01 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		AB00000100000002BBBBBB01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		AB00000100000003BBBBBB01 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		AB00000100000004BBBBBB01 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
@@ -132,11 +127,9 @@
 		AB0000010000000CBBBBBB01 /* HouseholdSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseholdSetupView.swift; sourceTree = "<group>"; };
 		AB0000010000000EBBBBBB01 /* RequestItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestItemSheet.swift; sourceTree = "<group>"; };
 		AB0000010000000FBBBBBB01 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
-		AB00000100000010BBBBBB01 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		AB00000100000011BBBBBB01 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AB00000100000012BBBBBB01 /* CardPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPresentation.swift; sourceTree = "<group>"; };
 		AB00000100000013BBBBBB01 /* BrandedEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedEmptyState.swift; sourceTree = "<group>"; };
-		AB00000100000014BBBBBB01 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		BB00000100000001BBBBBB01 /* ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPalette.swift; sourceTree = "<group>"; };
 		BB00000100000002BBBBBB01 /* CodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenerator.swift; sourceTree = "<group>"; };
 		CC00000100000001BBBBBB01 /* IconPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconPalette.swift; sourceTree = "<group>"; };
@@ -162,7 +155,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2FD8306D2F8DE96200726C2F /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,13 +277,10 @@
 				AA00000100000011BBBBBB01 /* ImageAnalysisService.swift */,
 				CC00000100000003BBBBBB01 /* HomeKitService.swift */,
 				FF00000100000001BBBBBB01 /* ReportService.swift */,
-				AB00000100000001BBBBBB01 /* SupabaseClient.swift */,
 				AB00000100000002BBBBBB01 /* AuthService.swift */,
 				AB00000100000007BBBBBB01 /* SyncService.swift */,
 				AB00000100000008BBBBBB01 /* HouseholdService.swift */,
 				AB0000010000000FBBBBBB01 /* NotificationService.swift */,
-				AB00000100000010BBBBBB01 /* StorageService.swift */,
-				AB00000100000014BBBBBB01 /* SupabaseConfig.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -424,7 +413,6 @@
 			);
 			name = binthere;
 			packageProductDependencies = (
-				AABB000100000001DDDDDD01 /* Supabase */,
 			);
 			productName = binthere;
 			productReference = 2FBD3E202BEAC2D100B0C02C /* binthere.app */;
@@ -499,7 +487,6 @@
 			);
 			mainGroup = 2FBD3E172BEAC2D100B0C02C;
 			packageReferences = (
-				AABB000100000001EEEEEE01 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			productRefGroup = 2FBD3E212BEAC2D100B0C02C /* Products */;
 			projectDirPath = "";
@@ -581,7 +568,6 @@
 				FF00000100000001AAAAAA01 /* ReportService.swift in Sources */,
 				FF00000100000002AAAAAA01 /* AnalyticsDashboardView.swift in Sources */,
 				FF00000100000003AAAAAA01 /* ReportsView.swift in Sources */,
-				AB00000100000001AAAAAA01 /* SupabaseClient.swift in Sources */,
 				AB00000100000002AAAAAA01 /* AuthService.swift in Sources */,
 				AB00000100000003AAAAAA01 /* SignInView.swift in Sources */,
 				AB00000100000004AAAAAA01 /* SignUpView.swift in Sources */,
@@ -594,11 +580,9 @@
 				AB0000010000000CAAAAAA01 /* HouseholdSetupView.swift in Sources */,
 				AB0000010000000EAAAAAA01 /* RequestItemSheet.swift in Sources */,
 				AB0000010000000FAAAAAA01 /* NotificationService.swift in Sources */,
-				AB00000100000010AAAAAA01 /* StorageService.swift in Sources */,
 				AB00000100000011AAAAAA01 /* Theme.swift in Sources */,
 				AB00000100000012AAAAAA01 /* CardPresentation.swift in Sources */,
 				AB00000100000013AAAAAA01 /* BrandedEmptyState.swift in Sources */,
-				AB00000100000014AAAAAA01 /* SupabaseConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -787,8 +771,6 @@
 				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = beeBetter.binthere;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				SUPABASE_URL = "$(SUPABASE_URL)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -822,8 +804,6 @@
 				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = beeBetter.binthere;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				SUPABASE_URL = "$(SUPABASE_URL)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -943,24 +923,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		AABB000100000001EEEEEE01 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/supabase/supabase-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		AABB000100000001DDDDDD01 /* Supabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AABB000100000001EEEEEE01 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Supabase;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2FBD3E182BEAC2D100B0C02C /* Project object */;
 }
